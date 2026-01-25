@@ -119,8 +119,9 @@
                             {% endif %}
                         </div>
 
-                        <div class="col-12 mt-4">
-                            <button type="submit" class="btn btn-masarx-primary w-100 py-3">{% trans "Submit Request" %}</button>
+                        <div class="col-12 mt-4 d-flex gap-2">
+                             <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary w-50 py-3">{% trans "Cancel" %}</a>
+                            <button type="submit" class="btn btn-masarx-primary w-50 py-3">{% trans "Submit Request" %}</button>
                         </div>
                     </div>
                 </form>

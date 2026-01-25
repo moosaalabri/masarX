@@ -20,7 +20,10 @@
                                 <label class="form-label fw-semibold" for="code">{% trans "Verification Code" %}</label>
                                 <input type="text" name="code" id="code" class="form-control text-center fs-3 tracking-widest" maxlength="6" required placeholder="000000">
                             </div>
-                            <button type="submit" class="btn btn-masarx-primary w-100 py-2">{% trans "Verify & Save" %}</button>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'edit_profile' %}" class="btn btn-outline-secondary w-50 py-2">{% trans "Cancel" %}</a>
+                                <button type="submit" class="btn btn-masarx-primary w-50 py-2">{% trans "Verify & Save" %}</button>
+                            </div>
                         </form>
                     </div>
                 </div>
