@@ -26,10 +26,17 @@
                             <h5 class="card-title">{{ parcel.description|truncatechars:30 }}</h5>
                             <p class="card-text mb-1 small"><strong>{% trans "Pickup" %}:</strong> {{ parcel.pickup_address }}</p>
                             <p class="card-text mb-3 small"><strong>{% trans "Delivery" %}:</strong> {{ parcel.delivery_address }}</p>
-                            <div class="d-flex justify-content-between align-items-center mb-3">
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="text-muted small"><strong>{% trans "Weight" %}:</strong> {{ parcel.weight }} kg</span>
-                                <span class="text-primary fw-bold">{{ parcel.price }} OMR</span>
                             </div>
+                            
+                            <!-- Bid/Price Highlight -->
+                            <div class="bg-light p-2 rounded text-center mb-3 border border-primary border-opacity-25">
+                                <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">{% trans "Shipper's Offer (Bid)" %}</small>
+                                <div class="text-primary fw-bold fs-4">{{ parcel.price }} <span class="fs-6">OMR</span></div>
+                            </div>
+
                             <form action="{% url 'accept_parcel' parcel.id %}" method="POST">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-masarx-primary w-100">{% trans "Accept Shipment" %}</button>

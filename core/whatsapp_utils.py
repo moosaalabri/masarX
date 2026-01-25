@@ -130,6 +130,29 @@ def send_whatsapp_message_detailed(phone_number, message):
         logger.error(error_msg)
         return False, error_msg
 
+def notify_admin(subject, message):
+    """Notifies the admin via Email and WhatsApp (if configured in PlatformProfile)."""
+    # Email
+    try:
+        if hasattr(settings, 'CONTACT_EMAIL_TO') and settings.CONTACT_EMAIL_TO:
+             send_html_email(
+                subject=f"Admin Alert: {subject}",
+                message=message,
+                recipient_list=settings.CONTACT_EMAIL_TO,
+                title="Admin Alert"
+            )
+    except Exception as e:
+        logger.error(f"Failed to notify admin via email: {e}")
+    
+    # WhatsApp
+    try:
+        profile = PlatformProfile.objects.first()
+        if profile and profile.phone_number:
+             # Assuming profile.phone_number is a valid WhatsApp number for Admin alerts
+             send_whatsapp_message(profile.phone_number, f"ADMIN ALERT: {subject}\n{message}")
+    except Exception:
+        pass
+
 def notify_shipment_created(parcel):
     """Notifies the shipper that the shipment request was received via WhatsApp and Email."""
     shipper_name = parcel.shipper.get_full_name() or parcel.shipper.username
@@ -185,7 +208,7 @@ Your shipment is now visible to available drivers."""
         except Exception as e:
             logger.error(f"Failed to send payment email to {parcel.shipper.email}: {e}")
 
-    # Notify Receiver (WhatsApp only usually, but good to have logic if email exists in future)
+    # Notify Receiver
     receiver_msg = f"""Hello {parcel.receiver_name},
 
 A shipment is coming your way from {shipper_name}.
@@ -194,26 +217,59 @@ Status: {parcel.get_status_display()}"""
     send_whatsapp_message(parcel.receiver_phone, receiver_msg)
 
 def notify_driver_assigned(parcel):
-    """Notifies the shipper and receiver that a driver has picked up the parcel."""
+    """Notifies the shipper, receiver, driver, and admin that a driver has picked up the parcel."""
     driver_name = parcel.carrier.get_full_name() or parcel.carrier.username
-    msg = f"""Shipment {parcel.tracking_number} has been picked up by {driver_name}.
+    shipper_name = parcel.shipper.get_full_name() or parcel.shipper.username
+    
+    # 1. Notify Shipper
+    msg_shipper = f"""Shipment {parcel.tracking_number} has been picked up by {driver_name}.
 Status: {parcel.get_status_display()}"""
     
     if hasattr(parcel.shipper, 'profile') and parcel.shipper.profile.phone_number:
-        send_whatsapp_message(parcel.shipper.profile.phone_number, msg)
+        send_whatsapp_message(parcel.shipper.profile.phone_number, msg_shipper)
         
     if parcel.shipper.email:
         try:
             send_html_email(
                 subject='Driver Assigned - ' + parcel.tracking_number,
-                message=msg,
+                message=msg_shipper,
                 recipient_list=[parcel.shipper.email],
                 title='Driver Assigned'
             )
         except Exception:
             pass
 
-    send_whatsapp_message(parcel.receiver_phone, msg)
+    # 2. Notify Receiver
+    msg_receiver = f"""Shipment {parcel.tracking_number} from {shipper_name} is on the way (Picked up).
+Driver: {driver_name}"""
+    send_whatsapp_message(parcel.receiver_phone, msg_receiver)
+
+    # 3. Notify Driver (Confirmation)
+    msg_driver = f"""You have successfully accepted Shipment {parcel.tracking_number}.
+Shipper: {shipper_name}
+Pickup: {parcel.pickup_address}
+Delivery: {parcel.delivery_address}
+Price/Bid: {parcel.price} OMR"""
+    
+    if hasattr(parcel.carrier, 'profile') and parcel.carrier.profile.phone_number:
+         send_whatsapp_message(parcel.carrier.profile.phone_number, msg_driver)
+    
+    if parcel.carrier.email:
+        try:
+            send_html_email(
+                subject='Shipment Accepted - ' + parcel.tracking_number,
+                message=msg_driver,
+                recipient_list=[parcel.carrier.email],
+                title='Shipment Accepted'
+            )
+        except Exception:
+            pass
+
+    # 4. Notify Admin
+    notify_admin(
+        subject=f"Shipment Accepted ({parcel.tracking_number})",
+        message=f"Driver {driver_name} accepted shipment {parcel.tracking_number} from {shipper_name}.\nPrice: {parcel.price} OMR"
+    )
 
 def notify_status_change(parcel):
     """Notifies parties about general status updates (In Transit, Delivered)."""

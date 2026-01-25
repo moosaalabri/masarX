@@ -184,7 +184,7 @@ class ParcelForm(forms.ModelForm):
         labels = {
             'description': _('Package Description'),
             'weight': _('Weight (kg)'),
-            'price': _('Shipping Price (OMR)'),
+            'price': _('Your Offer Price (Bid) (OMR)'),
             'pickup_country': _('Pickup Country'),
             'pickup_governate': _('Pickup Governate'),
             'pickup_city': _('Pickup City'),
