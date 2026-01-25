@@ -84,6 +84,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',
                 # IMPORTANT: do not remove – injects PROJECT_DESCRIPTION/PROJECT_IMAGE_URL and cache-busting timestamp
                 'core.context_processors.project_context',
             ],
