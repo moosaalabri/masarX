@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">{% trans "Driver Dashboard" %}</h1>
+
+    <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pills-available-tab" data-bs-toggle="pill" data-bs-target="#pills-available" type="button" role="tab">{% trans "Available Shipments" %}</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pills-my-tab" data-bs-toggle="pill" data-bs-target="#pills-my" type="button" role="tab">{% trans "My Deliveries" %}</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="pills-tabContent">
+        <!-- Available Shipments -->
+        <div class="tab-pane fade show active" id="pills-available" role="tabpanel">
+            {% if available_parcels %}
+            <div class="row g-4">
+                {% for parcel in available_parcels %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ parcel.description|truncatechars:30 }}</h5>
+                            <p class="card-text mb-1 small"><strong>{% trans "Pickup" %}:</strong> {{ parcel.pickup_address }}</p>
+                            <p class="card-text mb-3 small"><strong>{% trans "Delivery" %}:</strong> {{ parcel.delivery_address }}</p>
+                            <p class="card-text mb-3 small text-muted"><strong>{% trans "Weight" %}:</strong> {{ parcel.weight }} kg</p>
+                            <form action="{% url 'accept_parcel' parcel.id %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-masarx-primary w-100">{% trans "Accept Shipment" %}</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-center py-5">{% trans "No shipments available at the moment." %}</p>
+            {% endif %}
+        </div>
+
+        <!-- My Deliveries -->
+        <div class="tab-pane fade" id="pills-my" role="tabpanel">
+            {% if my_parcels %}
+            <div class="row g-4">
+                {% for parcel in my_parcels %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-light text-dark">#{{ parcel.tracking_number }}</span>
+                                <span class="badge bg-primary">{{ parcel.get_status_display }}</span>
+                            </div>
+                            <h5 class="card-title">{{ parcel.description|truncatechars:30 }}</h5>
+                            <p class="card-text mb-1 small"><strong>{% trans "To" %}:</strong> {{ parcel.delivery_address }}</p>
+                            <p class="card-text mb-3 small"><strong>{% trans "Receiver" %}:</strong> {{ parcel.receiver_name }}</p>
+                            
+                            <form action="{% url 'update_status' parcel.id %}" method="POST" class="d-flex gap-2">
+                                {% csrf_token %}
+                                <select name="status" class="form-select form-select-sm">
+                                    {% for code, label in parcel.STATUS_CHOICES %}
+                                        {% if code != 'pending' and code != 'cancelled' %}
+                                        <option value="{{ code }}" {% if parcel.status == code %}selected{% endif %}>{{ label }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-outline-primary">{% trans "Update" %}</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-center py-5">{% trans "You haven't accepted any shipments yet." %}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

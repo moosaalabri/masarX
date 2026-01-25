@@ -1,4 +1,4 @@
-{% load i18n static %}
+{% load i18n static i18n_urls %}
 {% get_current_language as LANGUAGE_CODE %}
 {% get_language_info for LANGUAGE_CODE as lang %}
 <!DOCTYPE html>
@@ -39,6 +39,10 @@
             margin-left: auto !important;
             margin-right: 0 !important;
         }
+        .dropdown-menu-end {
+            left: 0 !important;
+            right: auto !important;
+        }
     </style>
     {% endif %}
 
@@ -58,6 +62,9 @@
                         <a class="nav-link px-3" href="{% url 'index' %}#how-it-works">{% trans "How it Works" %}</a>
                     </li>
                     {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link px-3" href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a>
+                        </li>
                         <li class="nav-item">
                             <span class="nav-link text-white-50">{% trans "Hello" %}, {{ user.username }}</span>
                         </li>
@@ -84,9 +91,10 @@
                             {% get_available_languages as LANGUAGES %}
                             {% for lang_code, lang_name in LANGUAGES %}
                                 <li>
+                                    {% translate_url lang_code as the_redirect_url %}
                                     <form action="{% url 'set_language' %}" method="post">
                                         {% csrf_token %}
-                                        <input name="next" type="hidden" value="{{ request.path }}">
+                                        <input name="next" type="hidden" value="{{ the_redirect_url|default:'/' }}">
                                         <input name="language" type="hidden" value="{{ lang_code }}">
                                         <button type="submit" class="dropdown-item {% if LANGUAGE_CODE == lang_code %}active{% endif %}">
                                             {{ lang_name }}
@@ -98,12 +106,27 @@
                     </li>
 
                     <li class="nav-item ms-lg-3">
-                        <a href="{% url 'shipment_request' %}" class="btn btn-masarx-primary btn-sm">{% trans "Start Shipping" %}</a>
+                        {% if user.is_authenticated and user.profile.role == 'car_owner' %}
+                            <a href="{% url 'dashboard' %}" class="btn btn-masarx-primary btn-sm">{% trans "Find Loads" %}</a>
+                        {% else %}
+                            <a href="{% url 'shipment_request' %}" class="btn btn-masarx-primary btn-sm">{% trans "Start Shipping" %}</a>
+                        {% endif %}
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
+
+    <div class="container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
 
     <main>
         {% block content %}{% endblock %}

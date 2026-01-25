@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{% trans "My Shipments" %}</h1>
+        <a href="{% url 'shipment_request' %}" class="btn btn-masarx-primary">{% trans "New Shipment" %}</a>
+    </div>
+
+    {% if parcels %}
+    <div class="row g-4">
+        {% for parcel in parcels %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="badge bg-light text-dark">#{{ parcel.tracking_number }}</span>
+                        <span class="badge {% if parcel.status == 'delivered' %}bg-success{% elif parcel.status == 'cancelled' %}bg-danger{% else %}bg-warning{% endif %}">
+                            {{ parcel.get_status_display }}
+                        </span>
+                    </div>
+                    <h5 class="card-title">{{ parcel.description|truncatechars:30 }}</h5>
+                    <p class="card-text mb-1 small text-muted"><i class="fas fa-map-marker-alt"></i> <strong>{% trans "From" %}:</strong> {{ parcel.pickup_address }}</p>
+                    <p class="card-text mb-3 small text-muted"><i class="fas fa-flag-checkered"></i> <strong>{% trans "To" %}:</strong> {{ parcel.delivery_address }}</p>
+                    <hr>
+                    <p class="card-text small mb-0"><strong>{% trans "Receiver" %}:</strong> {{ parcel.receiver_name }}</p>
+                    <p class="card-text small"><strong>{% trans "Carrier" %}:</strong> {% if parcel.carrier %}{{ parcel.carrier.get_full_name|default:parcel.carrier.username }}{% else %}{% trans "Waiting for pickup" %}{% endif %}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <p class="lead">{% trans "You haven't sent any shipments yet." %}</p>
+        <a href="{% url 'shipment_request' %}" class="btn btn-masarx-primary">{% trans "Send your first shipment" %}</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

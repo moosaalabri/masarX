@@ -1,10 +1,11 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from .models import Parcel, Profile
-from .forms import UserRegistrationForm
+from .forms import UserRegistrationForm, ParcelForm
 from django.utils.translation import gettext_lazy as _
+from django.contrib import messages
 
 def index(request):
     tracking_id = request.GET.get('tracking_id')
@@ -28,17 +29,67 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('index')
+            return redirect('dashboard')
     else:
         form = UserRegistrationForm()
     return render(request, 'core/register.html', {'form': form})
 
 @login_required
+def dashboard(request):
+    profile = request.user.profile
+    if profile.role == 'shipper':
+        parcels = Parcel.objects.filter(shipper=request.user).order_by('-created_at')
+        return render(request, 'core/shipper_dashboard.html', {'parcels': parcels})
+    else:
+        # Car Owner view
+        available_parcels = Parcel.objects.filter(status='pending').order_by('-created_at')
+        my_parcels = Parcel.objects.filter(carrier=request.user).exclude(status='delivered').order_by('-created_at')
+        return render(request, 'core/driver_dashboard.html', {
+            'available_parcels': available_parcels,
+            'my_parcels': my_parcels
+        })
+
+@login_required
 def shipment_request(request):
+    if request.user.profile.role != 'shipper':
+        messages.error(request, _("Only shippers can request shipments."))
+        return redirect('dashboard')
+        
     if request.method == 'POST':
-        # Logic for creating shipment will go here
-        pass
-    return render(request, 'core/shipment_request.html')
+        form = ParcelForm(request.POST)
+        if form.is_valid():
+            parcel = form.save(commit=False)
+            parcel.shipper = request.user
+            parcel.save()
+            messages.success(request, _("Shipment requested successfully! Tracking ID: ") + parcel.tracking_number)
+            return redirect('dashboard')
+    else:
+        form = ParcelForm()
+    return render(request, 'core/shipment_request.html', {'form': form})
+
+@login_required
+def accept_parcel(request, parcel_id):
+    if request.user.profile.role != 'car_owner':
+        messages.error(request, _("Only car owners can accept shipments."))
+        return redirect('dashboard')
+        
+    parcel = get_object_or_404(Parcel, id=parcel_id, status='pending')
+    parcel.carrier = request.user
+    parcel.status = 'picked_up'
+    parcel.save()
+    messages.success(request, _("You have accepted the shipment!"))
+    return redirect('dashboard')
+
+@login_required
+def update_status(request, parcel_id):
+    parcel = get_object_or_404(Parcel, id=parcel_id, carrier=request.user)
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        if new_status in dict(Parcel.STATUS_CHOICES):
+            parcel.status = new_status
+            parcel.save()
+            messages.success(request, _("Status updated successfully!"))
+    return redirect('dashboard')
 
 def article_detail(request):
     return render(request, 'core/article_detail.html')

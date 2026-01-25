@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
-from .models import Profile
+from .models import Profile, Parcel
 
 class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label=_("Password"))
@@ -37,3 +37,24 @@ class UserRegistrationForm(forms.ModelForm):
                 phone_number=self.cleaned_data['phone_number']
             )
         return user
+
+class ParcelForm(forms.ModelForm):
+    class Meta:
+        model = Parcel
+        fields = ['description', 'weight', 'pickup_address', 'delivery_address', 'receiver_name', 'receiver_phone']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': _('What are you sending?')}),
+            'weight': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1'}),
+            'pickup_address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('123 Street, City')}),
+            'delivery_address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('456 Avenue, City')}),
+            'receiver_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'receiver_phone': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'description': _('Package Description'),
+            'weight': _('Weight (kg)'),
+            'pickup_address': _('Pickup Address'),
+            'delivery_address': _('Delivery Address'),
+            'receiver_name': _('Receiver Name'),
+            'receiver_phone': _('Receiver Phone'),
+        }
