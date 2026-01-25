@@ -209,3 +209,35 @@ class OTPVerification(models.Model):
     def is_valid(self):
         # OTP valid for 10 minutes
         return self.created_at >= timezone.now() - timezone.timedelta(minutes=10)
+
+class Testimonial(models.Model):
+    name_en = models.CharField(_('Name (English)'), max_length=100)
+    name_ar = models.CharField(_('Name (Arabic)'), max_length=100)
+    role_en = models.CharField(_('Role (English)'), max_length=100)
+    role_ar = models.CharField(_('Role (Arabic)'), max_length=100)
+    content_en = models.TextField(_('Testimony (English)'))
+    content_ar = models.TextField(_('Testimony (Arabic)'))
+    image = models.ImageField(_('Image'), upload_to='testimonials/', blank=True, null=True)
+    is_active = models.BooleanField(_('Active'), default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def name(self):
+        return self.name_ar if get_language() == 'ar' else self.name_en
+
+    @property
+    def role(self):
+        return self.role_ar if get_language() == 'ar' else self.role_en
+
+    @property
+    def content(self):
+        return self.content_ar if get_language() == 'ar' else self.content_en
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _('Testimonial')
+        verbose_name_plural = _('Testimonials')
+        ordering = ['-created_at']

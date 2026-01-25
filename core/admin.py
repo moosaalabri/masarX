@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import Profile, Parcel, Country, Governate, City, PlatformProfile
+from .models import Profile, Parcel, Country, Governate, City, PlatformProfile, Testimonial
 from django.utils.translation import gettext_lazy as _
 from django.urls import path, reverse
 from django.shortcuts import render
@@ -124,6 +124,12 @@ class PlatformProfileAdmin(admin.ModelAdmin):
              fieldsets += ((_('Tools'), {'fields': ('test_connection_link',)}),)
         return fieldsets
 
+class TestimonialAdmin(admin.ModelAdmin):
+    list_display = ('name_en', 'role_en', 'is_active', 'created_at')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('name_en', 'name_ar', 'content_en', 'content_ar')
+    list_editable = ('is_active',)
+
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Parcel, ParcelAdmin)
@@ -131,3 +137,4 @@ admin.site.register(Country)
 admin.site.register(Governate)
 admin.site.register(City)
 admin.site.register(PlatformProfile, PlatformProfileAdmin)
+admin.site.register(Testimonial, TestimonialAdmin)

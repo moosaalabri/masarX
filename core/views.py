@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Parcel, Profile, Country, Governate, City, OTPVerification, PlatformProfile
+from .models import Parcel, Profile, Country, Governate, City, OTPVerification, PlatformProfile, Testimonial
 from .forms import UserRegistrationForm, ParcelForm, ContactForm, UserProfileForm
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
@@ -34,10 +34,13 @@ def index(request):
         except Parcel.DoesNotExist:
             error = _("Parcel not found.")
     
+    testimonials = Testimonial.objects.filter(is_active=True)
+    
     return render(request, 'core/index.html', {
         'parcel': parcel,
         'error': error,
-        'tracking_id': tracking_id
+        'tracking_id': tracking_id,
+        'testimonials': testimonials
     })
 
 def register(request):
