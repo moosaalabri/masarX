@@ -123,15 +123,39 @@ def dashboard(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
 
     if profile.role == 'shipper':
-        parcels = Parcel.objects.filter(shipper=request.user).order_by('-created_at')
-        return render(request, 'core/shipper_dashboard.html', {'parcels': parcels})
+        all_parcels = Parcel.objects.filter(shipper=request.user).order_by('-created_at')
+        active_parcels = all_parcels.exclude(status__in=['delivered', 'cancelled'])
+        history_parcels = all_parcels.filter(status__in=['delivered', 'cancelled'])
+        
+        platform_profile = PlatformProfile.objects.first()
+        payments_enabled = platform_profile.enable_payment if platform_profile else True
+        
+        return render(request, 'core/shipper_dashboard.html', {
+            'active_parcels': active_parcels,
+            'history_parcels': history_parcels,
+            'payments_enabled': payments_enabled,
+            'platform_profile': platform_profile # Pass full profile just in case
+        })
     else:
         # Car Owner view
-        available_parcels = Parcel.objects.filter(status='pending', payment_status='paid').order_by('-created_at')
-        my_parcels = Parcel.objects.filter(carrier=request.user).exclude(status='delivered').order_by('-created_at')
+        platform_profile = PlatformProfile.objects.first()
+        payments_enabled = platform_profile.enable_payment if platform_profile else True
+        
+        if payments_enabled:
+            available_parcels = Parcel.objects.filter(status='pending', payment_status='paid').order_by('-created_at')
+        else:
+            available_parcels = Parcel.objects.filter(status='pending').order_by('-created_at')
+
+        # Active: Picked up or In Transit
+        my_parcels = Parcel.objects.filter(carrier=request.user).exclude(status__in=['delivered', 'cancelled']).order_by('-created_at')
+        
+        # History: Delivered or Cancelled
+        completed_parcels = Parcel.objects.filter(carrier=request.user, status__in=['delivered', 'cancelled']).order_by('-created_at')
+        
         return render(request, 'core/driver_dashboard.html', {
             'available_parcels': available_parcels,
-            'my_parcels': my_parcels
+            'my_parcels': my_parcels,
+            'completed_parcels': completed_parcels
         })
 
 @login_required
@@ -164,7 +188,14 @@ def accept_parcel(request, parcel_id):
         messages.error(request, _("Only car owners can accept shipments."))
         return redirect('dashboard')
 
-    parcel = get_object_or_404(Parcel, id=parcel_id, status='pending', payment_status='paid')
+    platform_profile = PlatformProfile.objects.first()
+    payments_enabled = platform_profile.enable_payment if platform_profile else True
+
+    if payments_enabled:
+        parcel = get_object_or_404(Parcel, id=parcel_id, status='pending', payment_status='paid')
+    else:
+        parcel = get_object_or_404(Parcel, id=parcel_id, status='pending')
+
     parcel.carrier = request.user
     parcel.status = 'picked_up'
     parcel.save()

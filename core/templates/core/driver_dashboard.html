@@ -10,7 +10,10 @@
             <button class="nav-link active" id="pills-available-tab" data-bs-toggle="pill" data-bs-target="#pills-available" type="button" role="tab">{% trans "Available Shipments" %}</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="pills-my-tab" data-bs-toggle="pill" data-bs-target="#pills-my" type="button" role="tab">{% trans "My Deliveries" %}</button>
+            <button class="nav-link" id="pills-my-tab" data-bs-toggle="pill" data-bs-target="#pills-my" type="button" role="tab">{% trans "Active Deliveries" %}</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pills-history-tab" data-bs-toggle="pill" data-bs-target="#pills-history" type="button" role="tab">{% trans "Transaction History" %}</button>
         </li>
     </ul>
 
@@ -51,7 +54,7 @@
             {% endif %}
         </div>
 
-        <!-- My Deliveries -->
+        <!-- My Deliveries (Active) -->
         <div class="tab-pane fade" id="pills-my" role="tabpanel">
             {% if my_parcels %}
             <div class="row g-4">
@@ -85,6 +88,50 @@
             </div>
             {% else %}
             <p class="text-center py-5">{% trans "You haven't accepted any shipments yet." %}</p>
+            {% endif %}
+        </div>
+
+        <!-- Transaction History -->
+        <div class="tab-pane fade" id="pills-history" role="tabpanel">
+            {% if completed_parcels %}
+            <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">{% trans "Date" %}</th>
+                                    <th>{% trans "Tracking ID" %}</th>
+                                    <th>{% trans "From" %}</th>
+                                    <th>{% trans "To" %}</th>
+                                    <th>{% trans "Price" %}</th>
+                                    <th>{% trans "Status" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for parcel in completed_parcels %}
+                                <tr>
+                                    <td class="ps-4">{{ parcel.created_at|date:"Y-m-d" }}</td>
+                                    <td><span class="badge bg-light text-dark">#{{ parcel.tracking_number }}</span></td>
+                                    <td>{{ parcel.pickup_city.name|default:parcel.pickup_address }}</td>
+                                    <td>{{ parcel.delivery_city.name|default:parcel.delivery_address }}</td>
+                                    <td>{{ parcel.price }} OMR</td>
+                                    <td>
+                                        <span class="badge {% if parcel.status == 'delivered' %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ parcel.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <p class="lead">{% trans "No completed deliveries yet." %}</p>
+            </div>
             {% endif %}
         </div>
     </div>

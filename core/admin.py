@@ -12,6 +12,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from .mail import send_html_email
 import logging
+import csv
+from django.http import HttpResponse
 
 class ProfileInline(admin.StackedInline):
     model = Profile
@@ -22,9 +24,32 @@ class CustomUserAdmin(UserAdmin):
     inlines = (ProfileInline,)
 
 class ParcelAdmin(admin.ModelAdmin):
-    list_display = ('tracking_number', 'shipper', 'status', 'created_at')
-    list_filter = ('status', 'created_at')
-    search_fields = ('tracking_number', 'shipper__username', 'receiver_name')
+    list_display = ('tracking_number', 'shipper', 'carrier', 'price', 'status', 'payment_status', 'created_at')
+    list_filter = ('status', 'payment_status', 'created_at')
+    search_fields = ('tracking_number', 'shipper__username', 'receiver_name', 'carrier__username')
+    actions = ['export_as_csv']
+
+    def export_as_csv(self, request, queryset):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="parcels_report.csv"'
+        writer = csv.writer(response)
+
+        writer.writerow(['Tracking Number', 'Shipper', 'Carrier', 'Price (OMR)', 'Status', 'Payment Status', 'Created At', 'Updated At'])
+        
+        for obj in queryset:
+            writer.writerow([
+                obj.tracking_number,
+                obj.shipper.username if obj.shipper else '',
+                obj.carrier.username if obj.carrier else '',
+                obj.price,
+                obj.get_status_display(),
+                obj.get_payment_status_display(),
+                obj.created_at,
+                obj.updated_at
+            ])
+
+        return response
+    export_as_csv.short_description = _("Export Selected to CSV")
 
 class PlatformProfileAdmin(admin.ModelAdmin):
     fieldsets = (
