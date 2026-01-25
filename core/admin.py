@@ -33,6 +33,9 @@ class PlatformProfileAdmin(admin.ModelAdmin):
         (_('Policies'), {
             'fields': ('privacy_policy', 'terms_conditions')
         }),
+        (_('Payment Configuration'), {
+            'fields': ('enable_payment',)
+        }),
         (_('WhatsApp Configuration (Wablas Gateway)'), {
             'fields': ('whatsapp_access_token', 'whatsapp_app_secret', 'whatsapp_business_phone_number_id'),
             'description': _('Configure your Wablas API connection. Use "Test WhatsApp Configuration" to verify.')

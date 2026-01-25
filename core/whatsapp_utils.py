@@ -2,6 +2,8 @@ import requests
 import logging
 import json
 from django.conf import settings
+from django.core.mail import send_mail
+from django.utils.translation import gettext_lazy as _
 from .models import PlatformProfile
 
 logger = logging.getLogger(__name__)
@@ -95,10 +97,8 @@ def send_whatsapp_message_detailed(phone_number, message):
         "message": message,
     }
     
-    # Note: User's example didn't add 'secret' to payload, only to header.
-    # We will stick to user's example strictly.
-
     try:
+        logger.info(f"Attempting to send WhatsApp message to {clean_phone} via {url}")
         # Use data=data for form-urlencoded
         response = requests.post(url, headers=headers, data=data, timeout=15)
         
@@ -130,7 +130,7 @@ def send_whatsapp_message_detailed(phone_number, message):
         return False, error_msg
 
 def notify_shipment_created(parcel):
-    """Notifies the shipper that the shipment request was received."""
+    """Notifies the shipper that the shipment request was received via WhatsApp and Email."""
     shipper_name = parcel.shipper.get_full_name() or parcel.shipper.username
     message = f"""Hello {shipper_name},
 
@@ -139,21 +139,54 @@ Tracking Number: {parcel.tracking_number}
 Status: {parcel.get_status_display()}
 
 Please proceed to payment to make it visible to drivers."""
+    
+    # WhatsApp
     if hasattr(parcel.shipper, 'profile') and parcel.shipper.profile.phone_number:
-        return send_whatsapp_message(parcel.shipper.profile.phone_number, message)
-    return False
+        send_whatsapp_message(parcel.shipper.profile.phone_number, message)
+    else:
+        logger.warning(f"No phone number found for shipper {shipper_name}, skipping WhatsApp.")
+
+    # Email
+    if parcel.shipper.email:
+        try:
+            send_mail(
+                subject='Shipment Request Received - ' + parcel.tracking_number,
+                message=message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[parcel.shipper.email],
+                fail_silently=False
+            )
+            logger.info(f"Shipment created email sent to {parcel.shipper.email}")
+        except Exception as e:
+            logger.error(f"Failed to send shipment created email to {parcel.shipper.email}: {e}")
+    
+    return True
 
 def notify_payment_received(parcel):
-    """Notifies the shipper and receiver about successful payment."""
+    """Notifies the shipper and receiver about successful payment via WhatsApp and Email."""
     # Notify Shipper
     shipper_name = parcel.shipper.get_full_name() or parcel.shipper.username
     shipper_msg = f"""Payment successful for shipment {parcel.tracking_number}.
 Your shipment is now visible to available drivers."""
     
+    # WhatsApp Shipper
     if hasattr(parcel.shipper, 'profile') and parcel.shipper.profile.phone_number:
         send_whatsapp_message(parcel.shipper.profile.phone_number, shipper_msg)
     
-    # Notify Receiver
+    # Email Shipper
+    if parcel.shipper.email:
+        try:
+            send_mail(
+                subject='Payment Successful - ' + parcel.tracking_number,
+                message=shipper_msg,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[parcel.shipper.email],
+                fail_silently=False
+            )
+        except Exception as e:
+            logger.error(f"Failed to send payment email to {parcel.shipper.email}: {e}")
+
+    # Notify Receiver (WhatsApp only usually, but good to have logic if email exists in future)
     receiver_msg = f"""Hello {parcel.receiver_name},
 
 A shipment is coming your way from {shipper_name}.
@@ -169,6 +202,19 @@ Status: {parcel.get_status_display()}"""
     
     if hasattr(parcel.shipper, 'profile') and parcel.shipper.profile.phone_number:
         send_whatsapp_message(parcel.shipper.profile.phone_number, msg)
+        
+    if parcel.shipper.email:
+        try:
+            send_mail(
+                subject='Driver Assigned - ' + parcel.tracking_number,
+                message=msg,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[parcel.shipper.email],
+                fail_silently=True
+            )
+        except Exception:
+            pass
+
     send_whatsapp_message(parcel.receiver_phone, msg)
 
 def notify_status_change(parcel):
@@ -178,4 +224,17 @@ New Status: {parcel.get_status_display()}"""
     
     if hasattr(parcel.shipper, 'profile') and parcel.shipper.profile.phone_number:
         send_whatsapp_message(parcel.shipper.profile.phone_number, msg)
+    
+    if parcel.shipper.email:
+        try:
+            send_mail(
+                subject='Shipment Update - ' + parcel.tracking_number,
+                message=msg,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[parcel.shipper.email],
+                fail_silently=True
+            )
+        except Exception:
+            pass
+
     send_whatsapp_message(parcel.receiver_phone, msg)
