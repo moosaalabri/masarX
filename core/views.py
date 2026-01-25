@@ -182,3 +182,9 @@ def get_cities(request):
     cities = City.objects.filter(governate_id=governate_id).order_by(field_name)
     data = [{'id': c.id, 'name': getattr(c, field_name)} for c in cities]
     return JsonResponse(data, safe=False)
+
+def privacy_policy(request):
+    return render(request, 'core/privacy_policy.html')
+
+def terms_conditions(request):
+    return render(request, 'core/terms_conditions.html')

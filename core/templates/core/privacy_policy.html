@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container py-5">
+    <h1>{% trans "Privacy Policy" %}</h1>
+    <div class="mt-4">
+        {% if platform_profile and platform_profile.privacy_policy %}
+            {{ platform_profile.privacy_policy|linebreaks }}
+        {% else %}
+            <p>{% trans "Privacy Policy not available yet." %}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

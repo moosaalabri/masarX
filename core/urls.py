@@ -21,4 +21,8 @@ urlpatterns = [
     path('payment/initiate/<int:parcel_id>/', views.initiate_payment, name='initiate_payment'),
     path('payment/success/', views.payment_success, name='payment_success'),
     path('payment/cancel/', views.payment_cancel, name='payment_cancel'),
+    
+    # Static pages
+    path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
+    path('terms-conditions/', views.terms_conditions, name='terms_conditions'),
 ]

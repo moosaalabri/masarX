@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container py-5">
+    <h1>{% trans "Terms and Conditions" %}</h1>
+    <div class="mt-4">
+        {% if platform_profile and platform_profile.terms_conditions %}
+            {{ platform_profile.terms_conditions|linebreaks }}
+        {% else %}
+            <p>{% trans "Terms and Conditions not available yet." %}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

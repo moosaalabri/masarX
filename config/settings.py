@@ -164,6 +164,10 @@ STATICFILES_DIRS = [
     BASE_DIR / 'node_modules',
 ]
 
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Email
 EMAIL_BACKEND = os.getenv(
     "EMAIL_BACKEND",

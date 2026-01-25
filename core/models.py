@@ -154,6 +154,8 @@ class PlatformProfile(models.Model):
     phone_number = models.CharField(_('Phone Number'), max_length=50, blank=True)
     registration_number = models.CharField(_('Registration Number'), max_length=100, blank=True)
     vat_number = models.CharField(_('VAT Number'), max_length=100, blank=True)
+    privacy_policy = models.TextField(_('Privacy Policy'), blank=True)
+    terms_conditions = models.TextField(_('Terms and Conditions'), blank=True)
 
     def __str__(self):
         return self.name
