@@ -12,4 +12,8 @@ urlpatterns = [
     path('accept-parcel/<int:parcel_id>/', views.accept_parcel, name='accept_parcel'),
     path('update-status/<int:parcel_id>/', views.update_status, name='update_status'),
     path('article/', views.article_detail, name='article_detail'),
+    
+    # AJAX for locations
+    path('ajax/get-governates/', views.get_governates, name='get_governates'),
+    path('ajax/get-cities/', views.get_cities, name='get_cities'),
 ]

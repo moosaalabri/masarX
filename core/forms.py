@@ -10,8 +10,8 @@ class UserRegistrationForm(forms.ModelForm):
     phone_number = forms.CharField(max_length=20, label=_("Phone Number"))
     
     country = forms.ModelChoiceField(queryset=Country.objects.all(), required=False, label=_("Country"))
-    governate = forms.ModelChoiceField(queryset=Governate.objects.all(), required=False, label=_("Governate"))
-    city = forms.ModelChoiceField(queryset=City.objects.all(), required=False, label=_("City"))
+    governate = forms.ModelChoiceField(queryset=Governate.objects.none(), required=False, label=_("Governate"))
+    city = forms.ModelChoiceField(queryset=City.objects.none(), required=False, label=_("City"))
 
     class Meta:
         model = User
@@ -22,6 +22,26 @@ class UserRegistrationForm(forms.ModelForm):
             'first_name': _('First Name'),
             'last_name': _('Last Name'),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'country' in self.data:
+            try:
+                country_id = int(self.data.get('country'))
+                self.fields['governate'].queryset = Governate.objects.filter(country_id=country_id).order_by('name')
+            except (ValueError, TypeError):
+                pass
+        elif self.instance.pk and hasattr(self.instance, 'profile') and self.instance.profile.country:
+            self.fields['governate'].queryset = self.instance.profile.country.governate_set.order_by('name')
+
+        if 'governate' in self.data:
+            try:
+                governate_id = int(self.data.get('governate'))
+                self.fields['city'].queryset = City.objects.filter(governate_id=governate_id).order_by('name')
+            except (ValueError, TypeError):
+                pass
+        elif self.instance.pk and hasattr(self.instance, 'profile') and self.instance.profile.governate:
+            self.fields['city'].queryset = self.instance.profile.governate.city_set.order_by('name')
 
     def clean_password_confirm(self):
         password = self.cleaned_data.get('password')
@@ -85,3 +105,41 @@ class ParcelForm(forms.ModelForm):
             'receiver_name': _('Receiver Name'),
             'receiver_phone': _('Receiver Phone'),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Pickup
+        self.fields['pickup_governate'].queryset = Governate.objects.none()
+        self.fields['pickup_city'].queryset = City.objects.none()
+
+        if 'pickup_country' in self.data:
+            try:
+                country_id = int(self.data.get('pickup_country'))
+                self.fields['pickup_governate'].queryset = Governate.objects.filter(country_id=country_id).order_by('name')
+            except (ValueError, TypeError):
+                pass
+        
+        if 'pickup_governate' in self.data:
+            try:
+                gov_id = int(self.data.get('pickup_governate'))
+                self.fields['pickup_city'].queryset = City.objects.filter(governate_id=gov_id).order_by('name')
+            except (ValueError, TypeError):
+                pass
+
+        # Delivery
+        self.fields['delivery_governate'].queryset = Governate.objects.none()
+        self.fields['delivery_city'].queryset = City.objects.none()
+
+        if 'delivery_country' in self.data:
+            try:
+                country_id = int(self.data.get('delivery_country'))
+                self.fields['delivery_governate'].queryset = Governate.objects.filter(country_id=country_id).order_by('name')
+            except (ValueError, TypeError):
+                pass
+        
+        if 'delivery_governate' in self.data:
+            try:
+                gov_id = int(self.data.get('delivery_governate'))
+                self.fields['delivery_city'].queryset = City.objects.filter(governate_id=gov_id).order_by('name')
+            except (ValueError, TypeError):
+                pass

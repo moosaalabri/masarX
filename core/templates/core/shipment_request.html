@@ -13,7 +13,7 @@
                     <div class="row g-3">
                         {% for field in form %}
                         <div class="{% if field.name == 'description' %}col-12{% else %}col-md-6{% endif %}">
-                            <label class="form-label">{{ field.label }}</label>
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                             {{ field }}
                             {% if field.errors %}
                             <div class="text-danger small">{{ field.errors }}</div>
@@ -29,4 +29,56 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function setupDependentDropdowns(countryId, governateId, cityId) {
+        const countrySelect = document.getElementById(countryId);
+        const governateSelect = document.getElementById(governateId);
+        const citySelect = document.getElementById(cityId);
+
+        if (!countrySelect || !governateSelect || !citySelect) return;
+
+        countrySelect.addEventListener('change', function() {
+            const val = this.value;
+            governateSelect.innerHTML = '<option value="">{% trans "Select Governate" %}</option>';
+            citySelect.innerHTML = '<option value="">{% trans "Select City" %}</option>';
+            
+            if (val) {
+                fetch(`/ajax/get-governates/?country_id=${val}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(item => {
+                            const option = document.createElement('option');
+                            option.value = item.id;
+                            option.textContent = item.name;
+                            governateSelect.appendChild(option);
+                        });
+                    });
+            }
+        });
+
+        governateSelect.addEventListener('change', function() {
+            const val = this.value;
+            citySelect.innerHTML = '<option value="">{% trans "Select City" %}</option>';
+            
+            if (val) {
+                fetch(`/ajax/get-cities/?governate_id=${val}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(item => {
+                            const option = document.createElement('option');
+                            option.value = item.id;
+                            option.textContent = item.name;
+                            citySelect.appendChild(option);
+                        });
+                    });
+            }
+        });
+    }
+
+    setupDependentDropdowns('id_pickup_country', 'id_pickup_governate', 'id_pickup_city');
+    setupDependentDropdowns('id_delivery_country', 'id_delivery_governate', 'id_delivery_city');
+});
+</script>
 {% endblock %}

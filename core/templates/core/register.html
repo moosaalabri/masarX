@@ -11,11 +11,11 @@
                 <div class="card shadow-sm border-0">
                     <div class="card-body p-5">
                         <h2 class="fw-bold mb-4 text-center">{% trans "Join masarX" %}</h2>
-                        <form method="post">
+                        <form method="post" id="registrationForm">
                             {% csrf_token %}
                             {% for field in form %}
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold">{{ field.label }}</label>
+                                    <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
                                     {{ field }}
                                     {% if field.help_text %}
                                         <div class="form-text small">{{ field.help_text }}</div>
@@ -36,6 +36,51 @@
         </div>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const countrySelect = document.getElementById('id_country');
+    const governateSelect = document.getElementById('id_governate');
+    const citySelect = document.getElementById('id_city');
+
+    countrySelect.addEventListener('change', function() {
+        const countryId = this.value;
+        governateSelect.innerHTML = '<option value="">{% trans "Select Governate" %}</option>';
+        citySelect.innerHTML = '<option value="">{% trans "Select City" %}</option>';
+        
+        if (countryId) {
+            fetch(`/ajax/get-governates/?country_id=${countryId}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(gov => {
+                        const option = document.createElement('option');
+                        option.value = gov.id;
+                        option.textContent = gov.name;
+                        governateSelect.appendChild(option);
+                    });
+                });
+        }
+    });
+
+    governateSelect.addEventListener('change', function() {
+        const governateId = this.value;
+        citySelect.innerHTML = '<option value="">{% trans "Select City" %}</option>';
+        
+        if (governateId) {
+            fetch(`/ajax/get-cities/?governate_id=${governateId}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(city => {
+                        const option = document.createElement('option');
+                        option.value = city.id;
+                        option.textContent = city.name;
+                        citySelect.appendChild(option);
+                    });
+                });
+        }
+    });
+});
+</script>
 
 <style>
     input, select {

@@ -2,10 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from .models import Parcel, Profile
+from .models import Parcel, Profile, Country, Governate, City
 from .forms import UserRegistrationForm, ParcelForm
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
+from django.http import JsonResponse
 
 def index(request):
     tracking_id = request.GET.get('tracking_id')
@@ -97,3 +98,13 @@ def update_status(request, parcel_id):
 
 def article_detail(request):
     return render(request, 'core/article_detail.html')
+
+def get_governates(request):
+    country_id = request.GET.get('country_id')
+    governates = Governate.objects.filter(country_id=country_id).values('id', 'name')
+    return JsonResponse(list(governates), safe=False)
+
+def get_cities(request):
+    governate_id = request.GET.get('governate_id')
+    cities = City.objects.filter(governate_id=governate_id).values('id', 'name')
+    return JsonResponse(list(cities), safe=False)
