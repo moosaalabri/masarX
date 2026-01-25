@@ -3,20 +3,20 @@ from .models import Profile, Parcel, Country, Governate, City
 
 @admin.register(Country)
 class CountryAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    search_fields = ('name',)
+    list_display = ('name_en', 'name_ar')
+    search_fields = ('name_en', 'name_ar')
 
 @admin.register(Governate)
 class GovernateAdmin(admin.ModelAdmin):
-    list_display = ('name', 'country')
+    list_display = ('name_en', 'name_ar', 'country')
     list_filter = ('country',)
-    search_fields = ('name',)
+    search_fields = ('name_en', 'name_ar')
 
 @admin.register(City)
 class CityAdmin(admin.ModelAdmin):
-    list_display = ('name', 'governate')
+    list_display = ('name_en', 'name_ar', 'governate')
     list_filter = ('governate__country', 'governate')
-    search_fields = ('name',)
+    search_fields = ('name_en', 'name_ar')
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
@@ -26,7 +26,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Parcel)
 class ParcelAdmin(admin.ModelAdmin):
-    list_display = ('tracking_number', 'shipper', 'carrier', 'status', 'created_at')
-    list_filter = ('status', 'pickup_country', 'delivery_country')
+    list_display = ('tracking_number', 'shipper', 'carrier', 'status', 'payment_status', 'created_at')
+    list_filter = ('status', 'payment_status', 'pickup_country', 'delivery_country')
     search_fields = ('tracking_number', 'shipper__username', 'carrier__username', 'receiver_name')
     readonly_fields = ('tracking_number', 'created_at', 'updated_at')

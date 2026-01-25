@@ -1,13 +1,21 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import uuid
 
 class Country(models.Model):
-    name = models.CharField(_('Name'), max_length=100)
+    name_en = models.CharField(_('Name (English)'), max_length=100)
+    name_ar = models.CharField(_('Name (Arabic)'), max_length=100)
     
+    @property
+    def name(self):
+        if get_language() == 'ar':
+            return self.name_ar
+        return self.name_en
+
     def __str__(self):
         return self.name
 
@@ -17,8 +25,15 @@ class Country(models.Model):
 
 class Governate(models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE, verbose_name=_('Country'))
-    name = models.CharField(_('Name'), max_length=100)
+    name_en = models.CharField(_('Name (English)'), max_length=100)
+    name_ar = models.CharField(_('Name (Arabic)'), max_length=100)
     
+    @property
+    def name(self):
+        if get_language() == 'ar':
+            return self.name_ar
+        return self.name_en
+
     def __str__(self):
         return f"{self.name} ({self.country.name})"
 
@@ -28,8 +43,15 @@ class Governate(models.Model):
 
 class City(models.Model):
     governate = models.ForeignKey(Governate, on_delete=models.CASCADE, verbose_name=_('Governate'))
-    name = models.CharField(_('Name'), max_length=100)
+    name_en = models.CharField(_('Name (English)'), max_length=100)
+    name_ar = models.CharField(_('Name (Arabic)'), max_length=100)
     
+    @property
+    def name(self):
+        if get_language() == 'ar':
+            return self.name_ar
+        return self.name_en
+
     def __str__(self):
         return f"{self.name} ({self.governate.name})"
 

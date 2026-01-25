@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Parcel, Profile, Country, Governate, City
 from .forms import UserRegistrationForm, ParcelForm
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language
 from django.contrib import messages
 from django.http import JsonResponse
 from django.urls import reverse
@@ -168,10 +169,16 @@ def article_detail(request):
 
 def get_governates(request):
     country_id = request.GET.get('country_id')
-    governates = Governate.objects.filter(country_id=country_id).values('id', 'name')
-    return JsonResponse(list(governates), safe=False)
+    lang = get_language()
+    field_name = 'name_ar' if lang == 'ar' else 'name_en'
+    governates = Governate.objects.filter(country_id=country_id).order_by(field_name)
+    data = [{'id': g.id, 'name': getattr(g, field_name)} for g in governates]
+    return JsonResponse(data, safe=False)
 
 def get_cities(request):
     governate_id = request.GET.get('governate_id')
-    cities = City.objects.filter(governate_id=governate_id).values('id', 'name')
-    return JsonResponse(list(cities), safe=False)
+    lang = get_language()
+    field_name = 'name_ar' if lang == 'ar' else 'name_en'
+    cities = City.objects.filter(governate_id=governate_id).order_by(field_name)
+    data = [{'id': c.id, 'name': getattr(c, field_name)} for c in cities]
+    return JsonResponse(data, safe=False)

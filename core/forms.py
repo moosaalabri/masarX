@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language
 from .models import Profile, Parcel, Country, Governate, City
 
 class UserRegistrationForm(forms.ModelForm):
@@ -25,23 +26,28 @@ class UserRegistrationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        lang = get_language()
+        name_field = 'name_ar' if lang == 'ar' else 'name_en'
+        
+        self.fields['country'].queryset = Country.objects.all().order_by(name_field)
+        
         if 'country' in self.data:
             try:
                 country_id = int(self.data.get('country'))
-                self.fields['governate'].queryset = Governate.objects.filter(country_id=country_id).order_by('name')
+                self.fields['governate'].queryset = Governate.objects.filter(country_id=country_id).order_by(name_field)
             except (ValueError, TypeError):
                 pass
         elif self.instance.pk and hasattr(self.instance, 'profile') and self.instance.profile.country:
-            self.fields['governate'].queryset = self.instance.profile.country.governate_set.order_by('name')
+            self.fields['governate'].queryset = self.instance.profile.country.governate_set.order_by(name_field)
 
         if 'governate' in self.data:
             try:
                 governate_id = int(self.data.get('governate'))
-                self.fields['city'].queryset = City.objects.filter(governate_id=governate_id).order_by('name')
+                self.fields['city'].queryset = City.objects.filter(governate_id=governate_id).order_by(name_field)
             except (ValueError, TypeError):
                 pass
         elif self.instance.pk and hasattr(self.instance, 'profile') and self.instance.profile.governate:
-            self.fields['city'].queryset = self.instance.profile.governate.city_set.order_by('name')
+            self.fields['city'].queryset = self.instance.profile.governate.city_set.order_by(name_field)
 
     def clean_password_confirm(self):
         password = self.cleaned_data.get('password')
@@ -110,6 +116,13 @@ class ParcelForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        lang = get_language()
+        name_field = 'name_ar' if lang == 'ar' else 'name_en'
+
+        # Set querysets for countries
+        self.fields['pickup_country'].queryset = Country.objects.all().order_by(name_field)
+        self.fields['delivery_country'].queryset = Country.objects.all().order_by(name_field)
+
         # Pickup
         self.fields['pickup_governate'].queryset = Governate.objects.none()
         self.fields['pickup_city'].queryset = City.objects.none()
@@ -117,14 +130,14 @@ class ParcelForm(forms.ModelForm):
         if 'pickup_country' in self.data:
             try:
                 country_id = int(self.data.get('pickup_country'))
-                self.fields['pickup_governate'].queryset = Governate.objects.filter(country_id=country_id).order_by('name')
+                self.fields['pickup_governate'].queryset = Governate.objects.filter(country_id=country_id).order_by(name_field)
             except (ValueError, TypeError):
                 pass
         
         if 'pickup_governate' in self.data:
             try:
                 gov_id = int(self.data.get('pickup_governate'))
-                self.fields['pickup_city'].queryset = City.objects.filter(governate_id=gov_id).order_by('name')
+                self.fields['pickup_city'].queryset = City.objects.filter(governate_id=gov_id).order_by(name_field)
             except (ValueError, TypeError):
                 pass
 
@@ -135,13 +148,13 @@ class ParcelForm(forms.ModelForm):
         if 'delivery_country' in self.data:
             try:
                 country_id = int(self.data.get('delivery_country'))
-                self.fields['delivery_governate'].queryset = Governate.objects.filter(country_id=country_id).order_by('name')
+                self.fields['delivery_governate'].queryset = Governate.objects.filter(country_id=country_id).order_by(name_field)
             except (ValueError, TypeError):
                 pass
         
         if 'delivery_governate' in self.data:
             try:
                 gov_id = int(self.data.get('delivery_governate'))
-                self.fields['delivery_city'].queryset = City.objects.filter(governate_id=gov_id).order_by('name')
+                self.fields['delivery_city'].queryset = City.objects.filter(governate_id=gov_id).order_by(name_field)
             except (ValueError, TypeError):
                 pass
