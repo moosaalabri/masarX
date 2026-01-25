@@ -36,7 +36,9 @@ def register(request):
 
 @login_required
 def dashboard(request):
-    profile = request.user.profile
+    # Ensure profile exists
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    
     if profile.role == 'shipper':
         parcels = Parcel.objects.filter(shipper=request.user).order_by('-created_at')
         return render(request, 'core/shipper_dashboard.html', {'parcels': parcels})
@@ -51,7 +53,8 @@ def dashboard(request):
 
 @login_required
 def shipment_request(request):
-    if request.user.profile.role != 'shipper':
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    if profile.role != 'shipper':
         messages.error(request, _("Only shippers can request shipments."))
         return redirect('dashboard')
         
@@ -69,7 +72,8 @@ def shipment_request(request):
 
 @login_required
 def accept_parcel(request, parcel_id):
-    if request.user.profile.role != 'car_owner':
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    if profile.role != 'car_owner':
         messages.error(request, _("Only car owners can accept shipments."))
         return redirect('dashboard')
         
