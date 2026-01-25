@@ -10,6 +10,7 @@ from django.contrib import messages
 from .whatsapp_utils import send_whatsapp_message_detailed
 from django.core.mail import send_mail
 from django.conf import settings
+from .mail import send_html_email
 import logging
 
 class ProfileInline(admin.StackedInline):
@@ -81,12 +82,12 @@ class PlatformProfileAdmin(admin.ModelAdmin):
             email = request.POST.get('email')
             if email:
                 try:
-                    send_mail(
+                    send_html_email(
                         subject="Test Email from Platform",
-                        message="This is a test email to verify your platform's email configuration.",
-                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        message="This is a test email to verify your platform's email configuration. If you see the logo and nice formatting, it works!",
                         recipient_list=[email],
-                        fail_silently=False,
+                        title="Test Email",
+                        request=request
                     )
                     messages.success(request, f"Success: Test email sent to {email}.")
                 except Exception as e:

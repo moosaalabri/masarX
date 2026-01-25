@@ -214,3 +214,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'index'
+
+# Site URL for Emails
+HOST_FQDN = os.getenv("HOST_FQDN", "")
+if HOST_FQDN:
+    if not HOST_FQDN.startswith(("http://", "https://")):
+         SITE_URL = f"https://{HOST_FQDN}"
+    else:
+         SITE_URL = HOST_FQDN
+else:
+    SITE_URL = "http://127.0.0.1:8000"

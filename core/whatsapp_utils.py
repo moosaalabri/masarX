@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.utils.translation import gettext_lazy as _
 from .models import PlatformProfile
+from .mail import send_html_email
 
 logger = logging.getLogger(__name__)
 
@@ -149,12 +150,11 @@ Please proceed to payment to make it visible to drivers."""
     # Email
     if parcel.shipper.email:
         try:
-            send_mail(
+            send_html_email(
                 subject='Shipment Request Received - ' + parcel.tracking_number,
                 message=message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[parcel.shipper.email],
-                fail_silently=False
+                title='Shipment Request Received'
             )
             logger.info(f"Shipment created email sent to {parcel.shipper.email}")
         except Exception as e:
@@ -176,12 +176,11 @@ Your shipment is now visible to available drivers."""
     # Email Shipper
     if parcel.shipper.email:
         try:
-            send_mail(
+            send_html_email(
                 subject='Payment Successful - ' + parcel.tracking_number,
                 message=shipper_msg,
-                from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[parcel.shipper.email],
-                fail_silently=False
+                title='Payment Successful'
             )
         except Exception as e:
             logger.error(f"Failed to send payment email to {parcel.shipper.email}: {e}")
@@ -205,12 +204,11 @@ Status: {parcel.get_status_display()}"""
         
     if parcel.shipper.email:
         try:
-            send_mail(
+            send_html_email(
                 subject='Driver Assigned - ' + parcel.tracking_number,
                 message=msg,
-                from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[parcel.shipper.email],
-                fail_silently=True
+                title='Driver Assigned'
             )
         except Exception:
             pass
@@ -227,12 +225,11 @@ New Status: {parcel.get_status_display()}"""
     
     if parcel.shipper.email:
         try:
-            send_mail(
+            send_html_email(
                 subject='Shipment Update - ' + parcel.tracking_number,
                 message=msg,
-                from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[parcel.shipper.email],
-                fail_silently=True
+                title='Shipment Update'
             )
         except Exception:
             pass

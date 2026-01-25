@@ -8,6 +8,7 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
     path('register/', views.register, name='register'),
     path('register/verify/', views.verify_registration, name='verify_registration'),
+    
     path('dashboard/', views.dashboard, name='dashboard'),
     path('shipment-request/', views.shipment_request, name='shipment_request'),
     path('accept-parcel/<int:parcel_id>/', views.accept_parcel, name='accept_parcel'),
@@ -21,9 +22,9 @@ urlpatterns = [
     path('ajax/get-cities/', views.get_cities, name='get_cities'),
     path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
     path('terms-conditions/', views.terms_conditions, name='terms_conditions'),
-    path('contact/', views.contact_view, name='contact'),
+    path('contact/', views.contact, name='contact'),
     
     path('profile/', views.profile_view, name='profile'),
-    path('profile/edit/', views.edit_profile_view, name='edit_profile'),
+    path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('profile/verify-otp/', views.verify_otp_view, name='verify_otp'),
 ]

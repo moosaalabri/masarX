@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from .models import Parcel, Profile, Country, Governate, City, OTPVerification, PlatformProfile
 from .forms import UserRegistrationForm, ParcelForm, ContactForm, UserProfileForm
 from django.utils.translation import gettext_lazy as _
@@ -21,7 +22,7 @@ from .whatsapp_utils import (
     notify_status_change,
     send_whatsapp_message
 )
-from .mail import send_contact_message
+from .mail import send_contact_message, send_html_email
 
 def index(request):
     tracking_id = request.GET.get('tracking_id')
@@ -59,12 +60,12 @@ def register(request):
                 send_whatsapp_message(phone, f"Your verification code is: {code}")
                 messages.info(request, _("Verification code sent to WhatsApp."))
             else:
-                send_mail(
-                    _('Verification Code'),
-                    f'Your verification code is: {code}',
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=False,
+                send_html_email(
+                    subject=_('Verification Code'),
+                    message=f'Your verification code is: {code}',
+                    recipient_list=[user.email],
+                    title=_('Welcome to Masar!'),
+                    request=request
                 )
                 messages.info(request, _("Verification code sent to email."))
 
@@ -117,7 +118,7 @@ def verify_registration(request):
 def dashboard(request):
     # Ensure profile exists
     profile, created = Profile.objects.get_or_create(user=request.user)
-    
+
     if profile.role == 'shipper':
         parcels = Parcel.objects.filter(shipper=request.user).order_by('-created_at')
         return render(request, 'core/shipper_dashboard.html', {'parcels': parcels})
@@ -136,7 +137,7 @@ def shipment_request(request):
     if profile.role != 'shipper':
         messages.error(request, _("Only shippers can request shipments."))
         return redirect('dashboard')
-        
+
     if request.method == 'POST':
         form = ParcelForm(request.POST)
         if form.is_valid():
@@ -159,7 +160,7 @@ def accept_parcel(request, parcel_id):
     if profile.role != 'car_owner':
         messages.error(request, _("Only car owners can accept shipments."))
         return redirect('dashboard')
-        
+
     parcel = get_object_or_404(Parcel, id=parcel_id, status='pending', payment_status='paid')
     parcel.carrier = request.user
     parcel.status = 'picked_up'
@@ -230,7 +231,7 @@ def payment_success(request):
         messages.success(request, _("Payment successful! Your shipment is now active."))
     else:
         messages.warning(request, _("Payment status is pending or failed. Please check your dashboard."))
-        
+    
     return redirect('dashboard')
 
 @login_required
@@ -263,7 +264,7 @@ def privacy_policy(request):
 def terms_conditions(request):
     return render(request, 'core/terms_conditions.html')
 
-def contact_view(request):
+def contact(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
         if form.is_valid():
@@ -287,7 +288,7 @@ def profile_view(request):
     return render(request, 'core/profile.html', {'profile': request.user.profile})
 
 @login_required
-def edit_profile_view(request):
+def edit_profile(request):
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if form.is_valid():
@@ -310,11 +311,11 @@ def edit_profile_view(request):
                 'city_id': data['city'].id if data['city'] else None,
             }
             request.session['pending_profile_update'] = safe_data
-            
+
             # 3. Generate OTP
             code = ''.join(random.choices(string.digits, k=6))
             OTPVerification.objects.create(user=request.user, code=code, purpose='profile_update')
-            
+
             # 4. Send OTP
             method = data.get('otp_method', 'email')
             if method == 'whatsapp':
@@ -326,19 +327,19 @@ def edit_profile_view(request):
                 # Default to email
                 # Send to the NEW email address (from the form), not the old one
                 target_email = data['email']
-                send_mail(
-                    _('Verification Code'),
-                    f'Your verification code is: {code}',
-                    settings.DEFAULT_FROM_EMAIL,
-                    [target_email],
-                    fail_silently=False,
+                send_html_email(
+                    subject=_('Verification Code'),
+                    message=f'Your verification code is: {code}',
+                    recipient_list=[target_email],
+                    title=_('Profile Update Verification'),
+                    request=request
                 )
                 messages.info(request, _("Verification code sent to email."))
-            
+
             return redirect('verify_otp')
     else:
         form = UserProfileForm(instance=request.user.profile)
-    
+
     return render(request, 'core/edit_profile.html', {'form': form})
 
 @login_required
