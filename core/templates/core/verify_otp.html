@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Verify Profile Update" %} | masarX{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light" style="min-height: 80vh;">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-5">
+                        <h2 class="fw-bold mb-4 text-center">{% trans "Verification Required" %}</h2>
+                        <p class="text-center text-muted mb-4">
+                            {% trans "We have sent a verification code to your selected contact method. Please enter it below to save your changes." %}
+                        </p>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold" for="code">{% trans "Verification Code" %}</label>
+                                <input type="text" name="code" id="code" class="form-control text-center fs-3 tracking-widest" maxlength="6" required placeholder="000000">
+                            </div>
+                            <button type="submit" class="btn btn-masarx-primary w-100 py-2">{% trans "Verify & Save" %}</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .btn-masarx-primary {
+        background-color: var(--accent-orange);
+        border-color: var(--accent-orange);
+        color: white;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+    .tracking-widest {
+        letter-spacing: 0.5em;
+    }
+</style>
+{% endblock %}

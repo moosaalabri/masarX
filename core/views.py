@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from .models import Parcel, Profile, Country, Governate, City
-from .forms import UserRegistrationForm, ParcelForm, ContactForm
+from .models import Parcel, Profile, Country, Governate, City, OTPVerification
+from .forms import UserRegistrationForm, ParcelForm, ContactForm, UserProfileForm
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
 from django.contrib import messages
@@ -11,11 +11,15 @@ from django.http import JsonResponse
 from django.urls import reverse
 from .payment_utils import ThawaniPay
 from django.conf import settings
+from django.core.mail import send_mail
+import random
+import string
 from .whatsapp_utils import (
     notify_shipment_created, 
     notify_payment_received, 
     notify_driver_assigned, 
-    notify_status_change
+    notify_status_change,
+    send_whatsapp_message
 )
 from .mail import send_contact_message
 
@@ -208,3 +212,111 @@ def contact_view(request):
     else:
         form = ContactForm()
     return render(request, 'core/contact.html', {'form': form})
+
+@login_required
+def profile_view(request):
+    return render(request, 'core/profile.html', {'profile': request.user.profile})
+
+@login_required
+def edit_profile_view(request):
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=request.user.profile)
+        if form.is_valid():
+            # 1. Handle Image immediately (easier than session storage)
+            if 'profile_picture' in request.FILES:
+                request.user.profile.profile_picture = request.FILES['profile_picture']
+                request.user.profile.save()
+
+            # 2. Store other data in session for verification
+            data = form.cleaned_data
+            # Remove objects that can't be serialized or we've already handled
+            safe_data = {
+                'first_name': data['first_name'],
+                'last_name': data['last_name'],
+                'email': data['email'],
+                'phone_number': data['phone_number'],
+                'address': data['address'],
+                'country_id': data['country'].id if data['country'] else None,
+                'governate_id': data['governate'].id if data['governate'] else None,
+                'city_id': data['city'].id if data['city'] else None,
+            }
+            request.session['pending_profile_update'] = safe_data
+            
+            # 3. Generate OTP
+            code = ''.join(random.choices(string.digits, k=6))
+            OTPVerification.objects.create(user=request.user, code=code, purpose='profile_update')
+            
+            # 4. Send OTP
+            method = data.get('otp_method', 'email')
+            if method == 'whatsapp':
+                # Use current phone if available, else new phone
+                phone = request.user.profile.phone_number or data['phone_number']
+                send_whatsapp_message(phone, f"Your verification code is: {code}")
+                messages.info(request, _("Verification code sent to WhatsApp."))
+            else:
+                # Default to email
+                send_mail(
+                    _('Verification Code'),
+                    f'Your verification code is: {code}',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [request.user.email],
+                    fail_silently=False,
+                )
+                messages.info(request, _("Verification code sent to email."))
+            
+            return redirect('verify_otp')
+    else:
+        form = UserProfileForm(instance=request.user.profile)
+    
+    return render(request, 'core/edit_profile.html', {'form': form})
+
+@login_required
+def verify_otp_view(request):
+    if request.method == 'POST':
+        code = request.POST.get('code')
+        try:
+            otp = OTPVerification.objects.filter(
+                user=request.user, 
+                code=code, 
+                purpose='profile_update', 
+                is_verified=False
+            ).latest('created_at')
+            
+            if otp.is_valid():
+                # Apply changes
+                data = request.session.get('pending_profile_update')
+                if data:
+                    # Update User
+                    request.user.first_name = data['first_name']
+                    request.user.last_name = data['last_name']
+                    request.user.email = data['email']
+                    request.user.save()
+                    
+                    # Update Profile
+                    profile = request.user.profile
+                    profile.phone_number = data['phone_number']
+                    profile.address = data['address']
+                    if data.get('country_id'):
+                        profile.country_id = data['country_id']
+                    if data.get('governate_id'):
+                        profile.governate_id = data['governate_id']
+                    if data.get('city_id'):
+                        profile.city_id = data['city_id']
+                    profile.save()
+                    
+                    # Cleanup
+                    otp.is_verified = True
+                    otp.save()
+                    del request.session['pending_profile_update']
+                    
+                    messages.success(request, _("Profile updated successfully!"))
+                    return redirect('profile')
+                else:
+                    messages.error(request, _("Session expired. Please try again."))
+                    return redirect('edit_profile')
+            else:
+                messages.error(request, _("Invalid or expired code."))
+        except OTPVerification.DoesNotExist:
+            messages.error(request, _("Invalid code."))
+            
+    return render(request, 'core/verify_otp.html')

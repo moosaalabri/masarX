@@ -689,3 +689,71 @@ msgstr "تم إرسال رسالتك بنجاح!"
 #: core/views.py:206
 msgid "There was an error sending your message. Please try again later."
 msgstr "حدث خطأ أثناء إرسال رسالتك. يرجى المحاولة مرة أخرى لاحقاً."
+
+#: core/forms.py:new
+msgid "Profile Picture"
+msgstr "الصورة الشخصية"
+
+#: core/forms.py:new
+msgid "Verify changes via"
+msgstr "التحقق من التغييرات عبر"
+
+#: core/templates/core/profile.html:new
+msgid "My Profile"
+msgstr "ملفي الشخصي"
+
+#: core/templates/core/profile.html:new
+msgid "Edit Profile"
+msgstr "تعديل الملف الشخصي"
+
+#: core/templates/core/edit_profile.html:new
+msgid "Save & Verify"
+msgstr "حفظ وتحقق"
+
+#: core/templates/core/verify_otp.html:new
+msgid "Verification Required"
+msgstr "التحقق مطلوب"
+
+#: core/templates/core/verify_otp.html:new
+msgid "We have sent a verification code to your selected contact method. Please enter it below to save your changes."
+msgstr "لقد أرسلنا رمز التحقق إلى وسيلة الاتصال المحددة. يرجى إدخاله أدناه لحفظ تغييراتك."
+
+#: core/templates/core/verify_otp.html:new
+msgid "Verification Code"
+msgstr "رمز التحقق"
+
+#: core/templates/core/verify_otp.html:new
+msgid "Verify & Save"
+msgstr "تحقق وحفظ"
+
+#: core/views.py:new
+msgid "Profile updated successfully!"
+msgstr "تم تحديث الملف الشخصي بنجاح!"
+
+#: core/views.py:new
+msgid "Invalid or expired code."
+msgstr "الرمز غير صالح أو منتهي الصلاحية."
+
+#: core/views.py:new
+msgid "Verification code sent to WhatsApp."
+msgstr "تم إرسال رمز التحقق إلى واتساب."
+
+#: core/views.py:new
+msgid "Verification code sent to email."
+msgstr "تم إرسال رمز التحقق إلى البريد الإلكتروني."
+
+#: core/views.py:new
+msgid "Session expired. Please try again."
+msgstr "انتهت صلاحية الجلسة. يرجى المحاولة مرة أخرى."
+
+#: core/views.py:new
+msgid "Invalid code."
+msgstr "رمز غير صالح."
+
+#: core/models.py:new
+msgid "Profile Update"
+msgstr "تحديث الملف الشخصي"
+
+#: core/models.py:new
+msgid "Password Reset"
+msgstr "إعادة تعيين كلمة المرور"

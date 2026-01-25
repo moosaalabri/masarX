@@ -21,4 +21,8 @@ urlpatterns = [
     path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
     path('terms-conditions/', views.terms_conditions, name='terms_conditions'),
     path('contact/', views.contact_view, name='contact'),
+    
+    path('profile/', views.profile_view, name='profile'),
+    path('profile/edit/', views.edit_profile_view, name='edit_profile'),
+    path('profile/verify-otp/', views.verify_otp_view, name='verify_otp'),
 ]

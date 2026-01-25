@@ -84,6 +84,75 @@ class UserRegistrationForm(forms.ModelForm):
             profile.save()
         return user
 
+class UserProfileForm(forms.ModelForm):
+    first_name = forms.CharField(label=_("First Name"), max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    last_name = forms.CharField(label=_("Last Name"), max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(label=_("Email"), widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    
+    phone_number = forms.CharField(label=_("Phone Number"), max_length=20, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    address = forms.CharField(label=_("Address"), required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    profile_picture = forms.ImageField(label=_("Profile Picture"), required=False, widget=forms.FileInput(attrs={'class': 'form-control'}))
+    
+    otp_method = forms.ChoiceField(
+        choices=[('email', _('Email')), ('whatsapp', _('WhatsApp'))], 
+        label=_('Verify changes via'), 
+        widget=forms.RadioSelect,
+        initial='email'
+    )
+
+    class Meta:
+        model = Profile
+        fields = ['profile_picture', 'phone_number', 'address', 'country', 'governate', 'city']
+        widgets = {
+             'country': forms.Select(attrs={'class': 'form-control'}),
+             'governate': forms.Select(attrs={'class': 'form-control'}),
+             'city': forms.Select(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'country': _('Country'),
+            'governate': _('Governate'),
+            'city': _('City'),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.user:
+            self.fields['first_name'].initial = self.instance.user.first_name
+            self.fields['last_name'].initial = self.instance.user.last_name
+            self.fields['email'].initial = self.instance.user.email
+            
+        lang = get_language()
+        name_field = 'name_ar' if lang == 'ar' else 'name_en'
+        
+        self.fields['country'].queryset = Country.objects.all().order_by(name_field)
+        
+        # Default Country logic (Oman)
+        oman = Country.objects.filter(name_en='Oman').first()
+        
+        # Initial QS setup
+        self.fields['governate'].queryset = Governate.objects.none()
+        self.fields['city'].queryset = City.objects.none()
+
+        if 'country' in self.data:
+            try:
+                country_id = int(self.data.get('country'))
+                self.fields['governate'].queryset = Governate.objects.filter(country_id=country_id).order_by(name_field)
+            except (ValueError, TypeError):
+                pass
+        elif self.instance.pk and self.instance.country:
+             self.fields['governate'].queryset = self.instance.country.governate_set.order_by(name_field)
+        elif oman:
+             self.fields['governate'].queryset = Governate.objects.filter(country=oman).order_by(name_field)
+
+        if 'governate' in self.data:
+            try:
+                gov_id = int(self.data.get('governate'))
+                self.fields['city'].queryset = City.objects.filter(governate_id=gov_id).order_by(name_field)
+            except (ValueError, TypeError):
+                pass
+        elif self.instance.pk and self.instance.governate:
+             self.fields['city'].queryset = self.instance.governate.city_set.order_by(name_field)
+
 class ParcelForm(forms.ModelForm):
     class Meta:
         model = Parcel

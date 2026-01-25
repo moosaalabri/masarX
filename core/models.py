@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 import uuid
 
 class Country(models.Model):
@@ -67,6 +68,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name=_('User'))
     role = models.CharField(_('Role'), max_length=20, choices=ROLE_CHOICES, default='shipper')
     phone_number = models.CharField(_('Phone Number'), max_length=20, blank=True)
+    profile_picture = models.ImageField(_('Profile Picture'), upload_to='profile_pics/', blank=True, null=True)
+    address = models.CharField(_('Address'), max_length=255, blank=True)
     
     country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_('Country'))
     governate = models.ForeignKey(Governate, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_('Governate'))
@@ -163,3 +166,18 @@ class PlatformProfile(models.Model):
     class Meta:
         verbose_name = _('Platform Profile')
         verbose_name_plural = _('Platform Profile')
+
+class OTPVerification(models.Model):
+    PURPOSE_CHOICES = (
+        ('profile_update', _('Profile Update')),
+        ('password_reset', _('Password Reset')),
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    code = models.CharField(max_length=6)
+    purpose = models.CharField(max_length=20, choices=PURPOSE_CHOICES, default='profile_update')
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+
+    def is_valid(self):
+        # OTP valid for 10 minutes
+        return self.created_at >= timezone.now() - timezone.timedelta(minutes=10)

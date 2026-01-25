@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "My Profile" %} | masarX{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light" style="min-height: 80vh;">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-5">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2 class="fw-bold mb-0">{% trans "My Profile" %}</h2>
+                            <a href="{% url 'edit_profile' %}" class="btn btn-masarx-primary">
+                                {% trans "Edit Profile" %}
+                            </a>
+                        </div>
+                        
+                        <div class="text-center mb-5">
+                            {% if profile.profile_picture %}
+                                <img src="{{ profile.profile_picture.url }}" alt="Profile" class="rounded-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto" style="width: 150px; height: 150px;">
+                                    <span class="text-white fs-1">{{ profile.user.first_name|first|upper }}</span>
+                                </div>
+                            {% endif %}
+                            <h3 class="mt-3">{{ profile.user.get_full_name }}</h3>
+                            <p class="text-muted">{{ profile.get_role_display }}</p>
+                        </div>
+
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="text-muted small text-uppercase">{% trans "Email" %}</label>
+                                <p class="fw-semibold">{{ profile.user.email }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small text-uppercase">{% trans "Phone" %}</label>
+                                <p class="fw-semibold">{{ profile.phone_number|default:"-" }}</p>
+                            </div>
+                            <div class="col-12">
+                                <label class="text-muted small text-uppercase">{% trans "Location" %}</label>
+                                <p class="fw-semibold">
+                                    {{ profile.city.name|default:"" }}
+                                    {% if profile.city and profile.governate %}, {% endif %}
+                                    {{ profile.governate.name|default:"" }}
+                                    {% if profile.governate and profile.country %}, {% endif %}
+                                    {{ profile.country.name|default:"" }}
+                                </p>
+                            </div>
+                             <div class="col-12">
+                                <label class="text-muted small text-uppercase">{% trans "Address" %}</label>
+                                <p class="fw-semibold">{{ profile.address|default:"-" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<style>
+    .btn-masarx-primary {
+        background-color: var(--accent-orange);
+        border-color: var(--accent-orange);
+        color: white;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
