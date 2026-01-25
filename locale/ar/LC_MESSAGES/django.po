@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 15:46+0000\n"
+"POT-Creation-Date: 2026-01-25 16:24+0000\n"
 "PO-Revision-Date: 2026-01-25 07:13+0000\n"
 "Last-Translator: Gemini\n"
 "Language-Team: Arabic\n"
@@ -42,7 +42,8 @@ msgstr "إعدادات واتساب (بوابة Wablas)"
 msgid ""
 "Configure your Wablas API connection. Use \"Test WhatsApp Configuration\" to "
 "verify."
-msgstr "قم بتكوين اتصال Wablas API الخاص بك. استخدم \"اختبار إعدادات واتساب\" للتحقق."
+msgstr ""
+"قم بتكوين اتصال Wablas API الخاص بك. استخدم \"اختبار إعدادات واتساب\" للتحقق."
 
 #: core/admin.py:108
 msgid "Test WhatsApp"
@@ -70,8 +71,8 @@ msgstr "الاسم"
 msgid "Your Name"
 msgstr "اسمك"
 
-#: core/forms.py:9 core/forms.py:28 core/forms.py:90 core/forms.py:97
-#: core/templates/core/profile.html:41
+#: core/forms.py:9 core/forms.py:18 core/forms.py:29 core/forms.py:91
+#: core/forms.py:98 core/templates/core/profile.html:41
 msgid "Email"
 msgstr "البريد الإلكتروني"
 
@@ -103,114 +104,118 @@ msgstr "تأكيد كلمة المرور"
 msgid "Register as"
 msgstr "التسجيل كـ"
 
-#: core/forms.py:17 core/forms.py:92 core/models.py:71 core/models.py:158
+#: core/forms.py:17 core/forms.py:93 core/models.py:71 core/models.py:158
 msgid "Phone Number"
 msgstr "رقم الهاتف"
 
-#: core/forms.py:19 core/forms.py:112 core/models.py:25 core/models.py:29
+#: core/forms.py:18 core/forms.py:98
+msgid "WhatsApp"
+msgstr "واتساب"
+
+#: core/forms.py:18
+msgid "Verify via"
+msgstr "التحقق بواسطة"
+
+#: core/forms.py:20 core/forms.py:113 core/models.py:25 core/models.py:29
 #: core/models.py:75
 msgid "Country"
 msgstr "الدولة"
 
-#: core/forms.py:20 core/forms.py:113 core/models.py:43 core/models.py:47
+#: core/forms.py:21 core/forms.py:114 core/models.py:43 core/models.py:47
 #: core/models.py:76
 msgid "Governate"
 msgstr "المحافظة"
 
-#: core/forms.py:21 core/forms.py:114 core/models.py:61 core/models.py:77
+#: core/forms.py:22 core/forms.py:115 core/models.py:61 core/models.py:77
 msgid "City"
 msgstr "المدينة"
 
-#: core/forms.py:27
+#: core/forms.py:28
 msgid "Username"
 msgstr "اسم المستخدم"
 
-#: core/forms.py:29 core/forms.py:88
+#: core/forms.py:30 core/forms.py:89
 msgid "First Name"
 msgstr "الاسم الأول"
 
-#: core/forms.py:30 core/forms.py:89
+#: core/forms.py:31 core/forms.py:90
 msgid "Last Name"
 msgstr "اسم العائلة"
 
-#: core/forms.py:69
+#: core/forms.py:70
 msgid "Passwords don't match"
 msgstr "كلمات المرور غير متطابقة"
 
-#: core/forms.py:93 core/models.py:73 core/models.py:157
+#: core/forms.py:94 core/models.py:73 core/models.py:157
 #: core/templates/core/profile.html:59
 msgid "Address"
 msgstr "العنوان"
 
-#: core/forms.py:94 core/models.py:72
+#: core/forms.py:95 core/models.py:72
 msgid "Profile Picture"
 msgstr "الصورة الشخصية"
 
-#: core/forms.py:97
-msgid "WhatsApp"
-msgstr "واتساب"
-
-#: core/forms.py:98
+#: core/forms.py:99
 msgid "Verify changes via"
 msgstr "التحقق من التغييرات عبر"
 
-#: core/forms.py:166
+#: core/forms.py:167
 msgid "What are you sending?"
 msgstr "ماذا سترسل؟"
 
-#: core/forms.py:173 core/forms.py:178
+#: core/forms.py:174 core/forms.py:179
 msgid "Street/Building"
 msgstr "الشارع/المبنى"
 
-#: core/forms.py:184
+#: core/forms.py:185
 msgid "Package Description"
 msgstr "وصف الطرد"
 
-#: core/forms.py:185 core/models.py:116
+#: core/forms.py:186 core/models.py:116
 msgid "Weight (kg)"
 msgstr "الوزن (كجم)"
 
-#: core/forms.py:186
+#: core/forms.py:187
 msgid "Shipping Price (OMR)"
 msgstr "سعر الشحن (ر.ع)"
 
-#: core/forms.py:187 core/models.py:120
+#: core/forms.py:188 core/models.py:120
 msgid "Pickup Country"
 msgstr "دولة الاستلام"
 
-#: core/forms.py:188 core/models.py:121
+#: core/forms.py:189 core/models.py:121
 msgid "Pickup Governate"
 msgstr "محافظة الاستلام"
 
-#: core/forms.py:189 core/models.py:122
+#: core/forms.py:190 core/models.py:122
 msgid "Pickup City"
 msgstr "مدينة الاستلام"
 
-#: core/forms.py:190
+#: core/forms.py:191
 msgid "Pickup Address (Street/Building)"
 msgstr "عنوان الاستلام (الشارع/المبنى)"
 
-#: core/forms.py:191 core/models.py:126
+#: core/forms.py:192 core/models.py:126
 msgid "Delivery Country"
 msgstr "دولة التوصيل"
 
-#: core/forms.py:192 core/models.py:127
+#: core/forms.py:193 core/models.py:127
 msgid "Delivery Governate"
 msgstr "محافظة التوصيل"
 
-#: core/forms.py:193 core/models.py:128
+#: core/forms.py:194 core/models.py:128
 msgid "Delivery City"
 msgstr "مدينة التوصيل"
 
-#: core/forms.py:194
+#: core/forms.py:195
 msgid "Delivery Address (Street/Building)"
 msgstr "عنوان التوصيل (الشارع/المبنى)"
 
-#: core/forms.py:195 core/models.py:131
+#: core/forms.py:196 core/models.py:131
 msgid "Receiver Name"
 msgstr "اسم المستلم"
 
-#: core/forms.py:196 core/models.py:132
+#: core/forms.py:197 core/models.py:132
 msgid "Receiver Phone"
 msgstr "هاتف المستلم"
 
@@ -414,6 +419,12 @@ msgstr "تحديث الملف الشخصي"
 #: core/models.py:200
 msgid "Password Reset"
 msgstr "إعادة تعيين كلمة المرور"
+
+#: core/models.py:201
+#, fuzzy
+#| msgid "Registration Number"
+msgid "Registration"
+msgstr "رقم السجل التجاري"
 
 #: core/templates/admin/core/platformprofile/test_email.html:11
 #: core/templates/admin/core/platformprofile/test_whatsapp.html:11
@@ -809,7 +820,9 @@ msgstr ""
 "لقد أرسلنا رمز التحقق إلى وسيلة الاتصال المحددة. يرجى إدخاله أدناه لحفظ "
 "تغييراتك."
 
-#: core/templates/core/verify_otp.html:27 core/views.py:267
+#: core/templates/core/verify_otp.html:27
+#: core/templates/core/verify_registration.html:27 core/views.py:63
+#: core/views.py:330
 msgid "Verification Code"
 msgstr "رمز التحقق"
 
@@ -817,81 +830,124 @@ msgstr "رمز التحقق"
 msgid "Verify & Save"
 msgstr "تحقق وحفظ"
 
+#: core/templates/core/verify_registration.html:4
+#: core/templates/core/verify_registration.html:31
+#, fuzzy
+#| msgid "Create Account"
+msgid "Verify Account"
+msgstr "إنشاء حساب"
+
+#: core/templates/core/verify_registration.html:14
+#, fuzzy
+#| msgid "Register"
+msgid "Back to Register"
+msgstr "تسجيل"
+
+#: core/templates/core/verify_registration.html:20
+#, fuzzy
+#| msgid "Verification Code"
+msgid "Account Verification"
+msgstr "رمز التحقق"
+
+#: core/templates/core/verify_registration.html:22
+#, fuzzy
+#| msgid ""
+#| "We have sent a verification code to your selected contact method. Please "
+#| "enter it below to save your changes."
+msgid ""
+"We have sent a verification code to verify your account. Please enter it "
+"below to complete registration."
+msgstr ""
+"لقد أرسلنا رمز التحقق إلى وسيلة الاتصال المحددة. يرجى إدخاله أدناه لحفظ "
+"تغييراتك."
+
 #: core/views.py:34
 msgid "Parcel not found."
 msgstr "الطرد غير موجود."
 
-#: core/views.py:74
-msgid "Only shippers can request shipments."
-msgstr "فقط الشاحنين يمكنهم طلب شحنات."
-
-#: core/views.py:87
-msgid "Shipment requested successfully! Tracking ID: "
-msgstr "تم طلب الشحنة بنجاح! رقم التتبع: "
-
-#: core/views.py:97
-msgid "Only car owners can accept shipments."
-msgstr "فقط أصحاب السيارات يمكنهم قبول الشحنات."
-
-#: core/views.py:108
-msgid "You have accepted the shipment!"
-msgstr "لقد قبلت الشحنة!"
-
-#: core/views.py:123
-msgid "Status updated successfully!"
-msgstr "تم تحديث الحالة بنجاح!"
-
-#: core/views.py:131
-msgid "Payments are currently disabled by the administrator."
-msgstr "المدفوعات معطلة حالياً من قبل المسؤول."
-
-#: core/views.py:148
-msgid "Could not initiate payment. Please try again later."
-msgstr "تعذر بدء الدفع. يرجى المحاولة مرة أخرى لاحقاً."
-
-#: core/views.py:167
-msgid "Payment successful! Your shipment is now active."
-msgstr "تم الدفع بنجاح! شحنتك نشطة الآن."
-
-#: core/views.py:169
-msgid "Payment status is pending or failed. Please check your dashboard."
-msgstr "حالة الدفع معلقة أو فشلت. يرجى التحقق من لوحة التحكم."
-
-#: core/views.py:175
-msgid "Payment was cancelled."
-msgstr "تم إلغاء الدفع."
-
-#: core/views.py:214
-msgid "Your message has been sent successfully!"
-msgstr "تم إرسال رسالتك بنجاح!"
-
-#: core/views.py:216
-msgid "There was an error sending your message. Please try again later."
-msgstr "حدث خطأ أثناء إرسال رسالتك. يرجى المحاولة مرة أخرى لاحقاً."
-
-#: core/views.py:261
+#: core/views.py:60 core/views.py:324
 msgid "Verification code sent to WhatsApp."
 msgstr "تم إرسال رمز التحقق إلى واتساب."
 
-#: core/views.py:273
+#: core/views.py:69 core/views.py:336
 msgid "Verification code sent to email."
 msgstr "تم إرسال رمز التحقق إلى البريد الإلكتروني."
 
-#: core/views.py:320
-msgid "Profile updated successfully!"
-msgstr "تم تحديث الملف الشخصي بنجاح!"
-
-#: core/views.py:323
-msgid "Session expired. Please try again."
+#: core/views.py:79
+#, fuzzy
+#| msgid "Session expired. Please try again."
+msgid "Session expired or invalid."
 msgstr "انتهت صلاحية الجلسة. يرجى المحاولة مرة أخرى."
 
-#: core/views.py:326
+#: core/views.py:107
+#, fuzzy
+#| msgid "Profile updated successfully!"
+msgid "Account verified successfully!"
+msgstr "تم تحديث الملف الشخصي بنجاح!"
+
+#: core/views.py:110 core/views.py:389
 msgid "Invalid or expired code."
 msgstr "الرمز غير صالح أو منتهي الصلاحية."
 
-#: core/views.py:328
+#: core/views.py:112 core/views.py:391
 msgid "Invalid code."
 msgstr "رمز غير صالح."
+
+#: core/views.py:137
+msgid "Only shippers can request shipments."
+msgstr "فقط الشاحنين يمكنهم طلب شحنات."
+
+#: core/views.py:150
+msgid "Shipment requested successfully! Tracking ID: "
+msgstr "تم طلب الشحنة بنجاح! رقم التتبع: "
+
+#: core/views.py:160
+msgid "Only car owners can accept shipments."
+msgstr "فقط أصحاب السيارات يمكنهم قبول الشحنات."
+
+#: core/views.py:171
+msgid "You have accepted the shipment!"
+msgstr "لقد قبلت الشحنة!"
+
+#: core/views.py:186
+msgid "Status updated successfully!"
+msgstr "تم تحديث الحالة بنجاح!"
+
+#: core/views.py:194
+msgid "Payments are currently disabled by the administrator."
+msgstr "المدفوعات معطلة حالياً من قبل المسؤول."
+
+#: core/views.py:211
+msgid "Could not initiate payment. Please try again later."
+msgstr "تعذر بدء الدفع. يرجى المحاولة مرة أخرى لاحقاً."
+
+#: core/views.py:230
+msgid "Payment successful! Your shipment is now active."
+msgstr "تم الدفع بنجاح! شحنتك نشطة الآن."
+
+#: core/views.py:232
+msgid "Payment status is pending or failed. Please check your dashboard."
+msgstr "حالة الدفع معلقة أو فشلت. يرجى التحقق من لوحة التحكم."
+
+#: core/views.py:238
+msgid "Payment was cancelled."
+msgstr "تم إلغاء الدفع."
+
+#: core/views.py:277
+msgid "Your message has been sent successfully!"
+msgstr "تم إرسال رسالتك بنجاح!"
+
+#: core/views.py:279
+msgid "There was an error sending your message. Please try again later."
+msgstr "حدث خطأ أثناء إرسال رسالتك. يرجى المحاولة مرة أخرى لاحقاً."
+
+#: core/views.py:383
+msgid "Profile updated successfully!"
+msgstr "تم تحديث الملف الشخصي بنجاح!"
+
+#: core/views.py:386
+msgid "Session expired. Please try again."
+msgstr "انتهت صلاحية الجلسة. يرجى المحاولة مرة أخرى."
 
 #~ msgid "Hello"
 #~ msgstr "مرحباً"
