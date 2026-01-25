@@ -166,12 +166,22 @@ class PlatformProfile(models.Model):
     whatsapp_business_phone_number_id = models.CharField(_('Wablas Domain'), max_length=100, blank=True, default="https://deu.wablas.com", help_text=_("The Wablas API domain (e.g., https://deu.wablas.com)."))
     whatsapp_app_secret = models.CharField(_('Wablas Secret Key'), max_length=255, blank=True, help_text=_("Your Wablas API Secret Key (if required)."))
 
+    # Payment Configuration
+    enable_payment = models.BooleanField(_('Enable Payment'), default=True, help_text=_("Toggle to enable or disable payments on the platform."))
+
     def save(self, *args, **kwargs):
         # Auto-clean whitespace from credentials
         if self.whatsapp_access_token:
             self.whatsapp_access_token = self.whatsapp_access_token.strip()
         if self.whatsapp_business_phone_number_id:
-            self.whatsapp_business_phone_number_id = self.whatsapp_business_phone_number_id.strip()
+            val = self.whatsapp_business_phone_number_id.strip()
+            # Remove common path suffixes if user pasted full URL
+            for suffix in ['/api/send-message', '/api/v2/send-message']:
+                if val.endswith(suffix):
+                    val = val[:-len(suffix)]
+            if val.endswith('/'):
+                val = val[:-1]
+            self.whatsapp_business_phone_number_id = val
         if self.whatsapp_app_secret:
             self.whatsapp_app_secret = self.whatsapp_app_secret.strip()
             

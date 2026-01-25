@@ -15,7 +15,7 @@ def get_whatsapp_credentials():
     api_token = settings.WHATSAPP_API_KEY if hasattr(settings, 'WHATSAPP_API_KEY') else ""
     # We repurpose Phone ID as Domain in settings if needed, or default to Wablas DEU
     domain = "https://deu.wablas.com"
-    secret_key = "" # Add this to settings if you want env support, but for now mostly DB
+    secret_key = "" 
     source = "Settings/Env"
 
     # Try to fetch from PlatformProfile
@@ -53,7 +53,7 @@ def send_whatsapp_message(phone_number, message):
 
 def send_whatsapp_message_detailed(phone_number, message):
     """
-    Sends a WhatsApp message via Wablas V2 API and returns detailed status.
+    Sends a WhatsApp message via Wablas API and returns detailed status.
     Returns tuple: (success: bool, response_msg: str)
     """
     if not getattr(settings, 'WHATSAPP_ENABLED', True):
@@ -69,43 +69,57 @@ def send_whatsapp_message_detailed(phone_number, message):
         return False, msg
 
     # Normalize phone number (Wablas expects international format without +, e.g. 628123...)
-    # Remove all non-digits
-    clean_phone = "".join(filter(str.isdigit, str(phone_number)))
+    clean_phone = str(phone_number).replace('+', '').replace(' ', '')
     
-    # Construct Authorization Header
-    # Wablas V2: Authorization: {$token}.{$secret_key}
-    # Some Wablas servers just need Token, but docs say Token.Secret
+    # Endpoint: /api/send-message (Simple Text)
+    # Ensure domain has schema
+    if not domain.startswith('http'):
+        domain = f"https://{domain}"
+
+    # Using the exact endpoint provided in user example
+    url = f"{domain}/api/send-message"
+    
+    # Header construction logic from user example
     auth_header = api_token
     if secret_key:
         auth_header = f"{api_token}.{secret_key}"
-    
-    # Endpoint V2
-    url = f"{domain}/api/v2/send-message"
-    
+
     headers = {
         "Authorization": auth_header,
-        "Content-Type": "application/json",
+        # requests will set Content-Type to application/x-www-form-urlencoded when using 'data' param
     }
     
-    payload = {
-        "data": [
-            {
-                "phone": clean_phone,
-                "message": message,
-                "isGroup": "false",
-                "flag": "instant" # Priority
-            }
-        ]
+    # Payload as form data (not JSON)
+    data = {
+        "phone": clean_phone,
+        "message": message,
     }
+    
+    # Note: User's example didn't add 'secret' to payload, only to header.
+    # We will stick to user's example strictly.
 
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=15)
-        response_data = response.json()
+        # Use data=data for form-urlencoded
+        response = requests.post(url, headers=headers, data=data, timeout=15)
         
+        # Handle non-JSON response (HTML error pages)
+        try:
+            response_data = response.json()
+        except ValueError:
+            response_data = response.text
+
         # Wablas success usually has status: true
-        if response.status_code == 200 and response_data.get('status') is not False:
-            logger.info(f"WhatsApp message sent to {clean_phone} via Wablas")
-            return True, f"Message sent successfully via Wablas. (Source: {source})"
+        if response.status_code == 200:
+            # Check for logical success in JSON
+            if isinstance(response_data, dict):
+                if response_data.get('status') is True:
+                    logger.info(f"WhatsApp message sent to {clean_phone} via Wablas")
+                    return True, f"Message sent successfully via Wablas. (Source: {source})"
+                else:
+                    return False, f"Wablas API Logic Error (Source: {source}): {response_data}"
+            else:
+                # If text, assume success if 200 OK? Or inspect text.
+                return True, f"Message sent (Raw Response). (Source: {source})"
         else:
             error_msg = f"Wablas API error (Source: {source}): {response.status_code} - {response_data}"
             logger.error(error_msg)

@@ -8,6 +8,8 @@ from django.shortcuts import render
 from django.utils.html import format_html
 from django.contrib import messages
 from .whatsapp_utils import send_whatsapp_message_detailed
+from django.core.mail import send_mail
+from django.conf import settings
 import logging
 
 class ProfileInline(admin.StackedInline):
@@ -47,6 +49,7 @@ class PlatformProfileAdmin(admin.ModelAdmin):
         urls = super().get_urls()
         custom_urls = [
             path('test-whatsapp/', self.admin_site.admin_view(self.test_whatsapp_view), name='test-whatsapp'),
+            path('test-email/', self.admin_site.admin_view(self.test_email_view), name='test-email'),
         ]
         return custom_urls + urls
 
@@ -69,11 +72,39 @@ class PlatformProfileAdmin(admin.ModelAdmin):
         )
         return render(request, "admin/core/platformprofile/test_whatsapp.html", context)
 
+    def test_email_view(self, request):
+        email = ''
+        if request.method == 'POST':
+            email = request.POST.get('email')
+            if email:
+                try:
+                    send_mail(
+                        subject="Test Email from Platform",
+                        message="This is a test email to verify your platform's email configuration.",
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[email],
+                        fail_silently=False,
+                    )
+                    messages.success(request, f"Success: Test email sent to {email}.")
+                except Exception as e:
+                    messages.error(request, f"Error sending email: {str(e)}")
+            else:
+                messages.warning(request, "Please enter an email address.")
+        
+        context = dict(
+           self.admin_site.each_context(request),
+           email=email,
+        )
+        return render(request, "admin/core/platformprofile/test_email.html", context)
+
     def test_connection_link(self, obj):
         return format_html(
+            '<a class="button" href="{}" style="margin-right: 10px;">{}</a>'
             '<a class="button" href="{}">{}</a>',
             reverse('admin:test-whatsapp'),
-            _('Test WhatsApp Configuration')
+            _('Test WhatsApp'),
+            reverse('admin:test-email'),
+            _('Test Email')
         )
     test_connection_link.short_description = _("Actions")
     test_connection_link.allow_tags = True
@@ -84,6 +115,8 @@ class PlatformProfileAdmin(admin.ModelAdmin):
         fieldsets = super().get_fieldsets(request, obj)
         # Add the test link to the first fieldset or a new one
         if obj:
+             # Check if 'Tools' fieldset already exists to avoid duplication if called multiple times (though get_fieldsets is usually fresh)
+             # Easier: just append it.
              fieldsets += ((_('Tools'), {'fields': ('test_connection_link',)}),)
         return fieldsets
 

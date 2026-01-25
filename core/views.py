@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from .models import Parcel, Profile, Country, Governate, City, OTPVerification
+from .models import Parcel, Profile, Country, Governate, City, OTPVerification, PlatformProfile
 from .forms import UserRegistrationForm, ParcelForm, ContactForm, UserProfileForm
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
@@ -125,6 +125,12 @@ def update_status(request, parcel_id):
 
 @login_required
 def initiate_payment(request, parcel_id):
+    # Check if payments are enabled
+    platform_profile = PlatformProfile.objects.first()
+    if platform_profile and not platform_profile.enable_payment:
+        messages.error(request, _("Payments are currently disabled by the administrator."))
+        return redirect('dashboard')
+
     parcel = get_object_or_404(Parcel, id=parcel_id, shipper=request.user, payment_status='pending')
     
     thawani = ThawaniPay()
@@ -319,4 +325,4 @@ def verify_otp_view(request):
         except OTPVerification.DoesNotExist:
             messages.error(request, _("Invalid code."))
             
-    return render(request, 'core/verify_otp.html')
+    return render(request, 'core/verify_otp.html', {'form': form})
