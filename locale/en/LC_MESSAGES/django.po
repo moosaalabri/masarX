@@ -1,0 +1,315 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-25 07:13+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: core/forms.py:7
+msgid "Password"
+msgstr ""
+
+#: core/forms.py:8
+msgid "Confirm Password"
+msgstr ""
+
+#: core/forms.py:9
+msgid "Register as"
+msgstr ""
+
+#: core/forms.py:10 core/models.py:13
+msgid "Phone Number"
+msgstr ""
+
+#: core/forms.py:16
+msgid "Username"
+msgstr ""
+
+#: core/forms.py:17
+msgid "Email"
+msgstr ""
+
+#: core/forms.py:18
+msgid "First Name"
+msgstr ""
+
+#: core/forms.py:19
+msgid "Last Name"
+msgstr ""
+
+#: core/forms.py:26
+msgid "Passwords don't match"
+msgstr ""
+
+#: core/models.py:8 core/models.py:32
+msgid "Shipper"
+msgstr ""
+
+#: core/models.py:9
+msgid "Car Owner"
+msgstr ""
+
+#: core/models.py:11
+msgid "User"
+msgstr ""
+
+#: core/models.py:12
+msgid "Role"
+msgstr ""
+
+#: core/models.py:19
+msgid "Profile"
+msgstr ""
+
+#: core/models.py:20
+msgid "Profiles"
+msgstr ""
+
+#: core/models.py:24
+msgid "Pending Pickup"
+msgstr ""
+
+#: core/models.py:25
+msgid "Picked Up"
+msgstr ""
+
+#: core/models.py:26
+msgid "In Transit"
+msgstr ""
+
+#: core/models.py:27
+msgid "Delivered"
+msgstr ""
+
+#: core/models.py:28
+msgid "Cancelled"
+msgstr ""
+
+#: core/models.py:31
+msgid "Tracking Number"
+msgstr ""
+
+#: core/models.py:33
+msgid "Carrier"
+msgstr ""
+
+#: core/models.py:35
+msgid "Description"
+msgstr ""
+
+#: core/models.py:36
+msgid "Weight (kg)"
+msgstr ""
+
+#: core/models.py:36
+msgid "Weight in kg"
+msgstr ""
+
+#: core/models.py:38
+msgid "Pickup Address"
+msgstr ""
+
+#: core/models.py:39
+msgid "Delivery Address"
+msgstr ""
+
+#: core/models.py:41
+msgid "Receiver Name"
+msgstr ""
+
+#: core/models.py:42
+msgid "Receiver Phone"
+msgstr ""
+
+#: core/models.py:44 core/templates/core/index.html:30
+msgid "Status"
+msgstr ""
+
+#: core/models.py:45
+msgid "Created At"
+msgstr ""
+
+#: core/models.py:46
+msgid "Updated At"
+msgstr ""
+
+#: core/models.py:57
+msgid "Parcel"
+msgstr ""
+
+#: core/models.py:58
+msgid "Parcels"
+msgstr ""
+
+#: core/templates/base.html:9
+msgid "Small Shipments, Smart Delivery"
+msgstr ""
+
+#: core/templates/base.html:58
+msgid "How it Works"
+msgstr ""
+
+#: core/templates/base.html:62
+msgid "Hello"
+msgstr ""
+
+#: core/templates/base.html:67
+msgid "Logout"
+msgstr ""
+
+#: core/templates/base.html:72 core/templates/core/login.html:4
+#: core/templates/core/login.html:25
+msgid "Login"
+msgstr ""
+
+#: core/templates/base.html:75 core/templates/core/register.html:4
+msgid "Register"
+msgstr ""
+
+#: core/templates/base.html:101 core/templates/core/index.html:13
+msgid "Start Shipping"
+msgstr ""
+
+#: core/templates/base.html:114
+msgid "All rights reserved."
+msgstr ""
+
+#: core/templates/core/index.html:10
+msgid "Small Shipments,"
+msgstr ""
+
+#: core/templates/core/index.html:10
+msgid "Smart Delivery."
+msgstr ""
+
+#: core/templates/core/index.html:11
+msgid ""
+"masarX connects shippers with local car owners for fast, reliable, and "
+"trackable deliveries. Your cargo, our priority."
+msgstr ""
+
+#: core/templates/core/index.html:14
+msgid "Learn More"
+msgstr ""
+
+#: core/templates/core/index.html:19
+msgid "Track your Parcel"
+msgstr ""
+
+#: core/templates/core/index.html:22
+msgid "Enter Tracking ID (e.g. 5A2B...)"
+msgstr ""
+
+#: core/templates/core/index.html:23
+msgid "Track"
+msgstr ""
+
+#: core/templates/core/index.html:34
+msgid "From"
+msgstr ""
+
+#: core/templates/core/index.html:35
+msgid "To"
+msgstr ""
+
+#: core/templates/core/index.html:42
+msgid "Enter your 10-character tracking ID to see live updates."
+msgstr ""
+
+#: core/templates/core/index.html:54
+msgid "How masarX Works"
+msgstr ""
+
+#: core/templates/core/index.html:55
+msgid "Simple steps to get your shipment moving"
+msgstr ""
+
+#: core/templates/core/index.html:63
+msgid "List your Parcel"
+msgstr ""
+
+#: core/templates/core/index.html:64
+msgid ""
+"Enter shipment details, weight, and delivery addresses. It's quick and easy."
+msgstr ""
+
+#: core/templates/core/index.html:72
+msgid "Connect with Driver"
+msgstr ""
+
+#: core/templates/core/index.html:73
+msgid ""
+"A verified car owner near you picks up the parcel and starts the journey."
+msgstr ""
+
+#: core/templates/core/index.html:81
+msgid "Secure Delivery"
+msgstr ""
+
+#: core/templates/core/index.html:82
+msgid "Track your parcel in real-time until it reaches its destination safely."
+msgstr ""
+
+#: core/templates/core/index.html:92
+msgid "Ready to join the movement?"
+msgstr ""
+
+#: core/templates/core/index.html:95
+msgid "I want to send a parcel"
+msgstr ""
+
+#: core/templates/core/index.html:96
+msgid "Become a Shipper"
+msgstr ""
+
+#: core/templates/core/index.html:99
+msgid "I have a car and want to earn"
+msgstr ""
+
+#: core/templates/core/index.html:100
+msgid "Become a Driver"
+msgstr ""
+
+#: core/templates/core/login.html:13
+msgid "Login to masarX"
+msgstr ""
+
+#: core/templates/core/login.html:28
+msgid "Don't have an account?"
+msgstr ""
+
+#: core/templates/core/login.html:28
+msgid "Register here"
+msgstr ""
+
+#: core/templates/core/register.html:13
+msgid "Join masarX"
+msgstr ""
+
+#: core/templates/core/register.html:28
+msgid "Create Account"
+msgstr ""
+
+#: core/templates/core/register.html:31
+msgid "Already have an account?"
+msgstr ""
+
+#: core/templates/core/register.html:31
+msgid "Login here"
+msgstr ""
+
+#: core/views.py:17
+msgid "Parcel not found."
+msgstr ""

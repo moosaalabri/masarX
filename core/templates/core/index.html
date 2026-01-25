@@ -1,145 +1,105 @@
-{% extends "base.html" %}
-
-{% block title %}{{ project_name }}{% endblock %}
-
-{% block head %}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg-color-start: #6a11cb;
-    --bg-color-end: #2575fc;
-    --text-color: #ffffff;
-    --card-bg-color: rgba(255, 255, 255, 0.01);
-    --card-border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(45deg, var(--bg-color-start), var(--bg-color-end));
-    color: var(--text-color);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    text-align: center;
-    overflow: hidden;
-    position: relative;
-  }
-
-  body::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><path d='M-10 10L110 10M10 -10L10 110' stroke-width='1' stroke='rgba(255,255,255,0.05)'/></svg>");
-    animation: bg-pan 20s linear infinite;
-    z-index: -1;
-  }
-
-  @keyframes bg-pan {
-    0% {
-      background-position: 0% 0%;
-    }
-
-    100% {
-      background-position: 100% 100%;
-    }
-  }
-
-  main {
-    padding: 2rem;
-  }
-
-  .card {
-    background: var(--card-bg-color);
-    border: 1px solid var(--card-border-color);
-    border-radius: 16px;
-    padding: 2.5rem 2rem;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
-  }
-
-  h1 {
-    font-size: clamp(2.2rem, 3vw + 1.2rem, 3.2rem);
-    font-weight: 700;
-    margin: 0 0 1.2rem;
-    letter-spacing: -0.02em;
-  }
-
-  p {
-    margin: 0.5rem 0;
-    font-size: 1.1rem;
-    opacity: 0.92;
-  }
-
-  .loader {
-    margin: 1.5rem auto;
-    width: 56px;
-    height: 56px;
-    border: 4px solid rgba(255, 255, 255, 0.25);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  .runtime code {
-    background: rgba(0, 0, 0, 0.25);
-    padding: 0.15rem 0.45rem;
-    border-radius: 4px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    border: 0;
-  }
-
-  footer {
-    position: absolute;
-    bottom: 1rem;
-    width: 100%;
-    text-align: center;
-    font-size: 0.85rem;
-    opacity: 0.75;
-  }
-</style>
-{% endblock %}
+{% extends 'base.html' %}
+{% load static i18n %}
 
 {% block content %}
-<main>
-  <div class="card">
-    <h1>Analyzing your requirements and generating your app…</h1>
-    <div class="loader" role="status" aria-live="polite" aria-label="Applying initial changes">
-      <span class="sr-only">Loading…</span>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <h1 class="display-3 mb-4">{% trans "Small Shipments," %}<br><span style="color: var(--accent-orange)">{% trans "Smart Delivery." %}</span></h1>
+                <p class="lead mb-5 opacity-75">{% trans "masarX connects shippers with local car owners for fast, reliable, and trackable deliveries. Your cargo, our priority." %}</p>
+                <div class="d-flex gap-3">
+                    <a href="{% url 'shipment_request' %}" class="btn btn-masarx-primary">{% trans "Start Shipping" %}</a>
+                    <a href="#how-it-works" class="btn btn-outline-light border-2 px-4 py-2" style="border-radius: 12px;">{% trans "Learn More" %}</a>
+                </div>
+            </div>
+            <div class="col-lg-5 offset-lg-1">
+                <div class="glass-card">
+                    <h3 class="mb-4">{% trans "Track your Parcel" %}</h3>
+                    <form method="GET" action="{% url 'index' %}">
+                        <div class="input-group mb-3">
+                            <input type="text" name="tracking_id" class="form-control tracking-input" placeholder="{% trans 'Enter Tracking ID (e.g. 5A2B...)' %}" value="{{ tracking_id|default:'' }}">
+                            <button class="btn btn-masarx-primary px-4" type="submit">{% trans "Track" %}</button>
+                        </div>
+                    </form>
+                    
+                    {% if parcel %}
+                    <div class="mt-4 p-3 bg-white bg-opacity-10 rounded-3 text-start" dir="ltr">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-uppercase small opacity-75">{% trans "Status" %}</span>
+                            <span class="parcel-status-badge status-{{ parcel.status }}">{{ parcel.get_status_display }}</span>
+                        </div>
+                        <h5 class="mb-1">{{ parcel.description|truncatechars:30 }}</h5>
+                        <p class="small mb-0 opacity-75">{% trans "From" %}: {{ parcel.pickup_address }}</p>
+                        <p class="small mb-0 opacity-75">{% trans "To" %}: {{ parcel.delivery_address }}</p>
+                    </div>
+                    {% elif error %}
+                    <div class="mt-3 text-danger small">
+                        <i class="bi bi-exclamation-circle me-1"></i> {{ error }}
+                    </div>
+                    {% else %}
+                    <p class="small opacity-50 mt-3 mb-0">{% trans "Enter your 10-character tracking ID to see live updates." %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
-    <p class="hint">AppWizzy AI is collecting your requirements and applying the first changes.</p>
-    <p class="hint">This page will refresh automatically as the plan is implemented.</p>
-    <p class="runtime">
-      Runtime: Django <code>{{ django_version }}</code> · Python <code>{{ python_version }}</code>
-      — UTC <code>{{ current_time|date:"Y-m-d H:i:s" }}</code>
-    </p>
-  </div>
-</main>
-<footer>
-  Page updated: {{ current_time|date:"Y-m-d H:i:s" }} (UTC)
-</footer>
+</section>
+
+<!-- Features Section -->
+<section id="how-it-works" class="py-5 bg-white">
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="display-5">{% trans "How masarX Works" %}</h2>
+            <p class="text-muted">{% trans "Simple steps to get your shipment moving" %}</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="p-4 border-0 card h-100 bg-transparent">
+                    <div class="feature-icon">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    <h4>1. {% trans "List your Parcel" %}</h4>
+                    <p class="text-muted">{% trans "Enter shipment details, weight, and delivery addresses. It's quick and easy." %}</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 border-0 card h-100 bg-transparent">
+                    <div class="feature-icon">
+                        <i class="bi bi-truck"></i>
+                    </div>
+                    <h4>2. {% trans "Connect with Driver" %}</h4>
+                    <p class="text-muted">{% trans "A verified car owner near you picks up the parcel and starts the journey." %}</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 border-0 card h-100 bg-transparent">
+                    <div class="feature-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h4>3. {% trans "Secure Delivery" %}</h4>
+                    <p class="text-muted">{% trans "Track your parcel in real-time until it reaches its destination safely." %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5" style="background-color: var(--primary-dark); color: white;">
+    <div class="container py-4 text-center">
+        <h2 class="mb-4">{% trans "Ready to join the movement?" %}</h2>
+        <div class="row justify-content-center gap-4">
+            <div class="col-md-5 text-center">
+                <p class="mb-3">{% trans "I want to send a parcel" %}</p>
+                <a href="{% url 'register' %}" class="btn btn-masarx-primary">{% trans "Become a Shipper" %}</a>
+            </div>
+            <div class="col-md-5 text-center">
+                <p class="mb-3">{% trans "I have a car and want to earn" %}</p>
+                <a href="{% url 'register' %}" class="btn btn-outline-light border-2 px-4 py-2" style="border-radius: 12px;">{% trans "Become a Driver" %}</a>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

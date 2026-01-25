@@ -1,21 +1,106 @@
+/* masarX Custom Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700&display=swap');
 
 :root {
-    --bg-color-start: #6a11cb;
-    --bg-color-end: #2575fc;
-    --text-color: #ffffff;
-    --card-bg-color: rgba(255, 255, 255, 0.01);
-    --card-border-color: rgba(255, 255, 255, 0.1);
+    --primary-dark: #1A1A1D;
+    --accent-orange: #FF922B;
+    --soft-cloud: #F8F9FA;
+    --slate-blue: #4D96FF;
+    --glass-bg: rgba(255, 255, 255, 0.1);
 }
+
 body {
-    margin: 0;
     font-family: 'Inter', sans-serif;
-    background: linear-gradient(45deg, var(--bg-color-start), var(--bg-color-end));
-    color: var(--text-color);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    text-align: center;
-    overflow: hidden;
-    position: relative;
+    background-color: var(--soft-cloud);
+    color: var(--primary-dark);
 }
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, #2D2D30 100%);
+    padding: 100px 0;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    background: var(--accent-orange);
+    filter: blur(80px);
+    opacity: 0.2;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+}
+
+.btn-masarx-primary {
+    background-color: var(--accent-orange);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-masarx-primary:hover {
+    background-color: #E87E1B;
+    transform: translateY(-2px);
+    color: white;
+}
+
+.tracking-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 12px 0 0 12px;
+    padding: 15px 20px;
+}
+
+.tracking-input:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--accent-orange);
+    box-shadow: none;
+    color: white;
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--accent-orange);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: white;
+    font-size: 24px;
+}
+
+.parcel-status-badge {
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.status-pending { background: #FFE8CC; color: #D9480F; }
+.status-picked_up { background: #E3FAFC; color: #0B7285; }
+.status-in_transit { background: #E7F5FF; color: #1864AB; }
+.status-delivered { background: #EBFBEE; color: #2B8A3E; }

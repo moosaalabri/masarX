@@ -1,25 +1,121 @@
+{% load i18n static %}
+{% get_current_language as LANGUAGE_CODE %}
+{% get_language_info for LANGUAGE_CODE as lang %}
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="{{ LANGUAGE_CODE }}" dir="{{ lang.direction }}">
 <head>
-  <meta charset="UTF-8">
-  <title>{% block title %}Knowledge Base{% endblock %}</title>
-  {% if project_description %}
-  <meta name="description" content="{{ project_description }}">
-  <meta property="og:description" content="{{ project_description }}">
-  <meta property="twitter:description" content="{{ project_description }}">
-  {% endif %}
-  {% if project_image_url %}
-  <meta property="og:image" content="{{ project_image_url }}">
-  <meta property="twitter:image" content="{{ project_image_url }}">
-  {% endif %}
-  {% load static %}
-  <link rel="stylesheet" href="{% static 'css/custom.css' %}?v={{ deployment_timestamp }}">
-  {% block head %}{% endblock %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}masarX | {% trans "Small Shipments, Smart Delivery" %}{% endblock %}</title>
+    
+    {% if project_description %}
+    <meta name="description" content="{{ project_description }}">
+    <meta property="og:description" content="{{ project_description }}">
+    <meta property="twitter:description" content="{{ project_description }}">
+    {% endif %}
+    {% if project_image_url %}
+    <meta property="og:image" content="{{ project_image_url }}">
+    <meta property="twitter:image" content="{{ project_image_url }}">
+    {% endif %}
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}?v={{ deployment_timestamp }}">
+    
+    {% if lang.direction == 'rtl' %}
+    <style>
+        body {
+            text-align: right;
+        }
+        .ms-auto {
+            margin-right: auto !important;
+            margin-left: 0 !important;
+        }
+        .me-auto {
+            margin-left: auto !important;
+            margin-right: 0 !important;
+        }
+    </style>
+    {% endif %}
+
+    {% block head %}{% endblock %}
 </head>
-
 <body>
-  {% block content %}{% endblock %}
-</body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark w-100" style="z-index: 1000;">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-3" href="{% url 'index' %}" style="font-family: 'Outfit', sans-serif;">masar<span style="color: var(--accent-orange)">X</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link px-3" href="{% url 'index' %}#how-it-works">{% trans "How it Works" %}</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <span class="nav-link text-white-50">{% trans "Hello" %}, {{ user.username }}</span>
+                        </li>
+                        <li class="nav-item">
+                            <form action="{% url 'logout' %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link nav-link">{% trans "Logout" %}</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link px-3" href="{% url 'login' %}">{% trans "Login" %}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3" href="{% url 'register' %}">{% trans "Register" %}</a>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-globe"></i> {{ lang.name_local }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            {% get_available_languages as LANGUAGES %}
+                            {% for lang_code, lang_name in LANGUAGES %}
+                                <li>
+                                    <form action="{% url 'set_language' %}" method="post">
+                                        {% csrf_token %}
+                                        <input name="next" type="hidden" value="{{ request.path }}">
+                                        <input name="language" type="hidden" value="{{ lang_code }}">
+                                        <button type="submit" class="dropdown-item {% if LANGUAGE_CODE == lang_code %}active{% endif %}">
+                                            {{ lang_name }}
+                                        </button>
+                                    </form>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
 
+                    <li class="nav-item ms-lg-3">
+                        <a href="{% url 'shipment_request' %}" class="btn btn-masarx-primary btn-sm">{% trans "Start Shipping" %}</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="py-5 bg-white border-top">
+        <div class="container text-center">
+            <p class="text-muted mb-0">&copy; 2026 masarX. {% trans "All rights reserved." %}</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>
