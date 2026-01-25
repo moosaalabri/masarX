@@ -34,6 +34,21 @@ class ParcelAdmin(admin.ModelAdmin):
 @admin.register(PlatformProfile)
 class PlatformProfileAdmin(admin.ModelAdmin):
     list_display = ('name', 'phone_number', 'registration_number')
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'logo', 'slogan')
+        }),
+        ('Contact Information', {
+            'fields': ('address', 'phone_number', 'registration_number', 'vat_number')
+        }),
+        ('Legal', {
+            'fields': ('privacy_policy', 'terms_conditions')
+        }),
+        ('WhatsApp Configuration', {
+            'fields': ('whatsapp_access_token', 'whatsapp_business_phone_number_id'),
+            'description': 'Enter your Meta WhatsApp Business API credentials here. These will override the system defaults.'
+        }),
+    )
     
     def has_add_permission(self, request):
         # Allow adding only if no instance exists

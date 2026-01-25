@@ -159,6 +159,10 @@ class PlatformProfile(models.Model):
     vat_number = models.CharField(_('VAT Number'), max_length=100, blank=True)
     privacy_policy = models.TextField(_('Privacy Policy'), blank=True)
     terms_conditions = models.TextField(_('Terms and Conditions'), blank=True)
+    
+    # WhatsApp Configuration
+    whatsapp_access_token = models.TextField(_('WhatsApp Access Token'), blank=True, help_text=_("Permanent or temporary access token from Meta Business."))
+    whatsapp_business_phone_number_id = models.CharField(_('WhatsApp Phone Number ID'), max_length=100, blank=True, help_text=_("The Phone Number ID from WhatsApp API setup."))
 
     def __str__(self):
         return self.name
