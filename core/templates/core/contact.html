@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "Contact Us" %} | masarX{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-body p-4 p-md-5">
+                        <div class="text-center mb-5">
+                            <h2 class="fw-bold mb-2">{% trans "Contact Us" %}</h2>
+                            <p class="text-muted">{% trans "We'd love to hear from you. Please fill out the form below." %}</p>
+                        </div>
+                        
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                                <div class="alert alert-danger">
+                                    {% for error in form.non_field_errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                        <div class="text-danger small">{{ form.name.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.subject.id_for_label }}" class="form-label">{{ form.subject.label }}</label>
+                                {{ form.subject }}
+                                {% if form.subject.errors %}
+                                    <div class="text-danger small">{{ form.subject.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="{{ form.message.id_for_label }}" class="form-label">{{ form.message.label }}</label>
+                                {{ form.message }}
+                                {% if form.message.errors %}
+                                    <div class="text-danger small">{{ form.message.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-masarx-primary btn-lg">{% trans "Send Message" %}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Additional Contact Info (Optional, if you want it visible on this page too) -->
+                {% if platform_profile %}
+                <div class="mt-5 text-center">
+                    <h5 class="fw-bold mb-3">{% trans "Or reach us at" %}</h5>
+                    <div class="d-flex justify-content-center gap-4 flex-wrap">
+                        {% if platform_profile.phone_number %}
+                            <div><i class="bi bi-telephone me-2 text-primary"></i>{{ platform_profile.phone_number }}</div>
+                        {% endif %}
+                        {% if platform_profile.email %}
+                            <div><i class="bi bi-envelope me-2 text-primary"></i>{{ platform_profile.email }}</div>
+                        {% endif %}
+                        {% if platform_profile.address %}
+                            <div><i class="bi bi-geo-alt me-2 text-primary"></i>{{ platform_profile.address }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

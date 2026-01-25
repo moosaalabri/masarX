@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from .models import Parcel, Profile, Country, Governate, City
-from .forms import UserRegistrationForm, ParcelForm
+from .forms import UserRegistrationForm, ParcelForm, ContactForm
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
 from django.contrib import messages
@@ -17,6 +17,7 @@ from .whatsapp_utils import (
     notify_driver_assigned, 
     notify_status_change
 )
+from .mail import send_contact_message
 
 def index(request):
     tracking_id = request.GET.get('tracking_id')
@@ -188,3 +189,22 @@ def privacy_policy(request):
 
 def terms_conditions(request):
     return render(request, 'core/terms_conditions.html')
+
+def contact_view(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            # Send email
+            sent = send_contact_message(
+                name=form.cleaned_data['name'],
+                email=form.cleaned_data['email'],
+                message=form.cleaned_data['message']
+            )
+            if sent:
+                messages.success(request, _("Your message has been sent successfully!"))
+            else:
+                messages.error(request, _("There was an error sending your message. Please try again later."))
+            return redirect('contact')
+    else:
+        form = ContactForm()
+    return render(request, 'core/contact.html', {'form': form})

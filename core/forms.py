@@ -4,6 +4,12 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
 from .models import Profile, Parcel, Country, Governate, City
 
+class ContactForm(forms.Form):
+    name = forms.CharField(max_length=100, label=_("Name"), widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('Your Name')}))
+    email = forms.EmailField(label=_("Email"), widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': _('Your Email')}))
+    subject = forms.CharField(max_length=200, label=_("Subject"), widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('Subject')}))
+    message = forms.CharField(label=_("Message"), widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': _('Your Message')}))
+
 class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label=_("Password"))
     password_confirm = forms.CharField(widget=forms.PasswordInput, label=_("Confirm Password"))
