@@ -11,15 +11,114 @@
                 <form method="POST">
                     {% csrf_token %}
                     <div class="row g-3">
-                        {% for field in form %}
-                        <div class="{% if field.name == 'description' %}col-12{% else %}col-md-6{% endif %}">
-                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                            <div class="text-danger small">{{ field.errors }}</div>
+                        <!-- General Info -->
+                        <div class="col-12">
+                            <label class="form-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="text-danger small">{{ form.description.errors }}</div>
                             {% endif %}
                         </div>
-                        {% endfor %}
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.weight.id_for_label }}">{{ form.weight.label }}</label>
+                            {{ form.weight }}
+                            {% if form.weight.errors %}
+                            <div class="text-danger small">{{ form.weight.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
+                            {{ form.price }}
+                            {% if form.price.errors %}
+                            <div class="text-danger small">{{ form.price.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Pickup Details -->
+                        <div class="col-12 mt-4">
+                            <h4 class="mb-3 text-secondary border-bottom pb-2">{% trans "Pickup Details" %}</h4>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.pickup_country.id_for_label }}">{{ form.pickup_country.label }}</label>
+                            {{ form.pickup_country }}
+                            {% if form.pickup_country.errors %}
+                            <div class="text-danger small">{{ form.pickup_country.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.pickup_governate.id_for_label }}">{{ form.pickup_governate.label }}</label>
+                            {{ form.pickup_governate }}
+                            {% if form.pickup_governate.errors %}
+                            <div class="text-danger small">{{ form.pickup_governate.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.pickup_city.id_for_label }}">{{ form.pickup_city.label }}</label>
+                            {{ form.pickup_city }}
+                            {% if form.pickup_city.errors %}
+                            <div class="text-danger small">{{ form.pickup_city.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.pickup_address.id_for_label }}">{{ form.pickup_address.label }}</label>
+                            {{ form.pickup_address }}
+                            {% if form.pickup_address.errors %}
+                            <div class="text-danger small">{{ form.pickup_address.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Delivery Details -->
+                        <div class="col-12 mt-4">
+                            <h4 class="mb-3 text-secondary border-bottom pb-2">{% trans "Delivery Details" %}</h4>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.delivery_country.id_for_label }}">{{ form.delivery_country.label }}</label>
+                            {{ form.delivery_country }}
+                            {% if form.delivery_country.errors %}
+                            <div class="text-danger small">{{ form.delivery_country.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.delivery_governate.id_for_label }}">{{ form.delivery_governate.label }}</label>
+                            {{ form.delivery_governate }}
+                            {% if form.delivery_governate.errors %}
+                            <div class="text-danger small">{{ form.delivery_governate.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.delivery_city.id_for_label }}">{{ form.delivery_city.label }}</label>
+                            {{ form.delivery_city }}
+                            {% if form.delivery_city.errors %}
+                            <div class="text-danger small">{{ form.delivery_city.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.delivery_address.id_for_label }}">{{ form.delivery_address.label }}</label>
+                            {{ form.delivery_address }}
+                            {% if form.delivery_address.errors %}
+                            <div class="text-danger small">{{ form.delivery_address.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Receiver Details -->
+                        <div class="col-12 mt-4">
+                            <h4 class="mb-3 text-secondary border-bottom pb-2">{% trans "Receiver Details" %}</h4>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.receiver_name.id_for_label }}">{{ form.receiver_name.label }}</label>
+                            {{ form.receiver_name }}
+                            {% if form.receiver_name.errors %}
+                            <div class="text-danger small">{{ form.receiver_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.receiver_phone.id_for_label }}">{{ form.receiver_phone.label }}</label>
+                            {{ form.receiver_phone }}
+                            {% if form.receiver_phone.errors %}
+                            <div class="text-danger small">{{ form.receiver_phone.errors }}</div>
+                            {% endif %}
+                        </div>
+
                         <div class="col-12 mt-4">
                             <button type="submit" class="btn btn-masarx-primary w-100 py-3">{% trans "Submit Request" %}</button>
                         </div>
@@ -45,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
             citySelect.innerHTML = '<option value="">{% trans "Select City" %}</option>';
             
             if (val) {
-                fetch(`/ajax/get-governates/?country_id=${val}`)
+                fetch(`{% url 'get_governates' %}?country_id=${val}`)
                     .then(response => response.json())
                     .then(data => {
                         data.forEach(item => {
@@ -63,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
             citySelect.innerHTML = '<option value="">{% trans "Select City" %}</option>';
             
             if (val) {
-                fetch(`/ajax/get-cities/?governate_id=${val}`)
+                fetch(`{% url 'get_cities' %}?governate_id=${val}`)
                     .then(response => response.json())
                     .then(data => {
                         data.forEach(item => {

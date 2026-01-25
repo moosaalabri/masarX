@@ -145,3 +145,19 @@ class Parcel(models.Model):
     class Meta:
         verbose_name = _('Parcel')
         verbose_name_plural = _('Parcels')
+
+class PlatformProfile(models.Model):
+    name = models.CharField(_('Platform Name'), max_length=100)
+    logo = models.ImageField(_('Logo'), upload_to='platform_logos/', blank=True, null=True)
+    slogan = models.CharField(_('Slogan'), max_length=255, blank=True)
+    address = models.TextField(_('Address'), blank=True)
+    phone_number = models.CharField(_('Phone Number'), max_length=50, blank=True)
+    registration_number = models.CharField(_('Registration Number'), max_length=100, blank=True)
+    vat_number = models.CharField(_('VAT Number'), max_length=100, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _('Platform Profile')
+        verbose_name_plural = _('Platform Profile')

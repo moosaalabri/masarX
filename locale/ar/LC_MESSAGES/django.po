@@ -436,3 +436,53 @@ msgstr "لقد قبلت الشحنة!"
 #: core/views.py:91
 msgid "Status updated successfully!"
 msgstr "تم تحديث الحالة بنجاح!"
+
+#: core/templates/core/shipment_request.html:38
+msgid "Pickup Details"
+msgstr "تفاصيل الاستلام"
+
+#: core/templates/core/shipment_request.html:64
+msgid "Delivery Details"
+msgstr "تفاصيل التوصيل"
+
+#: core/templates/core/shipment_request.html:90
+msgid "Receiver Details"
+msgstr "تفاصيل المستلم"
+
+#: core/templates/core/shipment_request.html:113
+msgid "Select Governate"
+msgstr "اختر المحافظة"
+
+#: core/templates/core/shipment_request.html:114
+msgid "Select City"
+msgstr "اختر المدينة"
+
+msgid "Shipping Price (OMR)"
+msgstr "سعر الشحن (ر.ع)"
+
+msgid "Pickup Country"
+msgstr "دولة الاستلام"
+
+msgid "Pickup Governate"
+msgstr "محافظة الاستلام"
+
+msgid "Pickup City"
+msgstr "مدينة الاستلام"
+
+msgid "Pickup Address (Street/Building)"
+msgstr "عنوان الاستلام (الشارع/المبنى)"
+
+msgid "Delivery Country"
+msgstr "دولة التوصيل"
+
+msgid "Delivery Governate"
+msgstr "محافظة التوصيل"
+
+msgid "Delivery City"
+msgstr "مدينة التوصيل"
+
+msgid "Delivery Address (Street/Building)"
+msgstr "عنوان التوصيل (الشارع/المبنى)"
+
+msgid "Street/Building"
+msgstr "الشارع/المبنى"

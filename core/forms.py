@@ -31,6 +31,11 @@ class UserRegistrationForm(forms.ModelForm):
         
         self.fields['country'].queryset = Country.objects.all().order_by(name_field)
         
+        # Default Country logic
+        oman = Country.objects.filter(name_en='Oman').first()
+        if oman:
+            self.fields['country'].initial = oman
+        
         if 'country' in self.data:
             try:
                 country_id = int(self.data.get('country'))
@@ -39,6 +44,8 @@ class UserRegistrationForm(forms.ModelForm):
                 pass
         elif self.instance.pk and hasattr(self.instance, 'profile') and self.instance.profile.country:
             self.fields['governate'].queryset = self.instance.profile.country.governate_set.order_by(name_field)
+        elif oman:
+            self.fields['governate'].queryset = Governate.objects.filter(country=oman).order_by(name_field)
 
         if 'governate' in self.data:
             try:
@@ -122,6 +129,12 @@ class ParcelForm(forms.ModelForm):
         # Set querysets for countries
         self.fields['pickup_country'].queryset = Country.objects.all().order_by(name_field)
         self.fields['delivery_country'].queryset = Country.objects.all().order_by(name_field)
+        
+        # Default Country logic
+        oman = Country.objects.filter(name_en='Oman').first()
+        if oman:
+            self.fields['pickup_country'].initial = oman
+            self.fields['delivery_country'].initial = oman
 
         # Pickup
         self.fields['pickup_governate'].queryset = Governate.objects.none()
@@ -133,6 +146,8 @@ class ParcelForm(forms.ModelForm):
                 self.fields['pickup_governate'].queryset = Governate.objects.filter(country_id=country_id).order_by(name_field)
             except (ValueError, TypeError):
                 pass
+        elif oman:
+            self.fields['pickup_governate'].queryset = Governate.objects.filter(country=oman).order_by(name_field)
         
         if 'pickup_governate' in self.data:
             try:
@@ -151,6 +166,8 @@ class ParcelForm(forms.ModelForm):
                 self.fields['delivery_governate'].queryset = Governate.objects.filter(country_id=country_id).order_by(name_field)
             except (ValueError, TypeError):
                 pass
+        elif oman:
+            self.fields['delivery_governate'].queryset = Governate.objects.filter(country=oman).order_by(name_field)
         
         if 'delivery_governate' in self.data:
             try:

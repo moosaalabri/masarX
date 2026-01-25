@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile, Parcel, Country, Governate, City
+from .models import Profile, Parcel, Country, Governate, City, PlatformProfile
 
 @admin.register(Country)
 class CountryAdmin(admin.ModelAdmin):
@@ -30,3 +30,13 @@ class ParcelAdmin(admin.ModelAdmin):
     list_filter = ('status', 'payment_status', 'pickup_country', 'delivery_country')
     search_fields = ('tracking_number', 'shipper__username', 'carrier__username', 'receiver_name')
     readonly_fields = ('tracking_number', 'created_at', 'updated_at')
+
+@admin.register(PlatformProfile)
+class PlatformProfileAdmin(admin.ModelAdmin):
+    list_display = ('name', 'phone_number', 'registration_number')
+    
+    def has_add_permission(self, request):
+        # Allow adding only if no instance exists
+        if self.model.objects.exists():
+            return False
+        return super().has_add_permission(request)
