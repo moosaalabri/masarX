@@ -1,57 +1,96 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
 from .models import Profile, Parcel, Country, Governate, City, PlatformProfile
+from django.utils.translation import gettext_lazy as _
+from django.urls import path, reverse
+from django.shortcuts import render
+from django.utils.html import format_html
+from django.contrib import messages
+from .whatsapp_utils import send_whatsapp_message_detailed
+import logging
 
-@admin.register(Country)
-class CountryAdmin(admin.ModelAdmin):
-    list_display = ('name_en', 'name_ar')
-    search_fields = ('name_en', 'name_ar')
+class ProfileInline(admin.StackedInline):
+    model = Profile
+    can_delete = False
+    verbose_name_plural = _('Profiles')
 
-@admin.register(Governate)
-class GovernateAdmin(admin.ModelAdmin):
-    list_display = ('name_en', 'name_ar', 'country')
-    list_filter = ('country',)
-    search_fields = ('name_en', 'name_ar')
+class CustomUserAdmin(UserAdmin):
+    inlines = (ProfileInline,)
 
-@admin.register(City)
-class CityAdmin(admin.ModelAdmin):
-    list_display = ('name_en', 'name_ar', 'governate')
-    list_filter = ('governate__country', 'governate')
-    search_fields = ('name_en', 'name_ar')
-
-@admin.register(Profile)
-class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'role', 'phone_number', 'country', 'governate', 'city')
-    list_filter = ('role', 'country', 'governate')
-    search_fields = ('user__username', 'phone_number')
-
-@admin.register(Parcel)
 class ParcelAdmin(admin.ModelAdmin):
-    list_display = ('tracking_number', 'shipper', 'carrier', 'status', 'payment_status', 'created_at')
-    list_filter = ('status', 'payment_status', 'pickup_country', 'delivery_country')
-    search_fields = ('tracking_number', 'shipper__username', 'carrier__username', 'receiver_name')
-    readonly_fields = ('tracking_number', 'created_at', 'updated_at')
+    list_display = ('tracking_number', 'shipper', 'status', 'created_at')
+    list_filter = ('status', 'created_at')
+    search_fields = ('tracking_number', 'shipper__username', 'receiver_name')
 
-@admin.register(PlatformProfile)
 class PlatformProfileAdmin(admin.ModelAdmin):
-    list_display = ('name', 'phone_number', 'registration_number')
     fieldsets = (
-        (None, {
-            'fields': ('name', 'logo', 'slogan')
+        (_('General Info'), {
+            'fields': ('name', 'logo', 'slogan', 'address', 'phone_number', 'registration_number', 'vat_number')
         }),
-        ('Contact Information', {
-            'fields': ('address', 'phone_number', 'registration_number', 'vat_number')
-        }),
-        ('Legal', {
+        (_('Policies'), {
             'fields': ('privacy_policy', 'terms_conditions')
         }),
-        ('WhatsApp Configuration', {
-            'fields': ('whatsapp_access_token', 'whatsapp_business_phone_number_id'),
-            'description': 'Enter your Meta WhatsApp Business API credentials here. These will override the system defaults.'
+        (_('WhatsApp Configuration (Wablas Gateway)'), {
+            'fields': ('whatsapp_access_token', 'whatsapp_app_secret', 'whatsapp_business_phone_number_id'),
+            'description': _('Configure your Wablas API connection. Use "Test WhatsApp Configuration" to verify.')
         }),
     )
     
     def has_add_permission(self, request):
-        # Allow adding only if no instance exists
+        # Allow only one instance
         if self.model.objects.exists():
             return False
         return super().has_add_permission(request)
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('test-whatsapp/', self.admin_site.admin_view(self.test_whatsapp_view), name='test-whatsapp'),
+        ]
+        return custom_urls + urls
+
+    def test_whatsapp_view(self, request):
+        phone_number = ''
+        if request.method == 'POST':
+            phone_number = request.POST.get('phone_number')
+            if phone_number:
+                success, msg = send_whatsapp_message_detailed(phone_number, "This is a test message from your Platform.")
+                if success:
+                    messages.success(request, f"Success: {msg}")
+                else:
+                    messages.error(request, f"Error: {msg}")
+            else:
+                messages.warning(request, "Please enter a phone number.")
+        
+        context = dict(
+           self.admin_site.each_context(request),
+           phone_number=phone_number,
+        )
+        return render(request, "admin/core/platformprofile/test_whatsapp.html", context)
+
+    def test_connection_link(self, obj):
+        return format_html(
+            '<a class="button" href="{}">{}</a>',
+            reverse('admin:test-whatsapp'),
+            _('Test WhatsApp Configuration')
+        )
+    test_connection_link.short_description = _("Actions")
+    test_connection_link.allow_tags = True
+    
+    readonly_fields = ('test_connection_link',)
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        # Add the test link to the first fieldset or a new one
+        if obj:
+             fieldsets += ((_('Tools'), {'fields': ('test_connection_link',)}),)
+        return fieldsets
+
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)
+admin.site.register(Parcel, ParcelAdmin)
+admin.site.register(Country)
+admin.site.register(Governate)
+admin.site.register(City)
+admin.site.register(PlatformProfile, PlatformProfileAdmin)

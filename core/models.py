@@ -5,6 +5,7 @@ from django.utils.translation import get_language
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 import uuid
 
 class Country(models.Model):
@@ -160,9 +161,21 @@ class PlatformProfile(models.Model):
     privacy_policy = models.TextField(_('Privacy Policy'), blank=True)
     terms_conditions = models.TextField(_('Terms and Conditions'), blank=True)
     
-    # WhatsApp Configuration
-    whatsapp_access_token = models.TextField(_('WhatsApp Access Token'), blank=True, help_text=_("Permanent or temporary access token from Meta Business."))
-    whatsapp_business_phone_number_id = models.CharField(_('WhatsApp Phone Number ID'), max_length=100, blank=True, help_text=_("The Phone Number ID from WhatsApp API setup."))
+    # WhatsApp Configuration (Wablas Gateway)
+    whatsapp_access_token = models.TextField(_('Wablas API Token'), blank=True, help_text=_("Your Wablas API Token."))
+    whatsapp_business_phone_number_id = models.CharField(_('Wablas Domain'), max_length=100, blank=True, default="https://deu.wablas.com", help_text=_("The Wablas API domain (e.g., https://deu.wablas.com)."))
+    whatsapp_app_secret = models.CharField(_('Wablas Secret Key'), max_length=255, blank=True, help_text=_("Your Wablas API Secret Key (if required)."))
+
+    def save(self, *args, **kwargs):
+        # Auto-clean whitespace from credentials
+        if self.whatsapp_access_token:
+            self.whatsapp_access_token = self.whatsapp_access_token.strip()
+        if self.whatsapp_business_phone_number_id:
+            self.whatsapp_business_phone_number_id = self.whatsapp_business_phone_number_id.strip()
+        if self.whatsapp_app_secret:
+            self.whatsapp_app_secret = self.whatsapp_app_secret.strip()
+            
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
