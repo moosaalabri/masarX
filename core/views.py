@@ -7,6 +7,15 @@ from .forms import UserRegistrationForm, ParcelForm
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
 from django.http import JsonResponse
+from django.urls import reverse
+from .payment_utils import ThawaniPay
+from django.conf import settings
+from .whatsapp_utils import (
+    notify_shipment_created, 
+    notify_payment_received, 
+    notify_driver_assigned, 
+    notify_status_change
+)
 
 def index(request):
     tracking_id = request.GET.get('tracking_id')
@@ -45,7 +54,7 @@ def dashboard(request):
         return render(request, 'core/shipper_dashboard.html', {'parcels': parcels})
     else:
         # Car Owner view
-        available_parcels = Parcel.objects.filter(status='pending').order_by('-created_at')
+        available_parcels = Parcel.objects.filter(status='pending', payment_status='paid').order_by('-created_at')
         my_parcels = Parcel.objects.filter(carrier=request.user).exclude(status='delivered').order_by('-created_at')
         return render(request, 'core/driver_dashboard.html', {
             'available_parcels': available_parcels,
@@ -65,6 +74,10 @@ def shipment_request(request):
             parcel = form.save(commit=False)
             parcel.shipper = request.user
             parcel.save()
+            
+            # WhatsApp Notification
+            notify_shipment_created(parcel)
+            
             messages.success(request, _("Shipment requested successfully! Tracking ID: ") + parcel.tracking_number)
             return redirect('dashboard')
     else:
@@ -78,10 +91,14 @@ def accept_parcel(request, parcel_id):
         messages.error(request, _("Only car owners can accept shipments."))
         return redirect('dashboard')
         
-    parcel = get_object_or_404(Parcel, id=parcel_id, status='pending')
+    parcel = get_object_or_404(Parcel, id=parcel_id, status='pending', payment_status='paid')
     parcel.carrier = request.user
     parcel.status = 'picked_up'
     parcel.save()
+    
+    # WhatsApp Notification
+    notify_driver_assigned(parcel)
+    
     messages.success(request, _("You have accepted the shipment!"))
     return redirect('dashboard')
 
@@ -93,7 +110,57 @@ def update_status(request, parcel_id):
         if new_status in dict(Parcel.STATUS_CHOICES):
             parcel.status = new_status
             parcel.save()
+            
+            # WhatsApp Notification
+            notify_status_change(parcel)
+            
             messages.success(request, _("Status updated successfully!"))
+    return redirect('dashboard')
+
+@login_required
+def initiate_payment(request, parcel_id):
+    parcel = get_object_or_404(Parcel, id=parcel_id, shipper=request.user, payment_status='pending')
+    
+    thawani = ThawaniPay()
+    success_url = request.build_absolute_uri(reverse('payment_success')) + f"?session_id={{CHECKOUT_SESSION_ID}}&parcel_id={parcel.id}"
+    cancel_url = request.build_absolute_uri(reverse('payment_cancel')) + f"?parcel_id={parcel.id}"
+    
+    session_id = thawani.create_checkout_session(parcel, success_url, cancel_url)
+    
+    if session_id:
+        parcel.thawani_session_id = session_id
+        parcel.save()
+        checkout_url = f"{settings.THAWANI_API_URL.replace('/api/v1', '')}/pay/{session_id}?key={settings.THAWANI_PUBLISHABLE_KEY}"
+        return redirect(checkout_url)
+    else:
+        messages.error(request, _("Could not initiate payment. Please try again later."))
+        return redirect('dashboard')
+
+@login_required
+def payment_success(request):
+    session_id = request.GET.get('session_id')
+    parcel_id = request.GET.get('parcel_id')
+    parcel = get_object_or_404(Parcel, id=parcel_id, shipper=request.user)
+    
+    thawani = ThawaniPay()
+    session_data = thawani.get_checkout_session(session_id)
+    
+    if session_data and session_data.get('payment_status') == 'paid':
+        parcel.payment_status = 'paid'
+        parcel.save()
+        
+        # WhatsApp Notification
+        notify_payment_received(parcel)
+        
+        messages.success(request, _("Payment successful! Your shipment is now active."))
+    else:
+        messages.warning(request, _("Payment status is pending or failed. Please check your dashboard."))
+        
+    return redirect('dashboard')
+
+@login_required
+def payment_cancel(request):
+    messages.info(request, _("Payment was cancelled."))
     return redirect('dashboard')
 
 def article_detail(request):

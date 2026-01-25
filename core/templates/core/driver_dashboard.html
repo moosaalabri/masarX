@@ -26,7 +26,10 @@
                             <h5 class="card-title">{{ parcel.description|truncatechars:30 }}</h5>
                             <p class="card-text mb-1 small"><strong>{% trans "Pickup" %}:</strong> {{ parcel.pickup_address }}</p>
                             <p class="card-text mb-3 small"><strong>{% trans "Delivery" %}:</strong> {{ parcel.delivery_address }}</p>
-                            <p class="card-text mb-3 small text-muted"><strong>{% trans "Weight" %}:</strong> {{ parcel.weight }} kg</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="text-muted small"><strong>{% trans "Weight" %}:</strong> {{ parcel.weight }} kg</span>
+                                <span class="text-primary fw-bold">{{ parcel.price }} OMR</span>
+                            </div>
                             <form action="{% url 'accept_parcel' parcel.id %}" method="POST">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-masarx-primary w-100">{% trans "Accept Shipment" %}</button>

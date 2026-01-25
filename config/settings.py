@@ -185,6 +185,23 @@ CONTACT_EMAIL_TO = [
 # When both TLS and SSL flags are enabled, prefer SSL explicitly
 if EMAIL_USE_SSL:
     EMAIL_USE_TLS = False
+
+# Thawani Payment Settings
+THAWANI_API_KEY = os.getenv("THAWANI_API_KEY", "rRQ26GcsZ60u9YCD9As60reHscS3Jt") # Placeholder Test Key
+THAWANI_PUBLISHABLE_KEY = os.getenv("THAWANI_PUBLISHABLE_KEY", "HGvTMLsnssOfssSshvSOfssOfsSshv") # Placeholder
+THAWANI_MODE = os.getenv("THAWANI_MODE", "test") # 'test' or 'live'
+
+if THAWANI_MODE == 'live':
+    THAWANI_API_URL = "https://checkout.thawani.om/api/v1"
+else:
+    THAWANI_API_URL = "https://uatcheckout.thawani.om/api/v1"
+
+# WhatsApp Notification Settings
+WHATSAPP_API_KEY = os.getenv("WHATSAPP_API_KEY", "")
+WHATSAPP_PHONE_ID = os.getenv("WHATSAPP_PHONE_ID", "")
+WHATSAPP_BUSINESS_ACCOUNT_ID = os.getenv("WHATSAPP_BUSINESS_ACCOUNT_ID", "")
+WHATSAPP_ENABLED = os.getenv("WHATSAPP_ENABLED", "false").lower() == "true"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

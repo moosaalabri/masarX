@@ -76,12 +76,19 @@ class Parcel(models.Model):
         ('cancelled', _('Cancelled')),
     )
     
+    PAYMENT_STATUS_CHOICES = (
+        ('pending', _('Pending')),
+        ('paid', _('Paid')),
+        ('failed', _('Failed')),
+    )
+    
     tracking_number = models.CharField(_('Tracking Number'), max_length=20, unique=True, blank=True)
     shipper = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_parcels', verbose_name=_('Shipper'))
     carrier = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='carried_parcels', verbose_name=_('Carrier'))
     
     description = models.TextField(_('Description'))
     weight = models.DecimalField(_('Weight (kg)'), max_digits=5, decimal_places=2, help_text=_("Weight in kg"))
+    price = models.DecimalField(_('Price (OMR)'), max_digits=10, decimal_places=3, default=0.000)
     
     # Pickup Location
     pickup_country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True, related_name='pickup_parcels', verbose_name=_('Pickup Country'))
@@ -92,13 +99,16 @@ class Parcel(models.Model):
     # Delivery Location
     delivery_country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True, related_name='delivery_parcels', verbose_name=_('Delivery Country'))
     delivery_governate = models.ForeignKey(Governate, on_delete=models.SET_NULL, null=True, blank=True, related_name='delivery_parcels', verbose_name=_('Delivery Governate'))
-    delivery_city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, related_name='delivery_parcels', verbose_name=_('Delivery City'))
+    delivery_city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, related_name='delivery_city_parcels', verbose_name=_('Delivery City'))
     delivery_address = models.CharField(_('Delivery Address'), max_length=255)
     
     receiver_name = models.CharField(_('Receiver Name'), max_length=100)
     receiver_phone = models.CharField(_('Receiver Phone'), max_length=20)
     
     status = models.CharField(_('Status'), max_length=20, choices=STATUS_CHOICES, default='pending')
+    payment_status = models.CharField(_('Payment Status'), max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    thawani_session_id = models.CharField(_('Thawani Session ID'), max_length=255, blank=True, null=True)
+    
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 

@@ -1,6 +1,6 @@
 from django.urls import path
-from django.contrib.auth import views as auth_views
 from . import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -16,4 +16,9 @@ urlpatterns = [
     # AJAX for locations
     path('ajax/get-governates/', views.get_governates, name='get_governates'),
     path('ajax/get-cities/', views.get_cities, name='get_cities'),
+    
+    # Thawani Payment
+    path('payment/initiate/<int:parcel_id>/', views.initiate_payment, name='initiate_payment'),
+    path('payment/success/', views.payment_success, name='payment_success'),
+    path('payment/cancel/', views.payment_cancel, name='payment_cancel'),
 ]

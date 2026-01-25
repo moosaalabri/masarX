@@ -69,7 +69,7 @@ class ParcelForm(forms.ModelForm):
     class Meta:
         model = Parcel
         fields = [
-            'description', 'weight', 
+            'description', 'weight', 'price',
             'pickup_country', 'pickup_governate', 'pickup_city', 'pickup_address', 
             'delivery_country', 'delivery_governate', 'delivery_city', 'delivery_address', 
             'receiver_name', 'receiver_phone'
@@ -77,6 +77,7 @@ class ParcelForm(forms.ModelForm):
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': _('What are you sending?')}),
             'weight': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.001'}),
             
             'pickup_country': forms.Select(attrs={'class': 'form-control'}),
             'pickup_governate': forms.Select(attrs={'class': 'form-control'}),
@@ -94,6 +95,7 @@ class ParcelForm(forms.ModelForm):
         labels = {
             'description': _('Package Description'),
             'weight': _('Weight (kg)'),
+            'price': _('Shipping Price (OMR)'),
             'pickup_country': _('Pickup Country'),
             'pickup_governate': _('Pickup Governate'),
             'pickup_city': _('Pickup City'),
