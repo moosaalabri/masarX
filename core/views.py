@@ -43,12 +43,75 @@ def register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('dashboard')
+            # Save user but inactive
+            user = form.save(commit=True)
+            user.is_active = False
+            user.save()
+
+            # Generate OTP
+            code = ''.join(random.choices(string.digits, k=6))
+            OTPVerification.objects.create(user=user, code=code, purpose='registration')
+
+            # Send OTP
+            method = form.cleaned_data.get('verification_method', 'email')
+            if method == 'whatsapp':
+                phone = user.profile.phone_number
+                send_whatsapp_message(phone, f"Your verification code is: {code}")
+                messages.info(request, _("Verification code sent to WhatsApp."))
+            else:
+                send_mail(
+                    _('Verification Code'),
+                    f'Your verification code is: {code}',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                )
+                messages.info(request, _("Verification code sent to email."))
+
+            request.session['registration_user_id'] = user.id
+            return redirect('verify_registration')
     else:
         form = UserRegistrationForm()
     return render(request, 'core/register.html', {'form': form})
+
+def verify_registration(request):
+    if 'registration_user_id' not in request.session:
+        messages.error(request, _("Session expired or invalid."))
+        return redirect('register')
+
+    if request.method == 'POST':
+        code = request.POST.get('code')
+        user_id = request.session['registration_user_id']
+        try:
+            user = User.objects.get(id=user_id)
+            otp = OTPVerification.objects.filter(
+                user=user, 
+                code=code, 
+                purpose='registration', 
+                is_verified=False
+            ).latest('created_at')
+            
+            if otp.is_valid():
+                # Activate User
+                user.is_active = True
+                user.save()
+                
+                # Cleanup
+                otp.is_verified = True
+                otp.save()
+                del request.session['registration_user_id']
+                
+                # Login
+                login(request, user)
+                
+                messages.success(request, _("Account verified successfully!"))
+                return redirect('dashboard')
+            else:
+                messages.error(request, _("Invalid or expired code."))
+        except (User.DoesNotExist, OTPVerification.DoesNotExist):
+            messages.error(request, _("Invalid code."))
+            
+    return render(request, 'core/verify_registration.html')
 
 @login_required
 def dashboard(request):

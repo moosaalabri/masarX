@@ -15,6 +15,7 @@ class UserRegistrationForm(forms.ModelForm):
     password_confirm = forms.CharField(widget=forms.PasswordInput, label=_("Confirm Password"))
     role = forms.ChoiceField(choices=Profile.ROLE_CHOICES, label=_("Register as"))
     phone_number = forms.CharField(max_length=20, label=_("Phone Number"))
+    verification_method = forms.ChoiceField(choices=[('email', _('Email')), ('whatsapp', _('WhatsApp'))], label=_("Verify via"), widget=forms.RadioSelect, initial='email')
     
     country = forms.ModelChoiceField(queryset=Country.objects.all(), required=False, label=_("Country"))
     governate = forms.ModelChoiceField(queryset=Governate.objects.none(), required=False, label=_("Governate"))

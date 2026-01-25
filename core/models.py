@@ -198,6 +198,7 @@ class OTPVerification(models.Model):
     PURPOSE_CHOICES = (
         ('profile_update', _('Profile Update')),
         ('password_reset', _('Password Reset')),
+        ('registration', _('Registration')),
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     code = models.CharField(max_length=6)

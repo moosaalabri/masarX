@@ -1,25 +1,25 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Verify Profile Update" %} | masarX{% endblock %}
+{% block title %}{% trans "Verify Account" %} | masarX{% endblock %}
 
 {% block content %}
 <section class="py-5 bg-light" style="min-height: 80vh;">
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-md-6">
-                <!-- Back to Edit Profile -->
+                <!-- Back to Register -->
                 <div class="mb-4">
-                    <a href="{% url 'edit_profile' %}" class="btn btn-link text-decoration-none text-muted ps-0">
-                        <i class="bi bi-arrow-left me-2"></i>{% trans "Back to Edit Profile" %}
+                    <a href="{% url 'register' %}" class="btn btn-link text-decoration-none text-muted ps-0">
+                        <i class="bi bi-arrow-left me-2"></i>{% trans "Back to Register" %}
                     </a>
                 </div>
 
                 <div class="card shadow-sm border-0">
                     <div class="card-body p-5">
-                        <h2 class="fw-bold mb-4 text-center">{% trans "Verification Required" %}</h2>
+                        <h2 class="fw-bold mb-4 text-center">{% trans "Account Verification" %}</h2>
                         <p class="text-center text-muted mb-4">
-                            {% trans "We have sent a verification code to your selected contact method. Please enter it below to save your changes." %}
+                            {% trans "We have sent a verification code to verify your account. Please enter it below to complete registration." %}
                         </p>
                         <form method="post">
                             {% csrf_token %}
@@ -27,9 +27,8 @@
                                 <label class="form-label fw-semibold" for="code">{% trans "Verification Code" %}</label>
                                 <input type="text" name="code" id="code" class="form-control text-center fs-3 tracking-widest" maxlength="6" required placeholder="000000">
                             </div>
-                            <div class="d-flex gap-2">
-                                <a href="{% url 'edit_profile' %}" class="btn btn-outline-secondary w-50 py-2">{% trans "Cancel" %}</a>
-                                <button type="submit" class="btn btn-masarx-primary w-50 py-2">{% trans "Verify & Save" %}</button>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-masarx-primary py-2">{% trans "Verify Account" %}</button>
                             </div>
                         </form>
                     </div>
