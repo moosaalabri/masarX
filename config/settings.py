@@ -180,7 +180,7 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "aalabry@gmail.com")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "accd uacy kzdq aejp")
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "true").lower() == "true"
 EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "false").lower() == "true"
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "no-reply@example.com")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
 CONTACT_EMAIL_TO = [
     item.strip()
     for item in os.getenv("CONTACT_EMAIL_TO", DEFAULT_FROM_EMAIL).split(",")

@@ -261,11 +261,13 @@ def edit_profile_view(request):
                 messages.info(request, _("Verification code sent to WhatsApp."))
             else:
                 # Default to email
+                # Send to the NEW email address (from the form), not the old one
+                target_email = data['email']
                 send_mail(
                     _('Verification Code'),
                     f'Your verification code is: {code}',
                     settings.DEFAULT_FROM_EMAIL,
-                    [request.user.email],
+                    [target_email],
                     fail_silently=False,
                 )
                 messages.info(request, _("Verification code sent to email."))
@@ -325,4 +327,4 @@ def verify_otp_view(request):
         except OTPVerification.DoesNotExist:
             messages.error(request, _("Invalid code."))
             
-    return render(request, 'core/verify_otp.html', {'form': form})
+    return render(request, 'core/verify_otp.html')
