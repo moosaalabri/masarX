@@ -1390,3 +1390,6 @@ msgstr "مسح رمز الاستجابة السريعة"
 
 msgid "Tracking No"
 msgstr "رقم التتبع"
+
+msgid "Cancelled Shipments"
+msgstr "الشحنات الملغاة"

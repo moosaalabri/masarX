@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from . import api_views
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -64,4 +65,10 @@ urlpatterns = [
     # OTP Login
     path('login/request-otp/', views.request_login_otp, name='request_login_otp'),
     path('login/verify-otp/', views.verify_login_otp, name='verify_login_otp'),
+
+    # API Endpoints
+    path('api/auth/token/', api_views.CustomAuthToken.as_view(), name='api_token_auth'),
+    path('api/parcels/', api_views.ParcelListCreateView.as_view(), name='api_parcel_list'),
+    path('api/parcels/<int:pk>/', api_views.ParcelDetailView.as_view(), name='api_parcel_detail'),
+    path('api/profile/', api_views.UserProfileView.as_view(), name='api_user_profile'),
 ]

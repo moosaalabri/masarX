@@ -160,7 +160,10 @@ def dashboard(request):
     if profile.role == 'shipper':
         all_parcels = Parcel.objects.filter(shipper=request.user).order_by('-created_at')
         active_parcels_list = all_parcels.exclude(status__in=['delivered', 'cancelled'])
-        history_parcels = all_parcels.filter(status__in=['delivered', 'cancelled'])
+        
+        # Split history into delivered and cancelled
+        delivered_parcels = all_parcels.filter(status='delivered')
+        cancelled_parcels = all_parcels.filter(status='cancelled')
         
         # Pagination for Active Shipments
         page = request.GET.get('page', 1)
@@ -178,7 +181,8 @@ def dashboard(request):
         
         return render(request, 'core/shipper_dashboard.html', {
             'active_parcels': active_parcels,
-            'history_parcels': history_parcels,
+            'delivered_parcels': delivered_parcels,
+            'cancelled_parcels': cancelled_parcels,
             'payments_enabled': payments_enabled,
             'platform_profile': platform_profile # Pass full profile just in case
         })
@@ -206,13 +210,17 @@ def dashboard(request):
         # Active: Picked up or In Transit
         my_parcels = Parcel.objects.filter(carrier=request.user).exclude(status__in=['delivered', 'cancelled']).order_by('-created_at')
         
-        # History: Delivered or Cancelled
-        completed_parcels = Parcel.objects.filter(carrier=request.user, status__in=['delivered', 'cancelled']).order_by('-created_at')
+        # History: Delivered
+        completed_parcels = Parcel.objects.filter(carrier=request.user, status='delivered').order_by('-created_at')
+        
+        # Cancelled
+        cancelled_parcels = Parcel.objects.filter(carrier=request.user, status='cancelled').order_by('-created_at')
         
         return render(request, 'core/driver_dashboard.html', {
             'available_parcels': available_parcels,
             'my_parcels': my_parcels,
-            'completed_parcels': completed_parcels
+            'completed_parcels': completed_parcels,
+            'cancelled_parcels': cancelled_parcels
         })
 
 @login_required

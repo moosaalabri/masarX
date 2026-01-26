@@ -104,3 +104,61 @@ h1, h2, h3, h4, h5, h6 {
 .status-picked_up { background: #E3FAFC; color: #0B7285; }
 .status-in_transit { background: #E7F5FF; color: #1864AB; }
 .status-delivered { background: #EBFBEE; color: #2B8A3E; }
+
+/* Chat Widget */
+#masar-chat-widget {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 350px;
+    height: 500px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+}
+
+#masar-chat-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    background-color: var(--accent-orange);
+    color: white;
+    border: none;
+    transition: transform 0.2s;
+}
+
+#masar-chat-toggle:hover {
+    transform: scale(1.05);
+}
+
+/* RTL Support */
+[dir="rtl"] #masar-chat-widget {
+    right: auto;
+    left: 20px;
+}
+[dir="rtl"] #masar-chat-toggle {
+    right: auto;
+    left: 20px;
+}
+
+.typing-dots span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #adb5bd;
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: typing 1s infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}

@@ -49,12 +49,15 @@ CSRF_COOKIE_SAMESITE = "None"
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
     'core',
 ]
 
@@ -224,3 +227,82 @@ if HOST_FQDN:
          SITE_URL = HOST_FQDN
 else:
     SITE_URL = "http://127.0.0.1:8000"
+
+# Jazzmin Settings
+JAZZMIN_SETTINGS = {
+    "site_title": "Masar Express Admin",
+    "site_header": "Masar Express",
+    "site_brand": "Masar Express",
+    "site_logo": "img/logo.jpg",
+    "login_logo": "img/logo.jpg",
+    "welcome_sign": "Welcome to Masar Express Admin",
+    "copyright": "Masar Express",
+    "search_model": ["core.Parcel", "auth.User"],
+    "user_avatar": None,
+    "topmenu_links": [
+        {"name": "Home",  "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"model": "auth.User"},
+        {"app": "core"},
+    ],
+    "usermenu_links": [
+        {"model": "auth.User"}
+    ],
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "hide_apps": [],
+    "hide_models": [],
+    "order_with_respect_to": ["core", "auth"],
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        "core.Parcel": "fas fa-box",
+        "core.Profile": "fas fa-id-card",
+        "core.PlatformProfile": "fas fa-building",
+        "core.Country": "fas fa-globe",
+        "core.City": "fas fa-city",
+        "core.DriverRating": "fas fa-star",
+        "core.Testimonial": "fas fa-comment",
+    },
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+    "related_modal_active": False,
+    "custom_css": "css/custom.css",
+    "custom_js": None,
+    "use_google_fonts_cdn": True,
+    "show_ui_builder": False,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": False,
+    "accent": "accent-primary",
+    "navbar": "navbar-white navbar-light",
+    "no_navbar_border": False,
+    "navbar_fixed": False,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-primary",
+    "sidebar_nav_small_text": False,
+    "theme": "flatly",
+    "dark_mode_theme": None,
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success"
+    }
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+}
