@@ -172,5 +172,5 @@ admin.site.register(City)
 admin.site.register(PlatformProfile, PlatformProfileAdmin)
 admin.site.register(Testimonial, TestimonialAdmin)
 
-# Set custom admin index template
-admin.site.index_template = 'admin/dashboard.html'
+# Set custom admin index template - using default 'admin/index.html' which we have overridden
+# admin.site.index_template = 'admin/dashboard.html'
