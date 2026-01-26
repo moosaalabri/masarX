@@ -98,6 +98,13 @@
         box-shadow: var(--shadow);
         border: 1px solid #e5e7eb;
     }
+
+    /* Fix for Chart.js infinite growth loop */
+    .chart-wrapper {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
     
     .section-title {
         font-size: 1.1rem;
@@ -215,7 +222,9 @@
     <div class="charts-grid">
         <div class="chart-container">
             <h3 class="section-title">{% trans "Shipments Overview (Last 7 Days)" %}</h3>
-            <canvas id="shipmentsChart" height="150"></canvas>
+            <div class="chart-wrapper">
+                <canvas id="shipmentsChart"></canvas>
+            </div>
         </div>
 
         <div class="recent-activity">
