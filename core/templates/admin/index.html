@@ -1,0 +1,295 @@
+{% extends "admin/index.html" %}
+{% load i18n static dashboard_stats %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css" integrity="sha512-/zs32ZEJh+/EO2N1b0PEdoA10JkdC3zJ8L5FTiQu82LR9S/rOQNfQN7U59U9BC12swNeRAz3HSzIL2vpp4fv3w==" crossorigin="anonymous" />
+<style>
+    :root {
+        --primary-color: #4f46e5;
+        --secondary-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --text-dark: #1f2937;
+        --text-light: #6b7280;
+        --bg-card: #ffffff;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .dashboard-container {
+        margin-bottom: 30px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: var(--bg-card);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        border: 1px solid #e5e7eb;
+        transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .stat-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .icon-revenue { background: #d1fae5; color: #059669; }
+    .icon-parcels { background: #dbeafe; color: #2563eb; }
+    .icon-drivers { background: #fef3c7; color: #d97706; }
+    .icon-pending { background: #fee2e2; color: #dc2626; }
+
+    .charts-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    @media (max-width: 1024px) {
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .chart-container, .recent-activity {
+        background: var(--bg-card);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        border: 1px solid #e5e7eb;
+    }
+    
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .activity-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-avatar {
+        width: 36px;
+        height: 36px;
+        background: #e5e7eb;
+        border-radius: 50%;
+        margin-right: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: bold;
+        color: var(--text-light);
+    }
+
+    .activity-details {
+        flex: 1;
+    }
+
+    .activity-text {
+        font-size: 0.9rem;
+        color: var(--text-dark);
+        font-weight: 500;
+    }
+
+    .activity-subtext {
+        font-size: 0.75rem;
+        color: var(--text-light);
+    }
+
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .status-delivered { background: #d1fae5; color: #065f46; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-cancelled { background: #fee2e2; color: #b91c1c; }
+
+</style>
+{% endblock %}
+
+{% block content %}
+{% get_dashboard_stats as stats %}
+
+<div class="dashboard-container">
+    
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">{% trans "Total Revenue" %}</span>
+                <div class="stat-icon icon-revenue">💰</div>
+            </div>
+            <div class="stat-value">{{ stats.total_revenue|floatform:2 }} <span style="font-size: 1rem; color: #6b7280;">OMR</span></div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">{% trans "Total Parcels" %}</span>
+                <div class="stat-icon icon-parcels">📦</div>
+            </div>
+            <div class="stat-value">{{ stats.total_parcels }}</div>
+            <div style="font-size: 0.8rem; color: #6b7280; margin-top: 5px;">
+                {{ stats.delivered_parcels }} Delivered
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">{% trans "Active Drivers" %}</span>
+                <div class="stat-icon icon-drivers">🚚</div>
+            </div>
+            <div class="stat-value">{{ stats.drivers_count }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">{% trans "Pending Orders" %}</span>
+                <div class="stat-icon icon-pending">⏳</div>
+            </div>
+            <div class="stat-value">{{ stats.pending_parcels }}</div>
+        </div>
+    </div>
+
+    <!-- Charts & Activity -->
+    <div class="charts-grid">
+        <div class="chart-container">
+            <h3 class="section-title">{% trans "Shipments Overview (Last 7 Days)" %}</h3>
+            <canvas id="shipmentsChart" height="150"></canvas>
+        </div>
+
+        <div class="recent-activity">
+            <h3 class="section-title">{% trans "Recent Activity" %}</h3>
+            <ul class="activity-list">
+                {% for parcel in stats.recent_parcels %}
+                <li class="activity-item">
+                    <div class="activity-avatar">
+                        {{ parcel.shipper.username|slice:":1"|upper }}
+                    </div>
+                    <div class="activity-details">
+                        <div class="activity-text">{% trans "New Parcel" %} #{{ parcel.tracking_number|slice:":8" }}...</div>
+                        <div class="activity-subtext">{{ parcel.created_at|timesince }} {% trans "ago" %}</div>
+                    </div>
+                    <span class="status-badge status-{{ parcel.status }}">
+                        {{ parcel.get_status_display }}
+                    </span>
+                </li>
+                {% empty %}
+                <li class="activity-item">{% trans "No recent activity." %}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+<!-- Standard Admin Index Content -->
+{{ block.super }}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('shipmentsChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ stats.chart_labels|safe }},
+            datasets: [{
+                label: '{% trans "Parcels" %}',
+                data: {{ stats.chart_data|safe }},
+                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                borderColor: '#4f46e5',
+                borderWidth: 2,
+                pointBackgroundColor: '#ffffff',
+                pointBorderColor: '#4f46e5',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        stepSize: 1
+                    },
+                    gridLines: {
+                        display: false
+                    }
+                }],
+                xAxes: [{
+                    gridLines: {
+                        color: '#f3f4f6'
+                    }
+                }]
+            },
+            legend: {
+                display: false
+            }
+        }
+    });
+});
+</script>
+
+{% endblock %}

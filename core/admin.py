@@ -23,6 +23,11 @@ class ProfileInline(admin.StackedInline):
 class CustomUserAdmin(UserAdmin):
     inlines = (ProfileInline,)
 
+    def get_inline_instances(self, request, obj=None):
+        if not obj:
+            return list()
+        return super(CustomUserAdmin, self).get_inline_instances(request, obj)
+
 class ParcelAdmin(admin.ModelAdmin):
     list_display = ('tracking_number', 'shipper', 'carrier', 'price', 'status', 'payment_status', 'created_at')
     list_filter = ('status', 'payment_status', 'created_at')

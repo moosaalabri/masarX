@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-26 05:03+0000\n"
+"POT-Creation-Date: 2026-01-26 05:21+0000\n"
 "PO-Revision-Date: 2026-01-25 07:13+0000\n"
 "Last-Translator: Gemini\n"
 "Language-Team: Arabic\n"
@@ -22,46 +22,46 @@ msgstr ""
 msgid "Profiles"
 msgstr "الملفات الشخصية"
 
-#: core/admin.py:52
+#: core/admin.py:57
 msgid "Export Selected to CSV"
 msgstr "تصدير المحدد إلى CSV"
 
-#: core/admin.py:56
+#: core/admin.py:61
 msgid "General Info"
 msgstr "معلومات عامة"
 
-#: core/admin.py:59
+#: core/admin.py:64
 msgid "Policies"
 msgstr "السياسات"
 
-#: core/admin.py:62
+#: core/admin.py:67
 msgid "Payment Configuration"
 msgstr "إعدادات الدفع"
 
-#: core/admin.py:65
+#: core/admin.py:70
 msgid "WhatsApp Configuration (Wablas Gateway)"
 msgstr "إعدادات واتساب (بوابة Wablas)"
 
-#: core/admin.py:67
+#: core/admin.py:72
 msgid ""
 "Configure your Wablas API connection. Use \"Test WhatsApp Configuration\" to "
 "verify."
 msgstr ""
 "قم بتكوين اتصال Wablas API الخاص بك. استخدم \"اختبار إعدادات واتساب\" للتحقق."
 
-#: core/admin.py:134
+#: core/admin.py:139
 msgid "Test WhatsApp"
 msgstr "اختبار واتساب"
 
-#: core/admin.py:136
+#: core/admin.py:141
 msgid "Test Email"
 msgstr "اختبار البريد الإلكتروني"
 
-#: core/admin.py:138
+#: core/admin.py:143
 msgid "Actions"
 msgstr "إجراءات"
 
-#: core/admin.py:149
+#: core/admin.py:154
 msgid "Tools"
 msgstr "أدوات"
 
@@ -376,7 +376,7 @@ msgstr "حدث في"
 msgid "Parcel"
 msgstr "طرد"
 
-#: core/models.py:165
+#: core/models.py:165 core/templates/admin/index.html:258
 msgid "Parcels"
 msgstr "طرود"
 
@@ -505,6 +505,42 @@ msgstr "تقييمات السائق"
 #: core/templates/admin/core/platformprofile/test_whatsapp.html:11
 msgid "Home"
 msgstr "الرئيسية"
+
+#: core/templates/admin/index.html:180
+msgid "Total Revenue"
+msgstr "إجمالي الإيرادات"
+
+#: core/templates/admin/index.html:188
+msgid "Total Parcels"
+msgstr "إجمالي الطرود"
+
+#: core/templates/admin/index.html:199
+msgid "Active Drivers"
+msgstr "السائقون النشطون"
+
+#: core/templates/admin/index.html:207
+msgid "Pending Orders"
+msgstr "طلبات قيد الانتظار"
+
+#: core/templates/admin/index.html:217
+msgid "Shipments Overview (Last 7 Days)"
+msgstr "نظرة عامة على الشحنات (آخر 7 أيام)"
+
+#: core/templates/admin/index.html:222
+msgid "Recent Activity"
+msgstr "النشاط الأخير"
+
+#: core/templates/admin/index.html:230
+msgid "New Parcel"
+msgstr "طرد جديد"
+
+#: core/templates/admin/index.html:231
+msgid "ago"
+msgstr "مضت"
+
+#: core/templates/admin/index.html:238
+msgid "No recent activity."
+msgstr "لا يوجد نشاط حديث."
 
 #: core/templates/base.html:9 core/templates/base.html:204
 msgid "Small Shipments, Smart Delivery"
