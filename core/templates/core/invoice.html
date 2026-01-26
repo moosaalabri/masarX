@@ -1,0 +1,181 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ request.LANGUAGE_CODE }}" dir="{% if request.LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="UTF-8">
+    <title>{% trans "Tax Invoice" %} - {{ parcel.tracking_number }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: sans-serif;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.5;
+        }
+        .header {
+            width: 100%;
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+        .logo {
+            float: {% if request.LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %};
+            width: 150px;
+        }
+        .company-info {
+            float: {% if request.LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %};
+            text-align: {% if request.LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %};
+        }
+        .title {
+            clear: both;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .details-grid {
+            display: table;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        .details-col {
+            display: table-cell;
+            width: 50%;
+            vertical-align: top;
+        }
+        .label {
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 2px;
+        }
+        .value {
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background-color: #f9f9f9;
+            text-align: {% if request.LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %};
+            font-weight: bold;
+        }
+        .text-right {
+            text-align: {% if request.LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %};
+        }
+        .total-row td {
+            font-weight: bold;
+            font-size: 16px;
+            border-top: 2px solid #333;
+            border-bottom: none;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .paid { color: #0f9d58; border: 1px solid #0f9d58; }
+        .pending { color: #f4b400; border: 1px solid #f4b400; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">
+            {% if logo_base64 %}
+                <img src="data:image/jpeg;base64,{{ logo_base64 }}" style="max-width: 100%; max-height: 80px;">
+            {% else %}
+                <h2>{{ platform_profile.name }}</h2>
+            {% endif %}
+        </div>
+        <div class="company-info">
+            <strong>{{ platform_profile.name }}</strong><br>
+            {{ platform_profile.address|linebreaksbr }}<br>
+            {% if platform_profile.vat_number %}
+                {% trans "VAT Number" %}: {{ platform_profile.vat_number }}<br>
+            {% endif %}
+            {{ platform_profile.phone_number }}
+        </div>
+    </div>
+
+    <div class="title">{% trans "Tax Invoice" %}</div>
+
+    <div class="details-grid">
+        <div class="details-col">
+            <div class="label">{% trans "Invoice Details" %}</div>
+            <div class="value">
+                {% trans "Invoice No" %}: #{{ parcel.id }}<br>
+                {% trans "Date" %}: {{ parcel.created_at|date:"Y-m-d" }}<br>
+                {% trans "Status" %}: 
+                <span class="status-badge {% if parcel.payment_status == 'paid' %}paid{% else %}pending{% endif %}">
+                    {{ parcel.get_payment_status_display }}
+                </span>
+            </div>
+        </div>
+        <div class="details-col text-right">
+            <div class="label">{% trans "Bill To" %}</div>
+            <div class="value">
+                <strong>{{ parcel.shipper.first_name }} {{ parcel.shipper.last_name }}</strong><br>
+                {{ parcel.shipper.profile.address }}<br>
+                {{ parcel.shipper.email }}<br>
+                {{ parcel.shipper.profile.phone_number }}
+            </div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>{% trans "Description" %}</th>
+                <th>{% trans "Tracking Number" %}</th>
+                <th>{% trans "Weight" %}</th>
+                <th class="text-right">{% trans "Amount" %} (OMR)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{% trans "Delivery Service" %} - {{ parcel.description|truncatechars:50 }}</td>
+                <td>{{ parcel.tracking_number }}</td>
+                <td>{{ parcel.weight }} kg</td>
+                <td class="text-right">{{ parcel.price }}</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="3" class="text-right">{% trans "Total" %}</td>
+                <td class="text-right">{{ parcel.price }} OMR</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="footer">
+        <p>{% trans "Thank you for using" %} {{ platform_profile.name }}!</p>
+        {% if platform_profile.registration_number %}
+            <p>{% trans "CR No" %}: {{ platform_profile.registration_number }}</p>
+        {% endif %}
+    </div>
+
+</body>
+</html>

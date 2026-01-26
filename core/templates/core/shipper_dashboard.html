@@ -69,9 +69,16 @@
                                 {% endif %}
                             {% endif %}
                             
-                            <a href="{% url 'generate_parcel_label' parcel.id %}" class="btn btn-sm btn-outline-dark w-100 mb-3" target="_blank">
-                                <i class="fas fa-print me-1"></i> {% trans "Print Label" %}
-                            </a>
+                            <div class="d-flex gap-2 mb-3">
+                                <a href="{% url 'generate_parcel_label' parcel.id %}" class="btn btn-sm btn-outline-dark w-100" target="_blank">
+                                    <i class="fas fa-print me-1"></i> {% trans "Label" %}
+                                </a>
+                                {% if parcel.payment_status == 'paid' %}
+                                <a href="{% url 'generate_invoice' parcel.id %}" class="btn btn-sm btn-outline-secondary w-100" target="_blank">
+                                    <i class="fas fa-file-invoice me-1"></i> {% trans "Invoice" %}
+                                </a>
+                                {% endif %}
+                            </div>
 
                             <hr>
                             <p class="card-text small mb-0"><strong>{% trans "Receiver" %}:</strong> {{ parcel.receiver_name }}</p>
@@ -122,6 +129,11 @@
                                             <a href="{% url 'generate_parcel_label' parcel.id %}" class="btn btn-sm btn-outline-dark" target="_blank" title="{% trans 'Print Label' %}">
                                                 <i class="fas fa-print"></i>
                                             </a>
+                                            {% if parcel.payment_status == 'paid' %}
+                                            <a href="{% url 'generate_invoice' parcel.id %}" class="btn btn-sm btn-outline-secondary" target="_blank" title="{% trans 'Invoice' %}">
+                                                <i class="fas fa-file-invoice"></i>
+                                            </a>
+                                            {% endif %}
 
                                             {% if parcel.payment_status == 'pending' and payments_enabled %}
                                                 <a href="{% url 'initiate_payment' parcel.id %}" class="btn btn-sm btn-outline-primary flex-grow-1 flex-md-grow-0">
@@ -231,6 +243,11 @@
                                         <a href="{% url 'generate_parcel_label' parcel.id %}" class="btn btn-sm btn-outline-dark me-2" target="_blank" title="{% trans 'Print Label' %}">
                                             <i class="fas fa-print"></i>
                                         </a>
+                                        {% if parcel.payment_status == 'paid' %}
+                                        <a href="{% url 'generate_invoice' parcel.id %}" class="btn btn-sm btn-outline-secondary me-2" target="_blank" title="{% trans 'Invoice' %}">
+                                            <i class="fas fa-file-invoice"></i>
+                                        </a>
+                                        {% endif %}
                                         {% if parcel.status == 'delivered' and parcel.carrier %}
                                             {% if not rating %}
                                                 <a href="{% url 'rate_driver' parcel.id %}" class="btn btn-sm btn-outline-warning">

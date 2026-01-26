@@ -32,11 +32,13 @@ urlpatterns = [
     ), name='password_reset_complete'),
 
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('scan-qr/', views.scan_qr_view, name='scan_qr'),
     path('shipment-request/', views.shipment_request, name='shipment_request'),
     path('accept-parcel/<int:parcel_id>/', views.accept_parcel, name='accept_parcel'),
     path('update-status/<int:parcel_id>/', views.update_status, name='update_status'),
     path('rate-driver/<int:parcel_id>/', views.rate_driver, name='rate_driver'),
     path('parcel/<int:parcel_id>/label/', views.generate_parcel_label, name='generate_parcel_label'),
+    path('parcel/<int:parcel_id>/invoice/', views.generate_invoice, name='generate_invoice'),
     path('initiate-payment/<int:parcel_id>/', views.initiate_payment, name='initiate_payment'),
     path('payment-success/', views.payment_success, name='payment_success'),
     path('payment-cancel/', views.payment_cancel, name='payment_cancel'),
@@ -45,6 +47,9 @@ urlpatterns = [
     path('ajax/get-governates/', views.get_governates, name='get_governates'),
     path('ajax/get-cities/', views.get_cities, name='get_cities'),
     path('ajax/chatbot/', views.chatbot, name='chatbot'),
+    path('ajax/get-parcel-details/', views.get_parcel_details, name='get_parcel_details'),
+    path('ajax/update-parcel-status/', views.update_parcel_status_ajax, name='update_parcel_status_ajax'),
+    
     path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
     path('terms-conditions/', views.terms_conditions, name='terms_conditions'),
     path('contact/', views.contact, name='contact'),

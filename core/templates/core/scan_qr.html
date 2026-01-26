@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+
+{% block title %}masarX | {% trans "Scan Parcel" %}{% endblock %}
+
+{% block head %}
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<style>
+    #reader {
+        width: 100%;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    .scan-result-card {
+        display: none;
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">{% trans "Scan Parcel QR" %}</h1>
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left"></i> {% trans "Back to Dashboard" %}
+                </a>
+            </div>
+
+            <!-- Scanner Section -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-0">
+                    <div id="reader"></div>
+                </div>
+                <div class="card-footer bg-light text-center py-3">
+                    <p class="mb-0 text-muted small">{% trans "Point your camera at the Parcel Label QR Code" %}</p>
+                </div>
+            </div>
+
+            <!-- Manual Entry Section -->
+            <div class="text-center mb-4">
+                <p class="text-muted mb-2">{% trans "Or enter tracking number manually" %}</p>
+                <form id="manual-form" class="d-flex gap-2 justify-content-center">
+                    <input type="text" id="manual-input" class="form-control" placeholder="{% trans "e.g., TRK123456" %}" style="max-width: 200px;">
+                    <button type="submit" class="btn btn-primary">{% trans "Search" %}</button>
+                </form>
+            </div>
+
+            <!-- Result Section -->
+            <div id="scan-result" class="scan-result-card card border-0 shadow rounded-4 border-start border-5 border-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <span class="badge bg-primary mb-2" id="res-status-badge">Picked Up</span>
+                            <h4 class="card-title mb-0" id="res-tracking">#TRK-12345</h4>
+                        </div>
+                        <div class="text-end">
+                            <h5 class="text-primary fw-bold mb-0" id="res-price">5.000 OMR</h5>
+                            <small class="text-muted">{% trans "Price" %}</small>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <small class="text-muted text-uppercase fw-bold">{% trans "From" %}</small>
+                            <div class="fw-bold" id="res-from">Muscat / Seeb</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted text-uppercase fw-bold">{% trans "To" %}</small>
+                            <div class="fw-bold" id="res-to">Sohar / Liwa</div>
+                        </div>
+                        <div class="col-12">
+                            <small class="text-muted text-uppercase fw-bold">{% trans "Description" %}</small>
+                            <div id="res-desc">Box of electronics</div>
+                        </div>
+                    </div>
+
+                    <div id="action-buttons" class="d-grid gap-2">
+                        <!-- Dynamic Buttons -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loading" class="text-center py-4 d-none">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="error-msg" class="alert alert-danger d-none mt-3" role="alert"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", { fps: 10, qrbox: {width: 250, height: 250} }
+        );
+
+        function onScanSuccess(decodedText, decodedResult) {
+            // Handle on success condition with the decoded text or result.
+            console.log(`Scan result: ${decodedText}`, decodedResult);
+            fetchParcelDetails(decodedText);
+            // Optional: Pause scanner
+            // html5QrcodeScanner.clear();
+        }
+
+        function onScanFailure(error) {
+            // handle scan failure, usually better to ignore and keep scanning.
+            // console.warn(`Code scan error = ${error}`);
+        }
+
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+
+        // Manual Search
+        document.getElementById('manual-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const val = document.getElementById('manual-input').value.trim();
+            if (val) fetchParcelDetails(val);
+        });
+
+        function fetchParcelDetails(trackingNumber) {
+            const resultCard = document.getElementById('scan-result');
+            const loading = document.getElementById('loading');
+            const errorMsg = document.getElementById('error-msg');
+            
+            // UI Reset
+            resultCard.style.display = 'none';
+            errorMsg.classList.add('d-none');
+            loading.classList.remove('d-none');
+
+            // API Call
+            fetch(`{% url 'get_parcel_details' %}?tracking_number=${trackingNumber}`)
+                .then(response => response.json())
+                .then(data => {
+                    loading.classList.add('d-none');
+                    if (data.success) {
+                        renderParcel(data.parcel);
+                        resultCard.style.display = 'block';
+                        // Scroll to result
+                        resultCard.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        errorMsg.textContent = data.error || '{% trans "Parcel not found" %}';
+                        errorMsg.classList.remove('d-none');
+                    }
+                })
+                .catch(err => {
+                    loading.classList.add('d-none');
+                    errorMsg.textContent = '{% trans "Network error. Please try again." %}';
+                    errorMsg.classList.remove('d-none');
+                });
+        }
+
+        function renderParcel(parcel) {
+            document.getElementById('res-tracking').textContent = parcel.tracking_number;
+            document.getElementById('res-status-badge').textContent = parcel.status_display;
+            document.getElementById('res-price').textContent = parcel.price + ' OMR';
+            document.getElementById('res-from').textContent = parcel.from;
+            document.getElementById('res-to').textContent = parcel.to;
+            document.getElementById('res-desc').textContent = parcel.description;
+
+            // Status Badge Color
+            const badge = document.getElementById('res-status-badge');
+            badge.className = 'badge mb-2 ' + (parcel.status === 'delivered' ? 'bg-success' : 'bg-primary');
+
+            // Action Buttons
+            const actionsDiv = document.getElementById('action-buttons');
+            actionsDiv.innerHTML = ''; // Clear previous
+
+            // Logic for buttons based on status
+            // Assuming current user is a driver (enforced by view)
+            
+            // Only show actions if I am the carrier OR if it's pending (and I can accept it)
+            // But usually this scanner is for the assigned driver.
+            
+            if (parcel.can_update) {
+                if (parcel.status === 'picked_up') {
+                    const btn = createBtn('{% trans "Mark as Delivered" %}', 'success', 'delivered', parcel.id);
+                    actionsDiv.appendChild(btn);
+                } else if (parcel.status === 'in_transit') {
+                     const btn = createBtn('{% trans "Mark as Delivered" %}', 'success', 'delivered', parcel.id);
+                    actionsDiv.appendChild(btn);
+                } else if (parcel.status === 'pending') {
+                    // Maybe allow accepting via scan?
+                    const btn = createBtn('{% trans "Accept Shipment" %}', 'primary', 'accept', parcel.id);
+                    actionsDiv.appendChild(btn);
+                }
+            }
+        }
+
+        function createBtn(text, color, action, id) {
+            const btn = document.createElement('button');
+            btn.className = `btn btn-${color} fw-bold py-2`;
+            btn.innerHTML = `<i class="bi bi-check-lg me-2"></i> ${text}`;
+            btn.onclick = function() {
+                updateStatus(id, action);
+            };
+            return btn;
+        }
+
+        function updateStatus(id, action) {
+            if(!confirm('{% trans "Are you sure?" %}')) return;
+
+            const actionsDiv = document.getElementById('action-buttons');
+            actionsDiv.style.opacity = '0.5';
+            actionsDiv.style.pointerEvents = 'none';
+
+            fetch('{% url "update_parcel_status_ajax" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    parcel_id: id,
+                    action: action
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    // Refresh details
+                    fetchParcelDetails(document.getElementById('res-tracking').textContent);
+                } else {
+                    alert(data.error);
+                }
+            })
+            .finally(() => {
+                actionsDiv.style.opacity = '1';
+                actionsDiv.style.pointerEvents = 'auto';
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -705,3 +705,137 @@ def generate_parcel_label(request, parcel_id):
     response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="label_{parcel.tracking_number}.pdf"'
     return response
+
+@login_required
+def generate_invoice(request, parcel_id):
+    parcel = get_object_or_404(Parcel, id=parcel_id)
+    
+    # Security check: only shipper can view invoice (or admin)
+    if parcel.shipper != request.user and not request.user.is_staff:
+        messages.error(request, _("You are not authorized to view this invoice."))
+        return redirect('dashboard')
+
+    # Get Logo Base64
+    logo_base64 = None
+    platform_profile = PlatformProfile.objects.first()
+    if platform_profile and platform_profile.logo:
+        try:
+            with open(platform_profile.logo.path, "rb") as image_file:
+                logo_base64 = base64.b64encode(image_file.read()).decode()
+        except Exception:
+            pass
+
+    # Render Template
+    html_string = render_to_string('core/invoice.html', {
+        'parcel': parcel,
+        'logo_base64': logo_base64,
+        'platform_profile': platform_profile,
+        'request': request,
+    })
+
+    # Generate PDF
+    html = weasyprint.HTML(string=html_string, base_url=request.build_absolute_uri())
+    pdf_file = html.write_pdf()
+
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="invoice_{parcel.tracking_number}.pdf"'
+    return response
+
+@login_required
+def scan_qr_view(request):
+    """Renders the QR Scanner page for drivers."""
+    # Optional: Restrict to drivers only
+    # if request.user.profile.role != 'car_owner':
+    #     messages.error(request, _("Only drivers can access the scanner."))
+    #     return redirect('dashboard')
+    return render(request, 'core/scan_qr.html')
+
+@login_required
+def get_parcel_details(request):
+    """API to fetch parcel details by tracking number."""
+    tracking_number = request.GET.get('tracking_number')
+    if not tracking_number:
+        return JsonResponse({'success': False, 'error': _('Tracking number required')})
+        
+    try:
+        parcel = Parcel.objects.get(tracking_number__iexact=tracking_number.strip())
+        
+        # Check permissions: Is user the assigned driver? Or is it pending (for acceptance)?
+        is_driver = request.user.profile.role == 'car_owner'
+        is_assigned = parcel.carrier == request.user
+        
+        can_update = False
+        if is_driver:
+            if is_assigned:
+                can_update = True
+            elif parcel.status == 'pending':
+                # Check if payments are enabled and paid
+                platform_profile = PlatformProfile.objects.first()
+                payments_enabled = platform_profile.enable_payment if platform_profile else True
+                if not payments_enabled or parcel.payment_status == 'paid':
+                    can_update = True
+        
+        data = {
+            'success': True,
+            'parcel': {
+                'id': parcel.id,
+                'tracking_number': parcel.tracking_number,
+                'status': parcel.status,
+                'status_display': parcel.get_status_display(),
+                'price': float(parcel.price),
+                'from': f"{parcel.pickup_governate.name} / {parcel.pickup_city.name}",
+                'to': f"{parcel.delivery_governate.name} / {parcel.delivery_city.name}",
+                'description': parcel.description,
+                'can_update': can_update
+            }
+        }
+        return JsonResponse(data)
+    except Parcel.DoesNotExist:
+        return JsonResponse({'success': False, 'error': _('Parcel not found')})
+
+@login_required
+@require_POST
+def update_parcel_status_ajax(request):
+    """API to update parcel status from scanner."""
+    try:
+        data = json.loads(request.body)
+        parcel_id = data.get('parcel_id')
+        action = data.get('action')
+        
+        parcel = get_object_or_404(Parcel, id=parcel_id)
+        
+        # Logic for actions
+        if action == 'accept':
+            # Similar to accept_parcel view
+            if request.user.profile.role != 'car_owner':
+                return JsonResponse({'success': False, 'error': _('Only drivers can accept shipments')})
+                
+            if parcel.status != 'pending':
+                return JsonResponse({'success': False, 'error': _('Parcel is not available')})
+                
+            # Check payment status if enabled
+            platform_profile = PlatformProfile.objects.first()
+            payments_enabled = platform_profile.enable_payment if platform_profile else True
+            if payments_enabled and parcel.payment_status != 'paid':
+                 return JsonResponse({'success': False, 'error': _('Payment pending')})
+            
+            parcel.carrier = request.user
+            parcel.status = 'picked_up' # Or 'assigned'? Logic says 'picked_up' in accept_parcel
+            parcel.save()
+            notify_driver_assigned(parcel)
+            
+        elif action == 'delivered':
+             if parcel.carrier != request.user:
+                 return JsonResponse({'success': False, 'error': _('Not authorized')})
+             
+             parcel.status = 'delivered'
+             parcel.save()
+             notify_status_change(parcel)
+             
+        else:
+            return JsonResponse({'success': False, 'error': _('Invalid action')})
+            
+        return JsonResponse({'success': True})
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
