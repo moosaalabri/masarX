@@ -254,9 +254,9 @@ class ParcelForm(forms.ModelForm):
         self.fields['receiver_phone_code'].queryset = Country.objects.exclude(phone_code='').order_by(name_field)
         self.fields['receiver_phone_code'].label_from_instance = lambda obj: f"{obj.phone_code} ({obj.name})"
         
-        # Default Country logic
+        # Default Country logic (Oman) - Only if not editing
         oman = Country.objects.filter(name_en='Oman').first()
-        if oman:
+        if not self.instance.pk and oman:
             self.fields['receiver_phone_code'].initial = oman
             self.fields['pickup_country'].initial = oman
             self.fields['delivery_country'].initial = oman
@@ -283,6 +283,8 @@ class ParcelForm(forms.ModelForm):
                 self.fields['pickup_governate'].queryset = Governate.objects.filter(country_id=country_id).order_by(name_field)
             except (ValueError, TypeError):
                 pass
+        elif self.instance.pk and self.instance.pickup_country:
+             self.fields['pickup_governate'].queryset = Governate.objects.filter(country=self.instance.pickup_country).order_by(name_field)
         elif oman:
             self.fields['pickup_governate'].queryset = Governate.objects.filter(country=oman).order_by(name_field)
         
@@ -292,6 +294,8 @@ class ParcelForm(forms.ModelForm):
                 self.fields['pickup_city'].queryset = City.objects.filter(governate_id=gov_id).order_by(name_field)
             except (ValueError, TypeError):
                 pass
+        elif self.instance.pk and self.instance.pickup_governate:
+             self.fields['pickup_city'].queryset = City.objects.filter(governate_id=self.instance.pickup_governate.id).order_by(name_field)
 
         # Delivery
         self.fields['delivery_governate'].queryset = Governate.objects.none()
@@ -303,6 +307,8 @@ class ParcelForm(forms.ModelForm):
                 self.fields['delivery_governate'].queryset = Governate.objects.filter(country_id=country_id).order_by(name_field)
             except (ValueError, TypeError):
                 pass
+        elif self.instance.pk and self.instance.delivery_country:
+             self.fields['delivery_governate'].queryset = Governate.objects.filter(country=self.instance.delivery_country).order_by(name_field)
         elif oman:
             self.fields['delivery_governate'].queryset = Governate.objects.filter(country=oman).order_by(name_field)
         
@@ -312,6 +318,8 @@ class ParcelForm(forms.ModelForm):
                 self.fields['delivery_city'].queryset = City.objects.filter(governate_id=gov_id).order_by(name_field)
             except (ValueError, TypeError):
                 pass
+        elif self.instance.pk and self.instance.delivery_governate:
+             self.fields['delivery_city'].queryset = City.objects.filter(governate_id=self.instance.delivery_governate.id).order_by(name_field)
 
     def clean(self):
         cleaned_data = super().clean()

@@ -61,6 +61,17 @@
                                 </span>
                             </div>
 
+                            {% if parcel.status == 'pending' %}
+                            <div class="d-flex gap-2 mb-2">
+                                <a href="{% url 'edit_parcel' parcel.id %}" class="btn btn-sm btn-outline-info w-100" title="{% trans 'Edit Shipment' %}">
+                                    <i class="fas fa-edit me-1"></i> {% trans "Edit" %}
+                                </a>
+                                <a href="{% url 'cancel_parcel' parcel.id %}" class="btn btn-sm btn-outline-danger w-100" title="{% trans 'Cancel Shipment' %}" onclick="return confirm('{% trans "Are you sure you want to cancel this shipment?" %}');">
+                                    <i class="fas fa-times me-1"></i> {% trans "Cancel" %}
+                                </a>
+                            </div>
+                            {% endif %}
+
                             {% if parcel.payment_status == 'pending' %}
                                 {% if payments_enabled %}
                                 <a href="{% url 'initiate_payment' parcel.id %}" class="btn btn-sm btn-outline-primary w-100 mb-2">
@@ -126,6 +137,15 @@
                                         </div>
                                         
                                         <div class="d-flex gap-2 w-100 justify-content-md-end">
+                                            {% if parcel.status == 'pending' %}
+                                            <a href="{% url 'edit_parcel' parcel.id %}" class="btn btn-sm btn-outline-info" title="{% trans 'Edit' %}">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'cancel_parcel' parcel.id %}" class="btn btn-sm btn-outline-danger" title="{% trans 'Cancel' %}" onclick="return confirm('{% trans "Are you sure you want to cancel this shipment?" %}');">
+                                                <i class="fas fa-times"></i>
+                                            </a>
+                                            {% endif %}
+                                            
                                             <a href="{% url 'generate_parcel_label' parcel.id %}" class="btn btn-sm btn-outline-dark" target="_blank" title="{% trans 'Print Label' %}">
                                                 <i class="fas fa-print"></i>
                                             </a>

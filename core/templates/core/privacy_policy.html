@@ -5,7 +5,7 @@
 <div class="container py-5">
     <div class="mb-4">
         <a href="{% url 'index' %}" class="btn btn-link text-decoration-none text-muted ps-0">
-            <i class="bi bi-arrow-left me-2"></i>{% trans "Back to Home" %}
+            <i class="bi {% if LANGUAGE_BIDI %}bi-arrow-right{% else %}bi-arrow-left{% endif %} me-2"></i>{% trans "Back to Home" %}
         </a>
     </div>
     <h1>{% trans "Privacy Policy" %}</h1>

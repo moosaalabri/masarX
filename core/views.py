@@ -849,3 +849,35 @@ def update_parcel_status_ajax(request):
         
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+def edit_parcel(request, parcel_id):
+    parcel = get_object_or_404(Parcel, id=parcel_id, shipper=request.user)
+    
+    if parcel.status != 'pending':
+        messages.error(request, _("You can only edit pending shipments."))
+        return redirect('dashboard')
+        
+    if request.method == 'POST':
+        form = ParcelForm(request.POST, instance=parcel)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Shipment updated successfully."))
+            return redirect('dashboard')
+    else:
+        form = ParcelForm(instance=parcel)
+        
+    return render(request, 'core/edit_parcel.html', {'form': form, 'parcel': parcel})
+
+@login_required
+def cancel_parcel(request, parcel_id):
+    parcel = get_object_or_404(Parcel, id=parcel_id, shipper=request.user)
+    
+    if parcel.status != 'pending':
+        messages.error(request, _("You can only cancel pending shipments."))
+    else:
+        parcel.status = 'cancelled'
+        parcel.save()
+        messages.success(request, _("Shipment cancelled successfully."))
+        
+    return redirect('dashboard')

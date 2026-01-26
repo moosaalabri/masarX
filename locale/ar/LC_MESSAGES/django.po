@@ -772,7 +772,8 @@ msgstr "مرحباً،"
 msgid ""
 "You are receiving this email because you requested a password reset for your "
 "account at"
-msgstr "تتلقى هذه الرسالة لأنك طلبت إعادة تعيين كلمة المرور لحسابك في"
+msgstr ""
+"تتلقى هذه الرسالة لأنك طلبت إعادة تعيين كلمة المرور لحسابك في"
 
 #: core/templates/core/emails/password_reset_email.html:11
 msgid "Please click the button below to choose a new password:"
@@ -879,7 +880,8 @@ msgstr "أدرج طردك"
 #: core/templates/core/index.html:64
 msgid ""
 "Enter shipment details, weight, and delivery addresses. It's quick and easy."
-msgstr "أدخل تفاصيل الشحنة والوزن وعناوين التوصيل. إنه سريع وسهل."
+msgstr ""
+"أدخل تفاصيل الشحنة والوزن وعناوين التوصيل. إنه سريع وسهل."
 
 #: core/templates/core/index.html:72
 msgid "Connect with Driver"
@@ -888,7 +890,8 @@ msgstr "تواصل مع السائق"
 #: core/templates/core/index.html:73
 msgid ""
 "A verified car owner near you picks up the parcel and starts the journey."
-msgstr "يقوم صاحب سيارة تم التحقق منه بالقرب منك باستلام الطرد وبدء الرحلة."
+msgstr ""
+"يقوم صاحب سيارة تم التحقق منه بالقرب منك باستلام الطرد وبدء الرحلة."
 
 #: core/templates/core/index.html:81
 msgid "Secure Delivery"
@@ -1330,3 +1333,60 @@ msgstr "لا توجد شحنات بعد. ابدأ الشحن الآن!"
 
 msgid "Shipments"
 msgstr "شحنات"
+
+msgid "Track Shipment"
+msgstr "تتبع الشحنة"
+
+msgid "Track Your Shipment"
+msgstr "تتبع شحنتك"
+
+msgid "Enter Tracking ID (e.g. TRK123456789)"
+msgstr "أدخل رقم التتبع (مثال: TRK123456789)"
+
+msgid "Shipment Status"
+msgstr "حالة الشحنة"
+
+msgid "Order Placed"
+msgstr "تم الطلب"
+
+msgid "On the Way"
+msgstr "في الطريق"
+
+msgid "Current Status"
+msgstr "الحالة الحالية"
+
+msgid "Last Updated"
+msgstr "آخر تحديث"
+
+msgid "Enter your tracking number above to see shipment details."
+msgstr "أدخل رقم التتبع أعلاه لرؤية تفاصيل الشحنة."
+
+msgid "Label"
+msgstr "الملصق"
+
+msgid "Invoice"
+msgstr "الفاتورة"
+
+msgid "Edit"
+msgstr "تعديل"
+
+msgid "Edit Shipment"
+msgstr "تعديل الشحنة"
+
+msgid "Cancel Shipment"
+msgstr "إلغاء الشحنة"
+
+msgid "Print Label"
+msgstr "طباعة الملصق"
+
+msgid "Are you sure you want to cancel this shipment?"
+msgstr "هل أنت متأكد أنك تريد إلغاء هذه الشحنة؟"
+
+msgid "Point your camera at the Parcel Label QR Code"
+msgstr "وجه الكاميرا نحو رمز الاستجابة السريعة (QR) الخاص بالملصق"
+
+msgid "Scan QR Code"
+msgstr "مسح رمز الاستجابة السريعة"
+
+msgid "Tracking No"
+msgstr "رقم التتبع"
