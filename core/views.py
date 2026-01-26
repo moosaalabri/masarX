@@ -8,7 +8,7 @@ from .forms import UserRegistrationForm, ParcelForm, ContactForm, UserProfileFor
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
 from .payment_utils import ThawaniPay
 from django.conf import settings
@@ -16,6 +16,7 @@ from django.core.mail import send_mail
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.http import require_POST
 from django.db.models import Avg, Count
+from django.template.loader import render_to_string
 import random
 import string
 from .whatsapp_utils import (
@@ -28,6 +29,10 @@ from .whatsapp_utils import (
 from .mail import send_contact_message, send_html_email
 import json
 from ai.local_ai_api import LocalAIApi
+import weasyprint
+import qrcode
+from io import BytesIO
+import base64
 
 def index(request):
     tracking_id = request.GET.get('tracking_id')
@@ -650,3 +655,53 @@ def chatbot(request):
         return JsonResponse({"success": False, "error": "Invalid JSON"})
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
+
+@login_required
+def generate_parcel_label(request, parcel_id):
+    parcel = get_object_or_404(Parcel, id=parcel_id)
+    
+    # Security check: only shipper or carrier can print label
+    if parcel.shipper != request.user and parcel.carrier != request.user:
+        messages.error(request, _("You are not authorized to print this label."))
+        return redirect('dashboard')
+
+    # Generate QR Code
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(parcel.tracking_number)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+    qr_image_base64 = base64.b64encode(buffer.getvalue()).decode()
+
+    # Get Logo Base64
+    logo_base64 = None
+    platform_profile = PlatformProfile.objects.first()
+    if platform_profile and platform_profile.logo:
+        try:
+            with open(platform_profile.logo.path, "rb") as image_file:
+                logo_base64 = base64.b64encode(image_file.read()).decode()
+        except Exception:
+            pass
+
+    # Render Template
+    html_string = render_to_string('core/parcel_label.html', {
+        'parcel': parcel,
+        'qr_code': qr_image_base64,
+        'logo_base64': logo_base64,
+        'platform_profile': platform_profile,
+    })
+
+    # Generate PDF
+    html = weasyprint.HTML(string=html_string, base_url=request.build_absolute_uri())
+    pdf_file = html.write_pdf()
+
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="label_{parcel.tracking_number}.pdf"'
+    return response

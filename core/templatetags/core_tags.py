@@ -13,3 +13,10 @@ def get_rating(parcel):
         return parcel.rating
     except:
         return None
+
+@register.filter
+def whatsapp_url(value):
+    """Removes non-numeric characters for WhatsApp URL."""
+    if not value:
+        return ""
+    return "".join(filter(str.isdigit, str(value)))

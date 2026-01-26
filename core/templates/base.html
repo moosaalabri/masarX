@@ -1,4 +1,4 @@
-{% load i18n static i18n_urls %}
+{% load i18n static i18n_urls core_tags %}
 {% get_current_language as LANGUAGE_CODE %}
 {% get_language_info for LANGUAGE_CODE as lang %}
 <!DOCTYPE html>
@@ -256,9 +256,16 @@
                 <i class="bi bi-robot me-2 fs-5"></i>
                 <h6 class="mb-0 fw-bold">MasarX AI</h6>
             </div>
-            <button id="masar-chat-close" class="btn btn-sm btn-link text-white p-0">
-                <i class="bi bi-x-lg"></i>
-            </button>
+            <div class="d-flex align-items-center">
+                {% if platform_profile.phone_number %}
+                    <a href="https://wa.me/{{ platform_profile.phone_number|whatsapp_url }}" target="_blank" class="btn btn-sm btn-success me-2 rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="{% trans 'Chat on WhatsApp' %}" data-bs-toggle="tooltip">
+                        <i class="bi bi-whatsapp"></i>
+                    </a>
+                {% endif %}
+                <button id="masar-chat-close" class="btn btn-sm btn-link text-white p-0">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
         </div>
         <div id="masar-chat-messages" class="flex-grow-1 p-3 bg-light overflow-auto">
             <div class="d-flex mb-3 justify-content-start">
@@ -277,6 +284,13 @@
         </div>
     </div>
     <script src="{% static "js/chat.js" %}?v={{ deployment_timestamp }}"></script>
+    <script>
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    </script>
 </body>
 
 </html>

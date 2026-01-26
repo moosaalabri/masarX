@@ -1,0 +1,144 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr' }}">
+<head>
+    <meta charset="utf-8">
+    <title>Label {{ parcel.tracking_number }}</title>
+    <style>
+        @page {
+            size: 100mm 150mm;
+            margin: 0;
+        }
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 5mm;
+            font-size: 12px;
+        }
+        .container {
+            border: 2px solid #000;
+            height: 138mm; /* Adjusted slightly */
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            border-bottom: 2px solid #000;
+            padding: 10px;
+            text-align: center;
+            height: 20mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .header img {
+            max-height: 15mm;
+            max-width: 80mm;
+        }
+        .big-code {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            border-bottom: 2px solid #000;
+            background-color: #f0f0f0;
+        }
+        .address-box {
+            border-bottom: 1px solid #000;
+            padding: 10px;
+            flex-grow: 1;
+        }
+        .main-info {
+            display: flex;
+            border-bottom: 2px solid #000;
+        }
+        .section {
+            padding: 10px;
+            flex: 1;
+        }
+        /* RTL support for border */
+        html[dir="ltr"] .section-right { border-left: 2px solid #000; }
+        html[dir="rtl"] .section-right { border-right: 2px solid #000; }
+
+        .qr-code {
+            text-align: center;
+            padding: 10px;
+            border-bottom: 2px solid #000;
+        }
+        .qr-code img {
+            width: 30mm;
+            height: 30mm;
+        }
+        .tracking-number {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 5px;
+            font-family: monospace;
+        }
+        .footer {
+            padding: 5px;
+            text-align: center;
+            font-size: 10px;
+        }
+        h3 { margin: 0 0 5px 0; font-size: 10px; text-transform: uppercase; color: #555; }
+        p { margin: 0 0 2px 0; }
+        .bold { font-weight: bold; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            {% if logo_base64 %}
+                <img src="data:image/jpeg;base64,{{ logo_base64 }}" alt="MasarX">
+            {% else %}
+                <h1>{{ platform_profile.name|default:"MASARX" }}</h1>
+            {% endif %}
+        </div>
+
+        <div class="big-code">
+            {{ parcel.delivery_city.name|upper }}
+        </div>
+
+        <div class="address-box">
+            <h3>{% trans "TO (Receiver)" %}</h3>
+            <p class="bold">{{ parcel.receiver_name }}</p>
+            <p>{{ parcel.delivery_address }}</p>
+            <p>{{ parcel.delivery_city.name }}, {{ parcel.delivery_governate.name }}</p>
+            <p>{{ parcel.delivery_country.name }}</p>
+            <p>{% trans "Tel" %}: {{ parcel.receiver_phone }}</p>
+        </div>
+
+        <div class="address-box">
+            <h3>{% trans "FROM (Sender)" %}</h3>
+            <p class="bold">{{ parcel.shipper.get_full_name|default:parcel.shipper.username }}</p>
+            <p>{{ parcel.pickup_address }}</p>
+            <p>{{ parcel.pickup_city.name }}, {{ parcel.pickup_governate.name }}</p>
+            <p>{% trans "Tel" %}: {{ parcel.shipper.profile.phone_number }}</p>
+        </div>
+
+        <div class="main-info">
+            <div class="section">
+                <h3>{% trans "Date" %}</h3>
+                <p class="bold">{{ parcel.created_at|date:"Y-m-d" }}</p>
+            </div>
+            <div class="section section-right">
+                <h3>{% trans "Weight" %}</h3>
+                <p class="bold">{{ parcel.weight }} KG</p>
+            </div>
+            <div class="section section-right">
+                <h3>{% trans "Price" %}</h3>
+                <p class="bold">{{ parcel.price }} OMR</p>
+            </div>
+        </div>
+
+        <div class="qr-code">
+            <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+            <div class="tracking-number">{{ parcel.tracking_number }}</div>
+        </div>
+
+        <div class="footer">
+            {% trans "Thank you for shipping with us." %}
+        </div>
+    </div>
+</body>
+</html>
