@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
-from .models import Profile, Parcel, Country, Governate, City
+from .models import Profile, Parcel, Country, Governate, City, DriverRating
 
 class ContactForm(forms.Form):
     name = forms.CharField(max_length=100, label=_("Name"), widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('Your Name')}))
@@ -322,3 +322,16 @@ class ParcelForm(forms.ModelForm):
             if not phone_number.startswith(phone_code.phone_code):
                  cleaned_data['receiver_phone'] = f"{phone_code.phone_code}{phone_number}"
         return cleaned_data
+
+class DriverRatingForm(forms.ModelForm):
+    class Meta:
+        model = DriverRating
+        fields = ['rating', 'comment']
+        widgets = {
+            'rating': forms.RadioSelect(attrs={'class': 'rating-stars'}),
+            'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': _('Write your review here...')}),
+        }
+        labels = {
+            'rating': _('Rating'),
+            'comment': _('Comment'),
+        }

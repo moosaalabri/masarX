@@ -60,6 +60,49 @@
                                 <p class="fw-semibold">{{ profile.address|default:"-" }}</p>
                             </div>
                         </div>
+
+                        <!-- Rating Section (Drivers Only) -->
+                        {% if profile.role == 'car_owner' %}
+                        <hr class="my-5">
+                        <div class="mb-4">
+                            <h4 class="fw-bold">{% trans "Driver Rating" %}</h4>
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="display-4 fw-bold me-3">{{ profile.get_average_rating|default:"0.0"|floatformat:1 }}</div>
+                                <div>
+                                    <div class="text-warning fs-5">
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <div class="text-muted small">
+                                        {{ profile.get_rating_count }} {% trans "reviews" %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if reviews %}
+                                <div class="list-group list-group-flush">
+                                    {% for review in reviews %}
+                                    <div class="list-group-item px-0 py-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <div>
+                                                <span class="fw-bold">{{ review.shipper.first_name }}</span>
+                                                <small class="text-muted ms-2">{{ review.created_at|date:"M d, Y" }}</small>
+                                            </div>
+                                            <div class="text-warning">
+                                                {{ review.rating }} <i class="fas fa-star small"></i>
+                                            </div>
+                                        </div>
+                                        {% if review.comment %}
+                                            <p class="mb-0 text-muted">{{ review.comment }}</p>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted">{% trans "No reviews yet." %}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
                     </div>
                 </div>
             </div>

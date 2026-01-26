@@ -3,8 +3,8 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Parcel, Profile, Country, Governate, City, OTPVerification, PlatformProfile, Testimonial
-from .forms import UserRegistrationForm, ParcelForm, ContactForm, UserProfileForm
+from .models import Parcel, Profile, Country, Governate, City, OTPVerification, PlatformProfile, Testimonial, DriverRating
+from .forms import UserRegistrationForm, ParcelForm, ContactForm, UserProfileForm, DriverRatingForm
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
 from django.contrib import messages
@@ -319,7 +319,15 @@ def contact(request):
 
 @login_required
 def profile_view(request):
-    return render(request, 'core/profile.html', {'profile': request.user.profile})
+    profile = request.user.profile
+    reviews = []
+    if profile.role == 'car_owner':
+        reviews = request.user.received_ratings.all().order_by('-created_at')
+    
+    return render(request, 'core/profile.html', {
+        'profile': profile,
+        'reviews': reviews
+    })
 
 @login_required
 def edit_profile(request):
@@ -426,3 +434,42 @@ def verify_otp_view(request):
             messages.error(request, _("Invalid code."))
             
     return render(request, 'core/verify_otp.html')
+
+@login_required
+def rate_driver(request, parcel_id):
+    parcel = get_object_or_404(Parcel, id=parcel_id)
+    
+    # Validation
+    if parcel.shipper != request.user:
+        messages.error(request, _("You are not authorized to rate this shipment."))
+        return redirect('dashboard')
+        
+    if parcel.status != 'delivered':
+        messages.error(request, _("You can only rate delivered shipments."))
+        return redirect('dashboard')
+        
+    if not parcel.carrier:
+        messages.error(request, _("No driver was assigned to this shipment."))
+        return redirect('dashboard')
+        
+    if hasattr(parcel, 'rating'):
+        messages.info(request, _("You have already rated this shipment."))
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        form = DriverRatingForm(request.POST)
+        if form.is_valid():
+            rating = form.save(commit=False)
+            rating.parcel = parcel
+            rating.driver = parcel.carrier
+            rating.shipper = request.user
+            rating.save()
+            messages.success(request, _("Thank you for your feedback!"))
+            return redirect('dashboard')
+    else:
+        form = DriverRatingForm()
+
+    return render(request, 'core/rate_driver.html', {
+        'form': form,
+        'parcel': parcel
+    })

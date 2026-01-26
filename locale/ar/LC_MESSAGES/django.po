@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 16:24+0000\n"
+"POT-Creation-Date: 2026-01-26 05:03+0000\n"
 "PO-Revision-Date: 2026-01-25 07:13+0000\n"
 "Last-Translator: Gemini\n"
 "Language-Team: Arabic\n"
@@ -18,48 +18,50 @@ msgstr ""
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3  "
 "&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
-#: core/admin.py:18 core/models.py:84
+#: core/admin.py:21 core/models.py:98
 msgid "Profiles"
 msgstr "الملفات الشخصية"
 
-#: core/admin.py:30
+#: core/admin.py:52
+msgid "Export Selected to CSV"
+msgstr "تصدير المحدد إلى CSV"
+
+#: core/admin.py:56
 msgid "General Info"
 msgstr "معلومات عامة"
 
-#: core/admin.py:33
+#: core/admin.py:59
 msgid "Policies"
 msgstr "السياسات"
 
-#: core/admin.py:36
+#: core/admin.py:62
 msgid "Payment Configuration"
 msgstr "إعدادات الدفع"
 
-#: core/admin.py:39
+#: core/admin.py:65
 msgid "WhatsApp Configuration (Wablas Gateway)"
 msgstr "إعدادات واتساب (بوابة Wablas)"
 
-#: core/admin.py:41
+#: core/admin.py:67
 msgid ""
 "Configure your Wablas API connection. Use \"Test WhatsApp Configuration\" to "
 "verify."
 msgstr ""
 "قم بتكوين اتصال Wablas API الخاص بك. استخدم \"اختبار إعدادات واتساب\" للتحقق."
 
-#: core/admin.py:108
+#: core/admin.py:134
 msgid "Test WhatsApp"
 msgstr "اختبار واتساب"
 
-#: core/admin.py:110
-#, fuzzy
-#| msgid "Email"
+#: core/admin.py:136
 msgid "Test Email"
-msgstr "البريد الإلكتروني"
+msgstr "اختبار البريد الإلكتروني"
 
-#: core/admin.py:112
+#: core/admin.py:138
 msgid "Actions"
 msgstr "إجراءات"
 
-#: core/admin.py:123
+#: core/admin.py:149
 msgid "Tools"
 msgstr "أدوات"
 
@@ -71,8 +73,8 @@ msgstr "الاسم"
 msgid "Your Name"
 msgstr "اسمك"
 
-#: core/forms.py:9 core/forms.py:18 core/forms.py:29 core/forms.py:91
-#: core/forms.py:98 core/templates/core/profile.html:41
+#: core/forms.py:9 core/forms.py:21 core/forms.py:32 core/forms.py:110
+#: core/forms.py:119 core/templates/core/profile.html:41
 msgid "Email"
 msgstr "البريد الإلكتروني"
 
@@ -104,327 +106,400 @@ msgstr "تأكيد كلمة المرور"
 msgid "Register as"
 msgstr "التسجيل كـ"
 
-#: core/forms.py:17 core/forms.py:93 core/models.py:71 core/models.py:158
+#: core/forms.py:18 core/forms.py:112
+msgid "Code"
+msgstr "الرمز"
+
+#: core/forms.py:19 core/forms.py:113 core/models.py:72 core/models.py:172
 msgid "Phone Number"
 msgstr "رقم الهاتف"
 
-#: core/forms.py:18 core/forms.py:98
+#: core/forms.py:21 core/forms.py:119
 msgid "WhatsApp"
 msgstr "واتساب"
 
-#: core/forms.py:18
+#: core/forms.py:21
 msgid "Verify via"
 msgstr "التحقق بواسطة"
 
-#: core/forms.py:20 core/forms.py:113 core/models.py:25 core/models.py:29
-#: core/models.py:75
+#: core/forms.py:23 core/forms.py:134 core/models.py:26 core/models.py:30
+#: core/models.py:76
 msgid "Country"
 msgstr "الدولة"
 
-#: core/forms.py:21 core/forms.py:114 core/models.py:43 core/models.py:47
-#: core/models.py:76
+#: core/forms.py:24 core/forms.py:135 core/models.py:44 core/models.py:48
+#: core/models.py:77
 msgid "Governate"
 msgstr "المحافظة"
 
-#: core/forms.py:22 core/forms.py:115 core/models.py:61 core/models.py:77
+#: core/forms.py:25 core/forms.py:136 core/models.py:62 core/models.py:78
 msgid "City"
 msgstr "المدينة"
 
-#: core/forms.py:28
+#: core/forms.py:31
 msgid "Username"
 msgstr "اسم المستخدم"
 
-#: core/forms.py:30 core/forms.py:89
+#: core/forms.py:33 core/forms.py:108
 msgid "First Name"
 msgstr "الاسم الأول"
 
-#: core/forms.py:31 core/forms.py:90
+#: core/forms.py:34 core/forms.py:109
 msgid "Last Name"
 msgstr "اسم العائلة"
 
-#: core/forms.py:70
+#: core/forms.py:78
 msgid "Passwords don't match"
 msgstr "كلمات المرور غير متطابقة"
 
-#: core/forms.py:94 core/models.py:73 core/models.py:157
+#: core/forms.py:115 core/models.py:74 core/models.py:171
 #: core/templates/core/profile.html:59
 msgid "Address"
 msgstr "العنوان"
 
-#: core/forms.py:95 core/models.py:72
+#: core/forms.py:116 core/models.py:73
 msgid "Profile Picture"
 msgstr "الصورة الشخصية"
 
-#: core/forms.py:99
+#: core/forms.py:120
 msgid "Verify changes via"
 msgstr "التحقق من التغييرات عبر"
 
-#: core/forms.py:167
+#: core/forms.py:204
+msgid "Receiver Code"
+msgstr "رمز المستلم"
+
+#: core/forms.py:215
 msgid "What are you sending?"
 msgstr "ماذا سترسل؟"
 
-#: core/forms.py:174 core/forms.py:179
+#: core/forms.py:222 core/forms.py:227
 msgid "Street/Building"
 msgstr "الشارع/المبنى"
 
-#: core/forms.py:185
+#: core/forms.py:233
 msgid "Package Description"
 msgstr "وصف الطرد"
 
-#: core/forms.py:186 core/models.py:116
+#: core/forms.py:234 core/models.py:130
 msgid "Weight (kg)"
 msgstr "الوزن (كجم)"
 
-#: core/forms.py:187
-msgid "Shipping Price (OMR)"
-msgstr "سعر الشحن (ر.ع)"
+#: core/forms.py:235
+msgid "Your Offer Price (Bid) (OMR)"
+msgstr "عرض سعرك (المزايدة) (ر.ع)"
 
-#: core/forms.py:188 core/models.py:120
+#: core/forms.py:236 core/models.py:134
 msgid "Pickup Country"
 msgstr "دولة الاستلام"
 
-#: core/forms.py:189 core/models.py:121
+#: core/forms.py:237 core/models.py:135
 msgid "Pickup Governate"
 msgstr "محافظة الاستلام"
 
-#: core/forms.py:190 core/models.py:122
+#: core/forms.py:238 core/models.py:136
 msgid "Pickup City"
 msgstr "مدينة الاستلام"
 
-#: core/forms.py:191
+#: core/forms.py:239
 msgid "Pickup Address (Street/Building)"
 msgstr "عنوان الاستلام (الشارع/المبنى)"
 
-#: core/forms.py:192 core/models.py:126
+#: core/forms.py:240 core/models.py:140
 msgid "Delivery Country"
 msgstr "دولة التوصيل"
 
-#: core/forms.py:193 core/models.py:127
+#: core/forms.py:241 core/models.py:141
 msgid "Delivery Governate"
 msgstr "محافظة التوصيل"
 
-#: core/forms.py:194 core/models.py:128
+#: core/forms.py:242 core/models.py:142
 msgid "Delivery City"
 msgstr "مدينة التوصيل"
 
-#: core/forms.py:195
+#: core/forms.py:243
 msgid "Delivery Address (Street/Building)"
 msgstr "عنوان التوصيل (الشارع/المبنى)"
 
-#: core/forms.py:196 core/models.py:131
+#: core/forms.py:244 core/models.py:145
 msgid "Receiver Name"
 msgstr "اسم المستلم"
 
-#: core/forms.py:197 core/models.py:132
+#: core/forms.py:245 core/models.py:146
 msgid "Receiver Phone"
 msgstr "هاتف المستلم"
 
-#: core/models.py:12 core/models.py:30 core/models.py:48
+#: core/forms.py:332
+msgid "Write your review here..."
+msgstr "اكتب تقييمك هنا..."
+
+#: core/forms.py:335 core/models.py:263 core/templates/core/rate_driver.html:23
+msgid "Rating"
+msgstr "التقييم"
+
+#: core/forms.py:336 core/models.py:264 core/templates/core/rate_driver.html:41
+msgid "Comment"
+msgstr "التعليق"
+
+#: core/models.py:12 core/models.py:31 core/models.py:49 core/models.py:228
 msgid "Name (English)"
 msgstr "الاسم (إنجليزي)"
 
-#: core/models.py:13 core/models.py:31 core/models.py:49
+#: core/models.py:13 core/models.py:32 core/models.py:50 core/models.py:229
 msgid "Name (Arabic)"
 msgstr "الاسم (عربي)"
 
-#: core/models.py:26
+#: core/models.py:14
+msgid "Phone Code"
+msgstr "رمز الهاتف"
+
+#: core/models.py:14
+msgid "e.g. +968"
+msgstr "مثال +968"
+
+#: core/models.py:27
 msgid "Countries"
 msgstr "الدول"
 
-#: core/models.py:44
+#: core/models.py:45
 msgid "Governates"
 msgstr "المحافظات"
 
-#: core/models.py:62
+#: core/models.py:63
 msgid "Cities"
 msgstr "المدن"
 
-#: core/models.py:66 core/models.py:112
+#: core/models.py:67 core/models.py:126 core/models.py:262
 msgid "Shipper"
 msgstr "شاحن"
 
-#: core/models.py:67
+#: core/models.py:68
 msgid "Car Owner"
 msgstr "صاحب سيارة"
 
-#: core/models.py:69
+#: core/models.py:70
 msgid "User"
 msgstr "مستخدم"
 
-#: core/models.py:70
+#: core/models.py:71
 msgid "Role"
 msgstr "الدور"
 
-#: core/models.py:83
+#: core/models.py:97
 msgid "Profile"
 msgstr "الملف الشخصي"
 
-#: core/models.py:98
+#: core/models.py:112
 msgid "Pending Pickup"
 msgstr "في انتظار الاستلام"
 
-#: core/models.py:99
+#: core/models.py:113
 msgid "Picked Up"
 msgstr "تم الاستلام"
 
-#: core/models.py:100
+#: core/models.py:114
 msgid "In Transit"
 msgstr "في الطريق"
 
-#: core/models.py:101
+#: core/models.py:115
 msgid "Delivered"
 msgstr "تم التوصيل"
 
-#: core/models.py:102
+#: core/models.py:116
 msgid "Cancelled"
 msgstr "ملغي"
 
-#: core/models.py:106
+#: core/models.py:120
 msgid "Pending"
 msgstr "قيد الانتظار"
 
-#: core/models.py:107
+#: core/models.py:121
 msgid "Paid"
 msgstr "مدفوع"
 
-#: core/models.py:108
+#: core/models.py:122
 msgid "Failed"
 msgstr "فشل"
 
-#: core/models.py:111
+#: core/models.py:125
 msgid "Tracking Number"
 msgstr "رقم التتبع"
 
-#: core/models.py:113 core/templates/core/shipper_dashboard.html:44
+#: core/models.py:127 core/templates/core/shipper_dashboard.html:58
+#: core/templates/core/shipper_dashboard.html:84
 msgid "Carrier"
 msgstr "الناقل"
 
-#: core/models.py:115
+#: core/models.py:129 core/templates/core/shipper_dashboard.html:83
 msgid "Description"
 msgstr "الوصف"
 
-#: core/models.py:116
+#: core/models.py:130
 msgid "Weight in kg"
 msgstr "الوزن بالكيلوجرام"
 
-#: core/models.py:117
+#: core/models.py:131
 msgid "Price (OMR)"
 msgstr "السعر (ر.ع)"
 
-#: core/models.py:123
+#: core/models.py:137
 msgid "Pickup Address"
 msgstr "عنوان الاستلام"
 
-#: core/models.py:129
+#: core/models.py:143
 msgid "Delivery Address"
 msgstr "عنوان التوصيل"
 
-#: core/models.py:134 core/templates/core/index.html:30
+#: core/models.py:148 core/templates/core/driver_dashboard.html:108
+#: core/templates/core/index.html:30
+#: core/templates/core/shipper_dashboard.html:86
 msgid "Status"
 msgstr "الحالة"
 
-#: core/models.py:135
+#: core/models.py:149
 msgid "Payment Status"
 msgstr "حالة الدفع"
 
-#: core/models.py:136
+#: core/models.py:150
 msgid "Thawani Session ID"
 msgstr "معرف جلسة ثواني"
 
-#: core/models.py:138
+#: core/models.py:152 core/models.py:265
 msgid "Created At"
 msgstr "أنشئ في"
 
-#: core/models.py:139
+#: core/models.py:153
 msgid "Updated At"
 msgstr "حدث في"
 
-#: core/models.py:150
+#: core/models.py:164 core/models.py:260
 msgid "Parcel"
 msgstr "طرد"
 
-#: core/models.py:151
+#: core/models.py:165
 msgid "Parcels"
 msgstr "طرود"
 
-#: core/models.py:154
+#: core/models.py:168
 msgid "Platform Name"
 msgstr "اسم المنصة"
 
-#: core/models.py:155
+#: core/models.py:169
 msgid "Logo"
 msgstr "الشعار"
 
-#: core/models.py:156
+#: core/models.py:170
 msgid "Slogan"
 msgstr "الشعار اللفظي"
 
-#: core/models.py:159
+#: core/models.py:173
 msgid "Registration Number"
 msgstr "رقم السجل التجاري"
 
-#: core/models.py:160
+#: core/models.py:174
 msgid "VAT Number"
 msgstr "الرقم الضريبي"
 
-#: core/models.py:161 core/templates/base.html:232
+#: core/models.py:175 core/templates/base.html:232
 #: core/templates/core/privacy_policy.html:11
 msgid "Privacy Policy"
 msgstr "سياسة الخصوصية"
 
-#: core/models.py:162 core/templates/core/terms_conditions.html:11
+#: core/models.py:176 core/templates/core/terms_conditions.html:11
 msgid "Terms and Conditions"
 msgstr "الشروط والأحكام"
 
-#: core/models.py:165
+#: core/models.py:179
 msgid "Wablas API Token"
 msgstr "رمز Wablas API"
 
-#: core/models.py:165
+#: core/models.py:179
 msgid "Your Wablas API Token."
 msgstr "رمز Wablas API الخاص بك."
 
-#: core/models.py:166
+#: core/models.py:180
 msgid "Wablas Domain"
 msgstr "نطاق Wablas"
 
-#: core/models.py:166
+#: core/models.py:180
 msgid "The Wablas API domain (e.g., https://deu.wablas.com)."
 msgstr "نطاق Wablas API (مثال: https://deu.wablas.com)."
 
-#: core/models.py:167
+#: core/models.py:181
 msgid "Wablas Secret Key"
 msgstr "مفتاح Wablas السري"
 
-#: core/models.py:167
+#: core/models.py:181
 msgid "Your Wablas API Secret Key (if required)."
 msgstr "مفتاح Wablas API السري الخاص بك (إذا لزم الأمر)."
 
-#: core/models.py:170
+#: core/models.py:184
 msgid "Enable Payment"
 msgstr "تفعيل الدفع"
 
-#: core/models.py:170
+#: core/models.py:184
 msgid "Toggle to enable or disable payments on the platform."
 msgstr "تبديل لتفعيل أو تعطيل المدفوعات على المنصة."
 
-#: core/models.py:194 core/models.py:195
+#: core/models.py:208 core/models.py:209
 msgid "Platform Profile"
 msgstr "ملف تعريف المنصة"
 
-#: core/models.py:199
+#: core/models.py:213
 msgid "Profile Update"
 msgstr "تحديث الملف الشخصي"
 
-#: core/models.py:200
+#: core/models.py:214
 msgid "Password Reset"
 msgstr "إعادة تعيين كلمة المرور"
 
-#: core/models.py:201
-#, fuzzy
-#| msgid "Registration Number"
+#: core/models.py:215
 msgid "Registration"
-msgstr "رقم السجل التجاري"
+msgstr "التسجيل"
+
+#: core/models.py:230
+msgid "Role (English)"
+msgstr "الدور (إنجليزي)"
+
+#: core/models.py:231
+msgid "Role (Arabic)"
+msgstr "الدور (عربي)"
+
+#: core/models.py:232
+msgid "Testimony (English)"
+msgstr "الشهادة (إنجليزي)"
+
+#: core/models.py:233
+msgid "Testimony (Arabic)"
+msgstr "الشهادة (عربي)"
+
+#: core/models.py:234
+msgid "Image"
+msgstr "صورة"
+
+#: core/models.py:235
+msgid "Active"
+msgstr "نشط"
+
+#: core/models.py:255
+msgid "Testimonial"
+msgstr "شهادة"
+
+#: core/models.py:256
+msgid "Testimonials"
+msgstr "الشهادات"
+
+#: core/models.py:261
+msgid "Driver"
+msgstr "السائق"
+
+#: core/models.py:271 core/templates/core/profile.html:68
+msgid "Driver Rating"
+msgstr "تقييم السائق"
+
+#: core/models.py:272
+msgid "Driver Ratings"
+msgstr "تقييمات السائق"
 
 #: core/templates/admin/core/platformprofile/test_email.html:11
 #: core/templates/admin/core/platformprofile/test_whatsapp.html:11
@@ -448,10 +523,8 @@ msgid "Dashboard"
 msgstr "لوحة التحكم"
 
 #: core/templates/base.html:115
-#, fuzzy
-#| msgid "Admin"
 msgid "Admin Panel"
-msgstr "المسؤول"
+msgstr "لوحة الإدارة"
 
 #: core/templates/base.html:118 core/templates/core/profile.html:4
 #: core/templates/core/profile.html:21
@@ -468,11 +541,12 @@ msgid "Logout"
 msgstr "تسجيل الخروج"
 
 #: core/templates/base.html:132 core/templates/core/login.html:4
-#: core/templates/core/login.html:32
+#: core/templates/core/login.html:46
 msgid "Login"
 msgstr "تسجيل الدخول"
 
-#: core/templates/base.html:135 core/templates/core/register.html:4
+#: core/templates/base.html:135 core/templates/core/login.html:50
+#: core/templates/core/register.html:4
 msgid "Register"
 msgstr "تسجيل"
 
@@ -505,12 +579,12 @@ msgstr "قانوني"
 msgid "Terms & Conditions"
 msgstr "الشروط والأحكام"
 
-#: core/templates/base.html:241
+#: core/templates/base.html:241 core/templates/core/emails/base_email.html:86
 msgid "All rights reserved."
 msgstr "جميع الحقوق محفوظة."
 
 #: core/templates/core/article_detail.html:10
-#: core/templates/core/contact.html:14 core/templates/core/login.html:14
+#: core/templates/core/contact.html:14
 #: core/templates/core/privacy_policy.html:8
 #: core/templates/core/register.html:14
 #: core/templates/core/terms_conditions.html:8
@@ -542,54 +616,89 @@ msgid "Available Shipments"
 msgstr "الشحنات المتوفرة"
 
 #: core/templates/core/driver_dashboard.html:13
-msgid "My Deliveries"
-msgstr "توصيلاتي"
+msgid "Active Deliveries"
+msgstr "عمليات التوصيل النشطة"
 
-#: core/templates/core/driver_dashboard.html:27
+#: core/templates/core/driver_dashboard.html:16
+#: core/templates/core/shipper_dashboard.html:17
+msgid "Transaction History"
+msgstr "سجل المعاملات"
+
+#: core/templates/core/driver_dashboard.html:30
 msgid "Pickup"
 msgstr "الاستلام"
 
-#: core/templates/core/driver_dashboard.html:28
+#: core/templates/core/driver_dashboard.html:31
 msgid "Delivery"
 msgstr "التوصيل"
 
-#: core/templates/core/driver_dashboard.html:30
+#: core/templates/core/driver_dashboard.html:34
 msgid "Weight"
 msgstr "الوزن"
 
-#: core/templates/core/driver_dashboard.html:35
+#: core/templates/core/driver_dashboard.html:39
+msgid "Shipper's Offer (Bid)"
+msgstr "عرض الشاحن"
+
+#: core/templates/core/driver_dashboard.html:45
 msgid "Accept Shipment"
 msgstr "قبول الشحنة"
 
-#: core/templates/core/driver_dashboard.html:43
+#: core/templates/core/driver_dashboard.html:53
 msgid "No shipments available at the moment."
 msgstr "لا توجد شحنات متوفرة حالياً."
 
-#: core/templates/core/driver_dashboard.html:60
+#: core/templates/core/driver_dashboard.html:70
+#: core/templates/core/driver_dashboard.html:106
 #: core/templates/core/index.html:35
-#: core/templates/core/shipper_dashboard.html:25
+#: core/templates/core/shipper_dashboard.html:39
 msgid "To"
 msgstr "إلى"
 
-#: core/templates/core/driver_dashboard.html:61
-#: core/templates/core/shipper_dashboard.html:43
+#: core/templates/core/driver_dashboard.html:71
+#: core/templates/core/shipper_dashboard.html:57
 msgid "Receiver"
 msgstr "المستلم"
 
-#: core/templates/core/driver_dashboard.html:72
+#: core/templates/core/driver_dashboard.html:82
 msgid "Update"
 msgstr "تحديث"
 
-#: core/templates/core/driver_dashboard.html:80
+#: core/templates/core/driver_dashboard.html:90
 msgid "You haven't accepted any shipments yet."
 msgstr "لم تقبل أي شحنات بعد."
+
+#: core/templates/core/driver_dashboard.html:103
+#: core/templates/core/shipper_dashboard.html:81
+msgid "Date"
+msgstr "التاريخ"
+
+#: core/templates/core/driver_dashboard.html:104
+#: core/templates/core/shipper_dashboard.html:82
+msgid "Tracking ID"
+msgstr "رقم التتبع"
+
+#: core/templates/core/driver_dashboard.html:105
+#: core/templates/core/index.html:34
+#: core/templates/core/shipper_dashboard.html:38
+msgid "From"
+msgstr "من"
+
+#: core/templates/core/driver_dashboard.html:107
+msgid "Price"
+msgstr "السعر"
+
+#: core/templates/core/driver_dashboard.html:133
+msgid "No completed deliveries yet."
+msgstr "لا توجد عمليات توصيل مكتملة بعد."
 
 #: core/templates/core/edit_profile.html:14
 msgid "Back to Profile"
 msgstr "العودة إلى الملف الشخصي"
 
 #: core/templates/core/edit_profile.html:36
-#: core/templates/core/shipment_request.html:130
+#: core/templates/core/rate_driver.html:55
+#: core/templates/core/shipment_request.html:140
 #: core/templates/core/verify_otp.html:31
 msgid "Cancel"
 msgstr "إلغاء"
@@ -600,17 +709,88 @@ msgstr "حفظ وتحقق"
 
 #: core/templates/core/edit_profile.html:55
 #: core/templates/core/register.html:59
-#: core/templates/core/shipment_request.html:151
+#: core/templates/core/shipment_request.html:161
 msgid "Select Governate"
 msgstr "اختر المحافظة"
 
 #: core/templates/core/edit_profile.html:56
 #: core/templates/core/edit_profile.html:74
 #: core/templates/core/register.html:60 core/templates/core/register.html:78
-#: core/templates/core/shipment_request.html:152
-#: core/templates/core/shipment_request.html:170
+#: core/templates/core/shipment_request.html:162
+#: core/templates/core/shipment_request.html:180
 msgid "Select City"
 msgstr "اختر المدينة"
+
+#: core/templates/core/emails/password_reset_email.html:5
+#: core/templates/core/emails/password_reset_email.txt:2
+msgid "Reset Your Password"
+msgstr "إعادة تعيين كلمة المرور"
+
+#: core/templates/core/emails/password_reset_email.html:7
+#: core/templates/core/emails/password_reset_email.txt:4
+msgid "Hello,"
+msgstr "مرحباً،"
+
+#: core/templates/core/emails/password_reset_email.html:9
+#: core/templates/core/emails/password_reset_email.txt:6
+msgid ""
+"You are receiving this email because you requested a password reset for your "
+"account at"
+msgstr "تتلقى هذه الرسالة لأنك طلبت إعادة تعيين كلمة المرور لحسابك في"
+
+#: core/templates/core/emails/password_reset_email.html:11
+msgid "Please click the button below to choose a new password:"
+msgstr "يرجى النقر على الزر أدناه لاختيار كلمة مرور جديدة:"
+
+#: core/templates/core/emails/password_reset_email.html:14
+#: core/templates/core/password_reset_form.html:4
+#: core/templates/core/password_reset_form.html:19
+msgid "Reset Password"
+msgstr "إعادة تعيين كلمة المرور"
+
+#: core/templates/core/emails/password_reset_email.html:17
+msgid ""
+"If the button above doesn't work, verify that you entered your username "
+"correctly and try pasting this link into your browser:"
+msgstr ""
+"إذا لم يعمل الزر أعلاه، تحقق من إدخال اسم المستخدم الخاص بك بشكل صحيح وحاول "
+"لصق هذا الرابط في متصفحك:"
+
+#: core/templates/core/emails/password_reset_email.html:21
+msgid "Your username is:"
+msgstr "اسم المستخدم الخاص بك هو:"
+
+#: core/templates/core/emails/password_reset_email.html:23
+#: core/templates/core/emails/password_reset_email.txt:17
+msgid "If you did not request this, please ignore this email."
+msgstr "إذا لم تطلب ذلك، يرجى تجاهل هذا البريد الإلكتروني."
+
+#: core/templates/core/emails/password_reset_email.html:25
+#: core/templates/core/emails/password_reset_email.txt:14
+msgid "Thanks,"
+msgstr "شكراً،"
+
+#: core/templates/core/emails/password_reset_email.html:25
+#: core/templates/core/emails/password_reset_email.txt:15
+msgid "The"
+msgstr "فريق"
+
+#: core/templates/core/emails/password_reset_email.html:25
+#: core/templates/core/emails/password_reset_email.txt:15
+msgid "Team"
+msgstr ""
+
+#: core/templates/core/emails/password_reset_email.txt:8
+msgid "Please go to the following page and choose a new password:"
+msgstr "يرجى الذهاب إلى الصفحة التالية واختيار كلمة مرور جديدة:"
+
+#: core/templates/core/emails/password_reset_email.txt:12
+msgid "Your username, in case you've forgotten:"
+msgstr "اسم المستخدم الخاص بك، في حال نسيته:"
+
+#: core/templates/core/emails/password_reset_subject.txt:1
+msgid "Password reset on"
+msgstr "إعادة تعيين كلمة المرور في"
 
 #: core/templates/core/index.html:10
 msgid "Small Shipments,"
@@ -643,11 +823,6 @@ msgstr "أدخل رقم التتبع (مثال: 5A2B...)"
 #: core/templates/core/index.html:23
 msgid "Track"
 msgstr "تتبع"
-
-#: core/templates/core/index.html:34
-#: core/templates/core/shipper_dashboard.html:24
-msgid "From"
-msgstr "من"
 
 #: core/templates/core/index.html:42
 msgid "Enter your 10-character tracking ID to see live updates."
@@ -687,37 +862,125 @@ msgstr "توصيل آمن"
 msgid "Track your parcel in real-time until it reaches its destination safely."
 msgstr "تتبع طردك في الوقت الفعلي حتى يصل إلى وجهته بأمان."
 
-#: core/templates/core/index.html:92
+#: core/templates/core/index.html:94
+msgid "What Our Users Say"
+msgstr "ماذا يقول مستخدمونا"
+
+#: core/templates/core/index.html:95
+msgid "Real stories from our community"
+msgstr "قصص حقيقية من مجتمعنا"
+
+#: core/templates/core/index.html:124
 msgid "Ready to join the movement?"
 msgstr "مستعد للانضمام إلينا؟"
 
-#: core/templates/core/index.html:95
+#: core/templates/core/index.html:127
 msgid "I want to send a parcel"
 msgstr "أريد إرسال طرد"
 
-#: core/templates/core/index.html:96
+#: core/templates/core/index.html:128
 msgid "Become a Shipper"
 msgstr "كن شاحناً"
 
-#: core/templates/core/index.html:99
+#: core/templates/core/index.html:131
 msgid "I have a car and want to earn"
 msgstr "لدي سيارة وأريد كسب المال"
 
-#: core/templates/core/index.html:100
+#: core/templates/core/index.html:132
 msgid "Become a Driver"
 msgstr "كن سائقاً"
 
-#: core/templates/core/login.html:20
-msgid "Login to masarX"
-msgstr "تسجيل الدخول إلى مسارX"
+#: core/templates/core/login.html:21
+msgid "Welcome Back"
+msgstr "أهلاً بعودتك"
 
-#: core/templates/core/login.html:35
+#: core/templates/core/login.html:22
+msgid "Please login to your account"
+msgstr "يرجى تسجيل الدخول إلى حسابك"
+
+#: core/templates/core/login.html:42
+msgid "Forgot Password?"
+msgstr "هل نسيت كلمة المرور؟"
+
+#: core/templates/core/login.html:49
 msgid "Don't have an account?"
 msgstr "ليس لديك حساب؟"
 
-#: core/templates/core/login.html:35
-msgid "Register here"
-msgstr "سجل هنا"
+#: core/templates/core/password_reset_complete.html:4
+msgid "Password Reset Complete"
+msgstr "اكتمل إعادة تعيين كلمة المرور"
+
+#: core/templates/core/password_reset_complete.html:16
+msgid "Password Changed!"
+msgstr "تم تغيير كلمة المرور!"
+
+#: core/templates/core/password_reset_complete.html:18
+msgid "Your password has been set. You may go ahead and log in now."
+msgstr "تم تعيين كلمة المرور الخاصة بك. يمكنك المضي قدماً وتسجيل الدخول الآن."
+
+#: core/templates/core/password_reset_complete.html:21
+msgid "Log In"
+msgstr "تسجيل الدخول"
+
+#: core/templates/core/password_reset_confirm.html:4
+msgid "New Password"
+msgstr "كلمة المرور الجديدة"
+
+#: core/templates/core/password_reset_confirm.html:14
+msgid "Set New Password"
+msgstr "تعيين كلمة مرور جديدة"
+
+#: core/templates/core/password_reset_confirm.html:15
+msgid ""
+"Please enter your new password twice so we can verify you typed it in "
+"correctly."
+msgstr ""
+"يرجى إدخال كلمة المرور الجديدة مرتين حتى نتمكن من التحقق من كتابتها بشكل "
+"صحيح."
+
+#: core/templates/core/password_reset_confirm.html:32
+msgid "Change Password"
+msgstr "تغيير كلمة المرور"
+
+#: core/templates/core/password_reset_done.html:4
+msgid "Email Sent"
+msgstr "تم إرسال البريد الإلكتروني"
+
+#: core/templates/core/password_reset_done.html:16
+msgid "Check Your Email"
+msgstr "تفقد بريدك الإلكتروني"
+
+#: core/templates/core/password_reset_done.html:18
+msgid ""
+"We've sent you instructions on how to reset your password. If an account "
+"exists with the email you entered, you will receive them shortly."
+msgstr ""
+"لقد أرسلنا لك تعليمات حول كيفية إعادة تعيين كلمة المرور الخاصة بك. إذا كان "
+"هناك حساب بالبريد الإلكتروني الذي أدخلته، فستتلقاها قريباً."
+
+#: core/templates/core/password_reset_done.html:21
+msgid "If you don't receive an email, please check your spam folder."
+msgstr ""
+"إذا لم تتلق بريداً إلكترونياً، يرجى التحقق من مجلد الرسائل غير المرغوب فيها."
+
+#: core/templates/core/password_reset_done.html:24
+msgid "Return to Login"
+msgstr "العودة إلى تسجيل الدخول"
+
+#: core/templates/core/password_reset_form.html:20
+msgid ""
+"Enter your email address and we'll send you a link to reset your password."
+msgstr ""
+"أدخل عنوان بريدك الإلكتروني وسنرسل لك رابطاً لإعادة تعيين كلمة المرور الخاصة "
+"بك."
+
+#: core/templates/core/password_reset_form.html:34
+msgid "Send Reset Link"
+msgstr "إرسال رابط إعادة التعيين"
+
+#: core/templates/core/password_reset_form.html:39
+msgid "Back to Login"
+msgstr "العودة إلى تسجيل الدخول"
 
 #: core/templates/core/privacy_policy.html:16
 msgid "Privacy Policy not available yet."
@@ -735,6 +998,26 @@ msgstr "الهاتف"
 #: core/templates/core/profile.html:49
 msgid "Location"
 msgstr "الموقع"
+
+#: core/templates/core/profile.html:76
+msgid "reviews"
+msgstr "تقييمات"
+
+#: core/templates/core/profile.html:101
+msgid "No reviews yet."
+msgstr "لا توجد تقييمات بعد."
+
+#: core/templates/core/rate_driver.html:11
+msgid "Rate Your Experience"
+msgstr "قيم تجربتك"
+
+#: core/templates/core/rate_driver.html:13
+msgid "How was the service provided by"
+msgstr "كيف كانت الخدمة المقدمة من"
+
+#: core/templates/core/rate_driver.html:52
+msgid "Submit Review"
+msgstr "إرسال التقييم"
 
 #: core/templates/core/register.html:20
 msgid "Join masarX"
@@ -768,7 +1051,7 @@ msgstr "تفاصيل التوصيل"
 msgid "Receiver Details"
 msgstr "تفاصيل المستلم"
 
-#: core/templates/core/shipment_request.html:131
+#: core/templates/core/shipment_request.html:141
 msgid "Submit Request"
 msgstr "إرسال الطلب"
 
@@ -780,21 +1063,43 @@ msgstr "شحناتي"
 msgid "New Shipment"
 msgstr "شحنة جديدة"
 
-#: core/templates/core/shipper_dashboard.html:37
+#: core/templates/core/shipper_dashboard.html:14
+msgid "Active Shipments"
+msgstr "الشحنات النشطة"
+
+#: core/templates/core/shipper_dashboard.html:51
 msgid "Pay Now"
 msgstr "ادفع الآن"
 
-#: core/templates/core/shipper_dashboard.html:44
+#: core/templates/core/shipper_dashboard.html:58
 msgid "Waiting for pickup"
 msgstr "في انتظار الاستلام"
 
-#: core/templates/core/shipper_dashboard.html:52
-msgid "You haven't sent any shipments yet."
-msgstr "لم ترسل أي شحنات بعد."
+#: core/templates/core/shipper_dashboard.html:66
+msgid "You have no active shipments."
+msgstr "ليس لديك شحنات نشطة."
 
-#: core/templates/core/shipper_dashboard.html:53
+#: core/templates/core/shipper_dashboard.html:67
 msgid "Send your first shipment"
 msgstr "أرسل أول شحنة لك"
+
+#: core/templates/core/shipper_dashboard.html:85
+msgid "Bid/Price"
+msgstr "العرض/السعر"
+
+#: core/templates/core/shipper_dashboard.html:87
+#, fuzzy
+#| msgid "Actions"
+msgid "Action"
+msgstr "إجراءات"
+
+#: core/templates/core/shipper_dashboard.html:114
+msgid "Rate Driver"
+msgstr "قيم السائق"
+
+#: core/templates/core/shipper_dashboard.html:132
+msgid "No completed transactions yet."
+msgstr "لا توجد معاملات مكتملة بعد."
 
 #: core/templates/core/terms_conditions.html:16
 msgid "Terms and Conditions not available yet."
@@ -821,8 +1126,8 @@ msgstr ""
 "تغييراتك."
 
 #: core/templates/core/verify_otp.html:27
-#: core/templates/core/verify_registration.html:27 core/views.py:63
-#: core/views.py:330
+#: core/templates/core/verify_registration.html:27 core/views.py:67
+#: core/views.py:373
 msgid "Verification Code"
 msgstr "رمز التحقق"
 
@@ -832,125 +1137,146 @@ msgstr "تحقق وحفظ"
 
 #: core/templates/core/verify_registration.html:4
 #: core/templates/core/verify_registration.html:31
-#, fuzzy
-#| msgid "Create Account"
 msgid "Verify Account"
-msgstr "إنشاء حساب"
+msgstr "التحقق من الحساب"
 
 #: core/templates/core/verify_registration.html:14
-#, fuzzy
-#| msgid "Register"
 msgid "Back to Register"
-msgstr "تسجيل"
+msgstr "العودة إلى التسجيل"
 
 #: core/templates/core/verify_registration.html:20
-#, fuzzy
-#| msgid "Verification Code"
 msgid "Account Verification"
-msgstr "رمز التحقق"
+msgstr "تفعيل الحساب"
 
 #: core/templates/core/verify_registration.html:22
-#, fuzzy
-#| msgid ""
-#| "We have sent a verification code to your selected contact method. Please "
-#| "enter it below to save your changes."
 msgid ""
 "We have sent a verification code to verify your account. Please enter it "
 "below to complete registration."
-msgstr ""
-"لقد أرسلنا رمز التحقق إلى وسيلة الاتصال المحددة. يرجى إدخاله أدناه لحفظ "
-"تغييراتك."
+msgstr "لقد أرسلنا رمز التحقق لتفعيل حسابك. يرجى إدخاله أدناه لإكمال التسجيل."
 
-#: core/views.py:34
+#: core/views.py:35
 msgid "Parcel not found."
 msgstr "الطرد غير موجود."
 
-#: core/views.py:60 core/views.py:324
+#: core/views.py:64 core/views.py:367
 msgid "Verification code sent to WhatsApp."
 msgstr "تم إرسال رمز التحقق إلى واتساب."
 
-#: core/views.py:69 core/views.py:336
+#: core/views.py:70
+msgid "Welcome to Masar!"
+msgstr "مرحباً بك في مسار!"
+
+#: core/views.py:73 core/views.py:379
 msgid "Verification code sent to email."
 msgstr "تم إرسال رمز التحقق إلى البريد الإلكتروني."
 
-#: core/views.py:79
-#, fuzzy
-#| msgid "Session expired. Please try again."
+#: core/views.py:83
 msgid "Session expired or invalid."
-msgstr "انتهت صلاحية الجلسة. يرجى المحاولة مرة أخرى."
+msgstr "انتهت صلاحية الجلسة أو أنها غير صالحة."
 
-#: core/views.py:107
-#, fuzzy
-#| msgid "Profile updated successfully!"
+#: core/views.py:111
 msgid "Account verified successfully!"
-msgstr "تم تحديث الملف الشخصي بنجاح!"
+msgstr "تم التحقق من الحساب بنجاح!"
 
-#: core/views.py:110 core/views.py:389
+#: core/views.py:114 core/views.py:432
 msgid "Invalid or expired code."
 msgstr "الرمز غير صالح أو منتهي الصلاحية."
 
-#: core/views.py:112 core/views.py:391
+#: core/views.py:116 core/views.py:434
 msgid "Invalid code."
 msgstr "رمز غير صالح."
 
-#: core/views.py:137
+#: core/views.py:165
 msgid "Only shippers can request shipments."
 msgstr "فقط الشاحنين يمكنهم طلب شحنات."
 
-#: core/views.py:150
+#: core/views.py:178
 msgid "Shipment requested successfully! Tracking ID: "
 msgstr "تم طلب الشحنة بنجاح! رقم التتبع: "
 
-#: core/views.py:160
+#: core/views.py:188
 msgid "Only car owners can accept shipments."
 msgstr "فقط أصحاب السيارات يمكنهم قبول الشحنات."
 
-#: core/views.py:171
+#: core/views.py:206
 msgid "You have accepted the shipment!"
 msgstr "لقد قبلت الشحنة!"
 
-#: core/views.py:186
+#: core/views.py:221
 msgid "Status updated successfully!"
 msgstr "تم تحديث الحالة بنجاح!"
 
-#: core/views.py:194
+#: core/views.py:229
 msgid "Payments are currently disabled by the administrator."
 msgstr "المدفوعات معطلة حالياً من قبل المسؤول."
 
-#: core/views.py:211
+#: core/views.py:246
 msgid "Could not initiate payment. Please try again later."
 msgstr "تعذر بدء الدفع. يرجى المحاولة مرة أخرى لاحقاً."
 
-#: core/views.py:230
+#: core/views.py:265
 msgid "Payment successful! Your shipment is now active."
 msgstr "تم الدفع بنجاح! شحنتك نشطة الآن."
 
-#: core/views.py:232
+#: core/views.py:267
 msgid "Payment status is pending or failed. Please check your dashboard."
 msgstr "حالة الدفع معلقة أو فشلت. يرجى التحقق من لوحة التحكم."
 
-#: core/views.py:238
+#: core/views.py:273
 msgid "Payment was cancelled."
 msgstr "تم إلغاء الدفع."
 
-#: core/views.py:277
+#: core/views.py:312
 msgid "Your message has been sent successfully!"
 msgstr "تم إرسال رسالتك بنجاح!"
 
-#: core/views.py:279
+#: core/views.py:314
 msgid "There was an error sending your message. Please try again later."
 msgstr "حدث خطأ أثناء إرسال رسالتك. يرجى المحاولة مرة أخرى لاحقاً."
 
-#: core/views.py:383
+#: core/views.py:376
+msgid "Profile Update Verification"
+msgstr "التحقق من تحديث الملف الشخصي"
+
+#: core/views.py:426
 msgid "Profile updated successfully!"
 msgstr "تم تحديث الملف الشخصي بنجاح!"
 
-#: core/views.py:386
+#: core/views.py:429
 msgid "Session expired. Please try again."
 msgstr "انتهت صلاحية الجلسة. يرجى المحاولة مرة أخرى."
 
-#~ msgid "Hello"
-#~ msgstr "مرحباً"
+#: core/views.py:444
+msgid "You are not authorized to rate this shipment."
+msgstr "غير مصرح لك بتقييم هذه الشحنة."
+
+#: core/views.py:448
+msgid "You can only rate delivered shipments."
+msgstr "يمكنك تقييم الشحنات المسلمة فقط."
+
+#: core/views.py:452
+msgid "No driver was assigned to this shipment."
+msgstr "لم يتم تعيين سائق لهذه الشحنة."
+
+#: core/views.py:456
+msgid "You have already rated this shipment."
+msgstr "لقد قمت بتقييم هذه الشحنة بالفعل."
+
+#: core/views.py:467
+msgid "Thank you for your feedback!"
+msgstr "شكراً لملاحظاتك!"
+
+#~ msgid "Shipping Price (OMR)"
+#~ msgstr "سعر الشحن (ر.ع)"
+
+#~ msgid "Login to masarX"
+#~ msgstr "تسجيل الدخول إلى مسارX"
+
+#~ msgid "Register here"
+#~ msgstr "سجل هنا"
+
+#~ msgid "You haven't sent any shipments yet."
+#~ msgstr "لم ترسل أي شحنات بعد."
 
 #~ msgid "Find Loads"
 #~ msgstr "البحث عن شحنات"

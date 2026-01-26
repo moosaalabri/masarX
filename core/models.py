@@ -79,6 +79,19 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.get_role_display()}"
+        
+    def get_average_rating(self):
+        if self.role != 'car_owner':
+            return None
+        ratings = self.user.received_ratings.all()
+        if not ratings:
+            return 0
+        return sum(r.rating for r in ratings) / len(ratings)
+
+    def get_rating_count(self):
+        if self.role != 'car_owner':
+            return 0
+        return self.user.received_ratings.count()
 
     class Meta:
         verbose_name = _('Profile')
@@ -242,3 +255,18 @@ class Testimonial(models.Model):
         verbose_name = _('Testimonial')
         verbose_name_plural = _('Testimonials')
         ordering = ['-created_at']
+
+class DriverRating(models.Model):
+    parcel = models.OneToOneField(Parcel, on_delete=models.CASCADE, related_name='rating', verbose_name=_('Parcel'))
+    driver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_ratings', verbose_name=_('Driver'))
+    shipper = models.ForeignKey(User, on_delete=models.CASCADE, related_name='given_ratings', verbose_name=_('Shipper'))
+    rating = models.PositiveSmallIntegerField(_('Rating'), choices=[(i, str(i)) for i in range(1, 6)])
+    comment = models.TextField(_('Comment'), blank=True)
+    created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
+
+    def __str__(self):
+        return f"Rating {self.rating} for {self.driver.username} by {self.shipper.username}"
+
+    class Meta:
+        verbose_name = _('Driver Rating')
+        verbose_name_plural = _('Driver Ratings')

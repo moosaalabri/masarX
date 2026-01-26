@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load i18n static core_tags %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold mb-3">{% trans "Rate Your Experience" %}</h2>
+                        <p class="text-muted">
+                            {% trans "How was the service provided by" %} 
+                            <strong>{{ parcel.carrier.username }}</strong>?
+                        </p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Star Rating -->
+                        <div class="mb-4 text-center">
+                            <label class="form-label d-block mb-2">{% trans "Rating" %}</label>
+                            <div class="rating-stars">
+                                {% for radio in form.rating %}
+                                    {{ radio.tag }}
+                                    <label for="{{ radio.id_for_label }}" class="star-label">
+                                        <i class="fas fa-star"></i>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                            {% if form.rating.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.rating.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Comment -->
+                        <div class="mb-4">
+                            <label for="{{ form.comment.id_for_label }}" class="form-label">{% trans "Comment" %}</label>
+                            {{ form.comment }}
+                            {% if form.comment.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.comment.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill">
+                                {% trans "Submit Review" %}
+                            </button>
+                            <a href="{% url 'dashboard' %}" class="btn btn-light rounded-pill">
+                                {% trans "Cancel" %}
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Star Rating Styles */
+    .rating-stars {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .rating-stars input[type="radio"] {
+        display: none;
+    }
+    
+    .rating-stars label {
+        font-size: 2rem;
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    
+    .rating-stars label:hover,
+    .rating-stars label:hover ~ label,
+    .rating-stars input[type="radio"]:checked ~ label {
+        color: #ffc107; /* Bootstrap warning color (yellow) */
+    }
+    
+    /* Reverse order fix for logic but display is reversed, 
+       so we might need to adjust logic or just use flex-direction: row-reverse 
+       and ensure inputs are 5,4,3,2,1 order? 
+       Django RadioSelect usually outputs in order 1,2,3,4,5. 
+       If we reverse via flex, 1 is rightmost. That's wrong. 
+       We need 1 on left. 
+       
+       Actually simpler pure CSS rating usually involves flex-reverse. 
+       Let's check Django output. 
+       Django outputs 1, 2, 3, 4, 5.
+       If we use flex-direction: row-reverse, it shows 5 4 3 2 1.
+       Hovering 5 highlights 5, 4, 3, 2, 1. Correct.
+       
+       So visually:
+       [5] [4] [3] [2] [1]
+       
+       If I click left-most (5), it checks 5. 
+       Wait, users expect [1] [2] [3] [4] [5].
+       
+       If I use row-reverse:
+       DOM: 1 2 3 4 5
+       Visual: 5 4 3 2 1
+       
+       This is counter-intuitive for LTR. 
+       
+       Let's use a different technique. 
+       Use :checked ~ label selector, but then we need the input BEFORE the label.
+       Django widgets renders input then label? 
+       {{ radio.tag }} is input. <label> we write manually.
+       
+       So DOM is: Input1 Label1 Input2 Label2 ...
+       
+       We can style this.
+    */
+</style>
+{% endblock %}

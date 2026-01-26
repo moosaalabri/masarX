@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n %}
+{% load i18n core_tags %}
 
 {% block content %}
 <div class="container py-5">
@@ -84,10 +84,12 @@
                                     <th>{% trans "Carrier" %}</th>
                                     <th>{% trans "Bid/Price" %}</th>
                                     <th>{% trans "Status" %}</th>
+                                    <th>{% trans "Action" %}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for parcel in history_parcels %}
+                                {% get_rating parcel as rating %}
                                 <tr>
                                     <td class="ps-4">{{ parcel.created_at|date:"Y-m-d" }}</td>
                                     <td><span class="badge bg-light text-dark">#{{ parcel.tracking_number }}</span></td>
@@ -104,6 +106,19 @@
                                         <span class="badge {% if parcel.status == 'delivered' %}bg-success{% else %}bg-danger{% endif %}">
                                             {{ parcel.get_status_display }}
                                         </span>
+                                    </td>
+                                    <td>
+                                        {% if parcel.status == 'delivered' and parcel.carrier %}
+                                            {% if not rating %}
+                                                <a href="{% url 'rate_driver' parcel.id %}" class="btn btn-sm btn-outline-warning">
+                                                    <i class="fas fa-star"></i> {% trans "Rate Driver" %}
+                                                </a>
+                                            {% else %}
+                                                <span class="text-warning" title="{{ rating.comment }}">
+                                                    {{ rating.rating }} <i class="fas fa-star"></i>
+                                                </span>
+                                            {% endif %}
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}
