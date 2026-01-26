@@ -1,0 +1,93 @@
+{% load i18n core_tags %}
+{% get_platform_profile as platform %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 0;
+            color: #333333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+        .header {
+            background-color: #ffffff;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid #eeeeee;
+        }
+        .logo {
+            max-height: 60px;
+            width: auto;
+        }
+        .content {
+            padding: 40px 30px;
+            line-height: 1.6;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #888888;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #e67e22; /* Orange accent */
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #333333;
+            font-size: 24px;
+            margin-bottom: 20px;
+            margin-top: 0;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        .link-text {
+            color: #e67e22;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            {% if platform and platform.logo %}
+                <img src="{{ protocol }}://{{ domain }}{{ platform.logo.url }}" alt="{{ platform.name }}" class="logo">
+            {% else %}
+                <h2>{{ site_name }}</h2>
+            {% endif %}
+        </div>
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+        <div class="footer">
+            <p>&copy; {% now "Y" %} {{ site_name }}. {% trans "All rights reserved." %}</p>
+            {% if platform and platform.address %}
+                <p>{{ platform.address }}</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

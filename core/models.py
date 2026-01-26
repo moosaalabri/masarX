@@ -11,6 +11,7 @@ import uuid
 class Country(models.Model):
     name_en = models.CharField(_('Name (English)'), max_length=100)
     name_ar = models.CharField(_('Name (Arabic)'), max_length=100)
+    phone_code = models.CharField(_('Phone Code'), max_length=10, blank=True, help_text=_("e.g. +968"))
     
     @property
     def name(self):
@@ -19,7 +20,7 @@ class Country(models.Model):
         return self.name_en
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.phone_code})" if self.phone_code else self.name
 
     class Meta:
         verbose_name = _('Country')

@@ -14,7 +14,10 @@ class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label=_("Password"))
     password_confirm = forms.CharField(widget=forms.PasswordInput, label=_("Confirm Password"))
     role = forms.ChoiceField(choices=Profile.ROLE_CHOICES, label=_("Register as"))
+    
+    phone_code = forms.ModelChoiceField(queryset=Country.objects.none(), label=_("Code"), required=False, widget=forms.Select(attrs={'class': 'form-control'}))
     phone_number = forms.CharField(max_length=20, label=_("Phone Number"))
+    
     verification_method = forms.ChoiceField(choices=[('email', _('Email')), ('whatsapp', _('WhatsApp'))], label=_("Verify via"), widget=forms.RadioSelect, initial='email')
     
     country = forms.ModelChoiceField(queryset=Country.objects.all(), required=False, label=_("Country"))
@@ -36,12 +39,17 @@ class UserRegistrationForm(forms.ModelForm):
         lang = get_language()
         name_field = 'name_ar' if lang == 'ar' else 'name_en'
         
+        # Phone Code setup
+        self.fields['phone_code'].queryset = Country.objects.exclude(phone_code='').order_by(name_field)
+        self.fields['phone_code'].label_from_instance = lambda obj: f"{obj.phone_code} ({obj.name})"
+        
         self.fields['country'].queryset = Country.objects.all().order_by(name_field)
         
         # Default Country logic
         oman = Country.objects.filter(name_en='Oman').first()
         if oman:
             self.fields['country'].initial = oman
+            self.fields['phone_code'].initial = oman
         
         if 'country' in self.data:
             try:
@@ -70,6 +78,17 @@ class UserRegistrationForm(forms.ModelForm):
             raise forms.ValidationError(_("Passwords don't match"))
         return password_confirm
 
+    def clean(self):
+        cleaned_data = super().clean()
+        phone_code = cleaned_data.get('phone_code')
+        phone_number = cleaned_data.get('phone_number')
+        
+        if phone_code and phone_number:
+            # If user didn't type the code in the phone number input, prepend it
+            if not phone_number.startswith(phone_code.phone_code):
+                 cleaned_data['phone_number'] = f"{phone_code.phone_code}{phone_number}"
+        return cleaned_data
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data['password'])
@@ -90,7 +109,9 @@ class UserProfileForm(forms.ModelForm):
     last_name = forms.CharField(label=_("Last Name"), max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
     email = forms.EmailField(label=_("Email"), widget=forms.EmailInput(attrs={'class': 'form-control'}))
     
+    phone_code = forms.ModelChoiceField(queryset=Country.objects.none(), label=_("Code"), required=False, widget=forms.Select(attrs={'class': 'form-control'}))
     phone_number = forms.CharField(label=_("Phone Number"), max_length=20, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    
     address = forms.CharField(label=_("Address"), required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
     profile_picture = forms.ImageField(label=_("Profile Picture"), required=False, widget=forms.FileInput(attrs={'class': 'form-control'}))
     
@@ -125,10 +146,25 @@ class UserProfileForm(forms.ModelForm):
         lang = get_language()
         name_field = 'name_ar' if lang == 'ar' else 'name_en'
         
-        self.fields['country'].queryset = Country.objects.all().order_by(name_field)
+        # Phone Code setup
+        self.fields['phone_code'].queryset = Country.objects.exclude(phone_code='').order_by(name_field)
+        self.fields['phone_code'].label_from_instance = lambda obj: f"{obj.phone_code} ({obj.name})"
         
         # Default Country logic (Oman)
         oman = Country.objects.filter(name_en='Oman').first()
+        if oman:
+             self.fields['phone_code'].initial = oman
+
+        # Initial splitting of phone number
+        if self.instance.pk and self.instance.phone_number:
+            for country in Country.objects.exclude(phone_code=''):
+                if self.instance.phone_number.startswith(country.phone_code):
+                    self.fields['phone_code'].initial = country
+                    # Strip code from display
+                    self.fields['phone_number'].initial = self.instance.phone_number[len(country.phone_code):]
+                    break
+        
+        self.fields['country'].queryset = Country.objects.all().order_by(name_field)
         
         # Initial QS setup
         self.fields['governate'].queryset = Governate.objects.none()
@@ -154,7 +190,19 @@ class UserProfileForm(forms.ModelForm):
         elif self.instance.pk and self.instance.governate:
              self.fields['city'].queryset = self.instance.governate.city_set.order_by(name_field)
 
+    def clean(self):
+        cleaned_data = super().clean()
+        phone_code = cleaned_data.get('phone_code')
+        phone_number = cleaned_data.get('phone_number')
+        
+        if phone_code and phone_number:
+            if not phone_number.startswith(phone_code.phone_code):
+                 cleaned_data['phone_number'] = f"{phone_code.phone_code}{phone_number}"
+        return cleaned_data
+
 class ParcelForm(forms.ModelForm):
+    receiver_phone_code = forms.ModelChoiceField(queryset=Country.objects.none(), label=_("Receiver Code"), required=False, widget=forms.Select(attrs={'class': 'form-control'}))
+
     class Meta:
         model = Parcel
         fields = [
@@ -202,16 +250,29 @@ class ParcelForm(forms.ModelForm):
         lang = get_language()
         name_field = 'name_ar' if lang == 'ar' else 'name_en'
 
-        # Set querysets for countries
-        self.fields['pickup_country'].queryset = Country.objects.all().order_by(name_field)
-        self.fields['delivery_country'].queryset = Country.objects.all().order_by(name_field)
+        # Phone Code setup
+        self.fields['receiver_phone_code'].queryset = Country.objects.exclude(phone_code='').order_by(name_field)
+        self.fields['receiver_phone_code'].label_from_instance = lambda obj: f"{obj.phone_code} ({obj.name})"
         
         # Default Country logic
         oman = Country.objects.filter(name_en='Oman').first()
         if oman:
+            self.fields['receiver_phone_code'].initial = oman
             self.fields['pickup_country'].initial = oman
             self.fields['delivery_country'].initial = oman
 
+        # Initial splitting of phone number (if editing)
+        if self.instance.pk and self.instance.receiver_phone:
+            for country in Country.objects.exclude(phone_code=''):
+                if self.instance.receiver_phone.startswith(country.phone_code):
+                    self.fields['receiver_phone_code'].initial = country
+                    self.fields['receiver_phone'].initial = self.instance.receiver_phone[len(country.phone_code):]
+                    break
+
+        # Set querysets for countries
+        self.fields['pickup_country'].queryset = Country.objects.all().order_by(name_field)
+        self.fields['delivery_country'].queryset = Country.objects.all().order_by(name_field)
+        
         # Pickup
         self.fields['pickup_governate'].queryset = Governate.objects.none()
         self.fields['pickup_city'].queryset = City.objects.none()
@@ -251,3 +312,13 @@ class ParcelForm(forms.ModelForm):
                 self.fields['delivery_city'].queryset = City.objects.filter(governate_id=gov_id).order_by(name_field)
             except (ValueError, TypeError):
                 pass
+
+    def clean(self):
+        cleaned_data = super().clean()
+        phone_code = cleaned_data.get('receiver_phone_code')
+        phone_number = cleaned_data.get('receiver_phone')
+        
+        if phone_code and phone_number:
+            if not phone_number.startswith(phone_code.phone_code):
+                 cleaned_data['receiver_phone'] = f"{phone_code.phone_code}{phone_number}"
+        return cleaned_data

@@ -120,7 +120,17 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="{{ form.receiver_phone.id_for_label }}">{{ form.receiver_phone.label }}</label>
-                            {{ form.receiver_phone }}
+                            <div class="d-flex gap-2">
+                                <div class="flex-shrink-0" style="width: 140px;">
+                                     {{ form.receiver_phone_code }}
+                                </div>
+                                <div class="flex-grow-1">
+                                     {{ form.receiver_phone }}
+                                </div>
+                            </div>
+                            {% if form.receiver_phone_code.errors %}
+                            <div class="text-danger small">{{ form.receiver_phone_code.errors }}</div>
+                            {% endif %}
                             {% if form.receiver_phone.errors %}
                             <div class="text-danger small">{{ form.receiver_phone.errors }}</div>
                             {% endif %}

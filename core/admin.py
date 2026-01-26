@@ -149,6 +149,10 @@ class PlatformProfileAdmin(admin.ModelAdmin):
              fieldsets += ((_('Tools'), {'fields': ('test_connection_link',)}),)
         return fieldsets
 
+class CountryAdmin(admin.ModelAdmin):
+    list_display = ('name_en', 'name_ar', 'phone_code')
+    search_fields = ('name_en', 'name_ar', 'phone_code')
+
 class TestimonialAdmin(admin.ModelAdmin):
     list_display = ('name_en', 'role_en', 'is_active', 'created_at')
     list_filter = ('is_active', 'created_at')
@@ -158,7 +162,7 @@ class TestimonialAdmin(admin.ModelAdmin):
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Parcel, ParcelAdmin)
-admin.site.register(Country)
+admin.site.register(Country, CountryAdmin)
 admin.site.register(Governate)
 admin.site.register(City)
 admin.site.register(PlatformProfile, PlatformProfileAdmin)
