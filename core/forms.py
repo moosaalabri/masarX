@@ -335,3 +335,8 @@ class DriverRatingForm(forms.ModelForm):
             'rating': _('Rating'),
             'comment': _('Comment'),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Reverse choices for CSS star rating logic (5 to 1) to ensure left-to-right filling
+        self.fields['rating'].choices = [(i, str(i)) for i in range(5, 0, -1)]

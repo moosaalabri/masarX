@@ -35,6 +35,7 @@ urlpatterns = [
     path('shipment-request/', views.shipment_request, name='shipment_request'),
     path('accept-parcel/<int:parcel_id>/', views.accept_parcel, name='accept_parcel'),
     path('update-status/<int:parcel_id>/', views.update_status, name='update_status'),
+    path('rate-driver/<int:parcel_id>/', views.rate_driver, name='rate_driver'),
     path('initiate-payment/<int:parcel_id>/', views.initiate_payment, name='initiate_payment'),
     path('payment-success/', views.payment_success, name='payment_success'),
     path('payment-cancel/', views.payment_cancel, name='payment_cancel'),

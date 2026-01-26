@@ -25,7 +25,7 @@
                                 {% for radio in form.rating %}
                                     {{ radio.tag }}
                                     <label for="{{ radio.id_for_label }}" class="star-label">
-                                        <i class="fas fa-star"></i>
+                                        <i class="bi bi-star-fill"></i>
                                     </label>
                                 {% endfor %}
                             </div>
@@ -87,40 +87,5 @@
     .rating-stars input[type="radio"]:checked ~ label {
         color: #ffc107; /* Bootstrap warning color (yellow) */
     }
-    
-    /* Reverse order fix for logic but display is reversed, 
-       so we might need to adjust logic or just use flex-direction: row-reverse 
-       and ensure inputs are 5,4,3,2,1 order? 
-       Django RadioSelect usually outputs in order 1,2,3,4,5. 
-       If we reverse via flex, 1 is rightmost. That's wrong. 
-       We need 1 on left. 
-       
-       Actually simpler pure CSS rating usually involves flex-reverse. 
-       Let's check Django output. 
-       Django outputs 1, 2, 3, 4, 5.
-       If we use flex-direction: row-reverse, it shows 5 4 3 2 1.
-       Hovering 5 highlights 5, 4, 3, 2, 1. Correct.
-       
-       So visually:
-       [5] [4] [3] [2] [1]
-       
-       If I click left-most (5), it checks 5. 
-       Wait, users expect [1] [2] [3] [4] [5].
-       
-       If I use row-reverse:
-       DOM: 1 2 3 4 5
-       Visual: 5 4 3 2 1
-       
-       This is counter-intuitive for LTR. 
-       
-       Let's use a different technique. 
-       Use :checked ~ label selector, but then we need the input BEFORE the label.
-       Django widgets renders input then label? 
-       {{ radio.tag }} is input. <label> we write manually.
-       
-       So DOM is: Input1 Label1 Input2 Label2 ...
-       
-       We can style this.
-    */
 </style>
 {% endblock %}

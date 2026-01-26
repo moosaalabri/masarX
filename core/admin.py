@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.utils.html import format_html
 from django.contrib import messages
 from .whatsapp_utils import send_whatsapp_message_detailed
-from django.core.mail import send_mail
+from django.core.mail import send_html_email
 from django.conf import settings
 from .mail import send_html_email
 import logging
@@ -172,3 +172,6 @@ admin.site.register(Governate)
 admin.site.register(City)
 admin.site.register(PlatformProfile, PlatformProfileAdmin)
 admin.site.register(Testimonial, TestimonialAdmin)
+
+# Set custom admin index template
+admin.site.index_template = 'admin/dashboard.html'
