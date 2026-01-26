@@ -86,6 +86,91 @@
     </div>
 </section>
 
+<!-- Top Performers Section -->
+<section class="py-5 bg-white border-top">
+    <div class="container py-5">
+        <div class="row g-5">
+            <!-- Top Drivers -->
+            <div class="col-lg-6">
+                <h3 class="mb-4 text-center">
+                    <i class="bi bi-trophy text-warning me-2"></i>{% trans "Top Rated Drivers" %}
+                </h3>
+                <div class="list-group list-group-flush shadow-sm rounded-3 overflow-hidden">
+                    {% for driver in top_drivers %}
+                        <div class="list-group-item d-flex align-items-center p-3">
+                            <div class="me-3 position-relative">
+                                {% if driver.profile_picture %}
+                                    <img src="{{ driver.profile_picture.url }}" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
+                                {% else %}
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-muted fw-bold" style="width: 50px; height: 50px;">
+                                        {{ driver.user.first_name|first|upper }}
+                                    </div>
+                                {% endif %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark border border-white">
+                                    {{ forloop.counter }}
+                                </span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">{{ driver.user.first_name }} {{ driver.user.last_name|first }}.</h6>
+                                <small class="text-muted">{% trans "Driver" %}</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="text-warning small mb-1">
+                                    <i class="bi bi-star-fill"></i> {{ driver.avg_rating|floatformat:1 }}
+                                </div>
+                                <small class="text-muted">({{ driver.rating_count }} {% trans "reviews" %})</small>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="list-group-item p-4 text-center text-muted">
+                            {% trans "No ratings yet. Be the first!" %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Top Shippers -->
+            <div class="col-lg-6">
+                <h3 class="mb-4 text-center">
+                    <i class="bi bi-box-seam text-primary me-2"></i>{% trans "Top Shippers" %}
+                </h3>
+                <div class="list-group list-group-flush shadow-sm rounded-3 overflow-hidden">
+                    {% for shipper in top_shippers %}
+                        <div class="list-group-item d-flex align-items-center p-3">
+                            <div class="me-3 position-relative">
+                                {% if shipper.profile_picture %}
+                                    <img src="{{ shipper.profile_picture.url }}" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
+                                {% else %}
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-muted fw-bold" style="width: 50px; height: 50px;">
+                                        {{ shipper.user.first_name|first|upper }}
+                                    </div>
+                                {% endif %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary text-white border border-white">
+                                    {{ forloop.counter }}
+                                </span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">{{ shipper.user.first_name }} {{ shipper.user.last_name|first }}.</h6>
+                                <small class="text-muted">{% trans "Shipper" %}</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold text-primary mb-1">
+                                    {{ shipper.shipment_count }}
+                                </div>
+                                <small class="text-muted">{% trans "Shipments" %}</small>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="list-group-item p-4 text-center text-muted">
+                            {% trans "No shipments yet. Start shipping now!" %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Testimonials Section -->
 {% if testimonials %}
 <section class="py-5 bg-light">

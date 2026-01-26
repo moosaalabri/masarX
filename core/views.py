@@ -13,6 +13,9 @@ from django.urls import reverse
 from .payment_utils import ThawaniPay
 from django.conf import settings
 from django.core.mail import send_mail
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.decorators.http import require_POST
+from django.db.models import Avg, Count
 import random
 import string
 from .whatsapp_utils import (
@@ -23,6 +26,8 @@ from .whatsapp_utils import (
     send_whatsapp_message
 )
 from .mail import send_contact_message, send_html_email
+import json
+from ai.local_ai_api import LocalAIApi
 
 def index(request):
     tracking_id = request.GET.get('tracking_id')
@@ -36,11 +41,24 @@ def index(request):
     
     testimonials = Testimonial.objects.filter(is_active=True)
     
+    # Top 5 Drivers (by Average Rating)
+    top_drivers = Profile.objects.filter(role='car_owner').annotate(
+        avg_rating=Avg('user__received_ratings__rating'),
+        rating_count=Count('user__received_ratings')
+    ).filter(rating_count__gt=0).order_by('-avg_rating')[:5]
+    
+    # Top 5 Shippers (by Shipment Count)
+    top_shippers = Profile.objects.filter(role='shipper').annotate(
+        shipment_count=Count('user__sent_parcels')
+    ).order_by('-shipment_count')[:5]
+    
     return render(request, 'core/index.html', {
         'parcel': parcel,
         'error': error,
         'tracking_id': tracking_id,
-        'testimonials': testimonials
+        'testimonials': testimonials,
+        'top_drivers': top_drivers,
+        'top_shippers': top_shippers
     })
 
 def register(request):
@@ -58,14 +76,16 @@ def register(request):
 
             # Send OTP
             method = form.cleaned_data.get('verification_method', 'email')
+            otp_msg = _("Your Masar Verification Code is %(code)s") % {'code': code}
+            
             if method == 'whatsapp':
                 phone = user.profile.phone_number
-                send_whatsapp_message(phone, f"Your verification code is: {code}")
+                send_whatsapp_message(phone, otp_msg)
                 messages.info(request, _("Verification code sent to WhatsApp."))
             else:
                 send_html_email(
                     subject=_('Verification Code'),
-                    message=f'Your verification code is: {code}',
+                    message=otp_msg,
                     recipient_list=[user.email],
                     title=_('Welcome to Masar!'),
                     request=request
@@ -124,9 +144,20 @@ def dashboard(request):
 
     if profile.role == 'shipper':
         all_parcels = Parcel.objects.filter(shipper=request.user).order_by('-created_at')
-        active_parcels = all_parcels.exclude(status__in=['delivered', 'cancelled'])
+        active_parcels_list = all_parcels.exclude(status__in=['delivered', 'cancelled'])
         history_parcels = all_parcels.filter(status__in=['delivered', 'cancelled'])
         
+        # Pagination for Active Shipments
+        page = request.GET.get('page', 1)
+        paginator = Paginator(active_parcels_list, 9) # Show 9 parcels per page
+        
+        try:
+            active_parcels = paginator.page(page)
+        except PageNotAnInteger:
+            active_parcels = paginator.page(1)
+        except EmptyPage:
+            active_parcels = paginator.page(paginator.num_pages)
+
         platform_profile = PlatformProfile.objects.first()
         payments_enabled = platform_profile.enable_payment if platform_profile else True
         
@@ -142,9 +173,20 @@ def dashboard(request):
         payments_enabled = platform_profile.enable_payment if platform_profile else True
         
         if payments_enabled:
-            available_parcels = Parcel.objects.filter(status='pending', payment_status='paid').order_by('-created_at')
+            available_parcels_list = Parcel.objects.filter(status='pending', payment_status='paid').order_by('-created_at')
         else:
-            available_parcels = Parcel.objects.filter(status='pending').order_by('-created_at')
+            available_parcels_list = Parcel.objects.filter(status='pending').order_by('-created_at')
+
+        # Pagination for Available Shipments
+        page = request.GET.get('page', 1)
+        paginator = Paginator(available_parcels_list, 9) # Show 9 parcels per page
+        
+        try:
+            available_parcels = paginator.page(page)
+        except PageNotAnInteger:
+            available_parcels = paginator.page(1)
+        except EmptyPage:
+            available_parcels = paginator.page(paginator.num_pages)
 
         # Active: Picked up or In Transit
         my_parcels = Parcel.objects.filter(carrier=request.user).exclude(status__in=['delivered', 'cancelled']).order_by('-created_at')
@@ -360,10 +402,12 @@ def edit_profile(request):
 
             # 4. Send OTP
             method = data.get('otp_method', 'email')
+            otp_msg = _("Your Masar Update Code is %(code)s") % {'code': code}
+            
             if method == 'whatsapp':
                 # Use current phone if available, else new phone
                 phone = request.user.profile.phone_number or data['phone_number']
-                send_whatsapp_message(phone, f"Your verification code is: {code}")
+                send_whatsapp_message(phone, otp_msg)
                 messages.info(request, _("Verification code sent to WhatsApp."))
             else:
                 # Default to email
@@ -371,7 +415,7 @@ def edit_profile(request):
                 target_email = data['email']
                 send_html_email(
                     subject=_('Verification Code'),
-                    message=f'Your verification code is: {code}',
+                    message=otp_msg,
                     recipient_list=[target_email],
                     title=_('Profile Update Verification'),
                     request=request
@@ -473,3 +517,136 @@ def rate_driver(request, parcel_id):
         'form': form,
         'parcel': parcel
     })
+
+@require_POST
+def request_login_otp(request):
+    identifier = request.POST.get('identifier')
+    
+    if not identifier:
+        return JsonResponse({'success': False, 'message': _('Please enter an email or phone number.')})
+    
+    # Clean identifier
+    identifier = identifier.strip()
+    
+    user = None
+    method = 'email'
+    
+    # Try to find user by email
+    user = User.objects.filter(email__iexact=identifier).first()
+    
+    # If not found, try by phone number
+    if not user:
+        profile = Profile.objects.filter(phone_number=identifier).first()
+        if profile:
+            user = profile.user
+            method = 'whatsapp'
+        else:
+            # Fallback: maybe they entered a phone without country code or with?
+            # For now, simplistic search
+            pass
+            
+    if not user:
+        # Don't reveal if user exists or not for security, but for UX on this project we can be a bit more helpful
+        return JsonResponse({'success': False, 'message': _('User not found with this email or phone number.')})
+
+    if not user.is_active:
+        return JsonResponse({'success': False, 'message': _('Account is inactive. Please verify registration first.')})
+
+    # Generate OTP
+    code = ''.join(random.choices(string.digits, k=6))
+    OTPVerification.objects.create(user=user, code=code, purpose='login')
+    
+    # Send OTP
+    otp_msg = _("Your Masar Login Code is %(code)s. Do not share this code.") % {'code': code}
+    
+    try:
+        if method == 'whatsapp':
+            phone = user.profile.phone_number
+            send_whatsapp_message(phone, otp_msg)
+            message_sent = _("OTP sent to your WhatsApp.")
+        else:
+            send_html_email(
+                subject=_('Login OTP'),
+                message=otp_msg,
+                recipient_list=[user.email],
+                title=_('Login Verification'),
+                request=request
+            )
+            message_sent = _("OTP sent to your email.")
+            
+        return JsonResponse({'success': True, 'message': message_sent, 'user_id': user.id})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': _('Failed to send OTP. Please try again.')})
+
+@require_POST
+def verify_login_otp(request):
+    user_id = request.POST.get('user_id')
+    code = request.POST.get('code')
+    
+    if not user_id or not code:
+        return JsonResponse({'success': False, 'message': _('Invalid request.')})
+        
+    try:
+        user = User.objects.get(id=user_id)
+        otp = OTPVerification.objects.filter(
+            user=user, 
+            code=code, 
+            purpose='login', 
+            is_verified=False
+        ).latest('created_at')
+        
+        if otp.is_valid():
+            # Cleanup
+            otp.is_verified = True
+            otp.save()
+            
+            # Login
+            login(request, user)
+            
+            return JsonResponse({'success': True, 'redirect_url': reverse('dashboard')})
+        else:
+            return JsonResponse({'success': False, 'message': _('Invalid or expired OTP.')})
+            
+    except (User.DoesNotExist, OTPVerification.DoesNotExist):
+        return JsonResponse({'success': False, 'message': _('Invalid OTP.')})
+
+@require_POST
+def chatbot(request):
+    try:
+        data = json.loads(request.body)
+        user_message = data.get("message", "")
+        language = data.get("language", "en")
+        
+        if not user_message:
+            return JsonResponse({"success": False, "error": "Empty message"})
+
+        system_prompt = (
+            "You are MasarX AI, a helpful and professional assistant for the Masar logistics platform. "
+            "The platform connects shippers with drivers for small parcel deliveries. "
+            "Answer the user's questions about shipping, tracking, becoming a driver, or general support. "
+            "If the user speaks Arabic, reply in Arabic. If English, reply in English. "
+            "Keep responses concise and helpful."
+        )
+        
+        if language == "ar":
+            system_prompt += " The user is currently browsing in Arabic."
+        else:
+            system_prompt += " The user is currently browsing in English."
+
+        response = LocalAIApi.create_response({
+            "input": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message},
+            ]
+        })
+        
+        if response.get("success"):
+            text = LocalAIApi.extract_text(response)
+            return JsonResponse({"success": True, "response": text})
+        else:
+            return JsonResponse({"success": False, "error": response.get("error", "AI Error")})
+            
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON"})
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)})

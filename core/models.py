@@ -213,6 +213,7 @@ class OTPVerification(models.Model):
         ('profile_update', _('Profile Update')),
         ('password_reset', _('Password Reset')),
         ('registration', _('Registration')),
+        ('login', _('Login')),
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     code = models.CharField(max_length=6)

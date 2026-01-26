@@ -43,6 +43,7 @@ urlpatterns = [
     path('article/1/', views.article_detail, name='article_detail'),
     path('ajax/get-governates/', views.get_governates, name='get_governates'),
     path('ajax/get-cities/', views.get_cities, name='get_cities'),
+    path('ajax/chatbot/', views.chatbot, name='chatbot'),
     path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
     path('terms-conditions/', views.terms_conditions, name='terms_conditions'),
     path('contact/', views.contact, name='contact'),
@@ -50,4 +51,8 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),
     path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('profile/verify-otp/', views.verify_otp_view, name='verify_otp'),
+    
+    # OTP Login
+    path('login/request-otp/', views.request_login_otp, name='request_login_otp'),
+    path('login/verify-otp/', views.verify_login_otp, name='verify_login_otp'),
 ]

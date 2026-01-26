@@ -1316,3 +1316,17 @@ msgstr "شكراً لملاحظاتك!"
 
 #~ msgid "Find Loads"
 #~ msgstr "البحث عن شحنات"
+msgid "Top Rated Drivers"
+msgstr "أفضل السائقين تقييماً"
+
+msgid "Top Shippers"
+msgstr "أفضل الشاحنين"
+
+msgid "No ratings yet. Be the first!"
+msgstr "لا توجد تقييمات بعد. كن الأول!"
+
+msgid "No shipments yet. Start shipping now!"
+msgstr "لا توجد شحنات بعد. ابدأ الشحن الآن!"
+
+msgid "Shipments"
+msgstr "شحنات"

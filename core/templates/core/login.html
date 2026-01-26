@@ -22,34 +22,81 @@
                             <p class="text-muted small">{% trans "Please login to your account" %}</p>
                         </div>
 
-                        <form method="post">
-                            {% csrf_token %}
-                            {% for field in form %}
-                                <div class="mb-3">
-                                    <label class="form-label fw-medium">{{ field.label }}</label>
-                                    {{ field }}
-                                    {% if field.errors %}
-                                        <div class="text-danger small mt-1">{{ field.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            {% endfor %}
-                            
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <div class="form-check">
-                                    <!-- Optional: Remember Me logic could go here later -->
-                                </div>
-                                <a href="{% url 'password_reset' %}" class="text-decoration-none text-muted small hover-orange">
-                                    {% trans "Forgot Password?" %}
-                                </a>
+                        <!-- Login Method Tabs -->
+                        <ul class="nav nav-pills nav-fill mb-4 p-1 bg-light rounded-3" id="loginTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active fw-bold rounded-3" id="password-tab" data-bs-toggle="tab" data-bs-target="#password-login" type="button" role="tab" aria-controls="password-login" aria-selected="true">{% trans "Password" %}</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold rounded-3" id="otp-tab" data-bs-toggle="tab" data-bs-target="#otp-login" type="button" role="tab" aria-controls="otp-login" aria-selected="false">{% trans "OTP Login" %}</button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="loginTabContent">
+                            <!-- Password Login Tab -->
+                            <div class="tab-pane fade show active" id="password-login" role="tabpanel" aria-labelledby="password-tab">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    {% for field in form %}
+                                        <div class="mb-3">
+                                            <label class="form-label fw-medium">{{ field.label }}</label>
+                                            {{ field }}
+                                            {% if field.errors %}
+                                                <div class="text-danger small mt-1">{{ field.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <div class="form-check">
+                                            <!-- Optional: Remember Me logic could go here later -->
+                                        </div>
+                                        <a href="{% url 'password_reset' %}" class="text-decoration-none text-muted small hover-orange">
+                                            {% trans "Forgot Password?" %}
+                                        </a>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-masarx-primary w-100 py-2 fw-bold mb-3">{% trans "Login" %}</button>
+                                </form>
                             </div>
 
-                            <button type="submit" class="btn btn-masarx-primary w-100 py-2 fw-bold mb-3">{% trans "Login" %}</button>
-                            
-                            <div class="text-center">
-                                <span class="text-muted small">{% trans "Don't have an account?" %}</span>
-                                <a href="{% url 'register' %}" class="text-masarx-orange text-decoration-none fw-bold ms-1">{% trans "Register" %}</a>
+                            <!-- OTP Login Tab -->
+                            <div class="tab-pane fade" id="otp-login" role="tabpanel" aria-labelledby="otp-tab">
+                                <div id="otp-step-1">
+                                    <div class="mb-3">
+                                        <label for="otp-identifier" class="form-label fw-medium">{% trans "Email or Phone Number" %}</label>
+                                        <input type="text" class="form-control" id="otp-identifier" placeholder="{% trans 'e.g. user@example.com or 96812345678' %}">
+                                        <div id="otp-identifier-error" class="text-danger small mt-1 d-none"></div>
+                                    </div>
+                                    <button type="button" class="btn btn-masarx-primary w-100 py-2 fw-bold mb-3" id="btn-send-otp">
+                                        <span id="btn-send-otp-text">{% trans "Send OTP" %}</span>
+                                        <span id="btn-send-otp-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                    </button>
+                                </div>
+
+                                <div id="otp-step-2" class="d-none">
+                                    <div class="alert alert-info py-2 small" id="otp-sent-msg"></div>
+                                    <div class="mb-3">
+                                        <label for="otp-code" class="form-label fw-medium">{% trans "Enter OTP Code" %}</label>
+                                        <input type="text" class="form-control text-center letter-spacing-2" id="otp-code" placeholder="123456" maxlength="6">
+                                        <div id="otp-code-error" class="text-danger small mt-1 d-none"></div>
+                                    </div>
+                                    <button type="button" class="btn btn-masarx-primary w-100 py-2 fw-bold mb-3" id="btn-verify-otp">
+                                        <span id="btn-verify-otp-text">{% trans "Verify & Login" %}</span>
+                                        <span id="btn-verify-otp-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                    </button>
+                                    <div class="text-center">
+                                        <button type="button" class="btn btn-link text-muted small text-decoration-none" id="btn-back-otp">{% trans "Back" %}</button>
+                                    </div>
+                                </div>
                             </div>
-                        </form>
+                        </div>
+                        
+                        <div class="text-center border-top pt-3 mt-2">
+                            <span class="text-muted small">{% trans "Don't have an account?" %}</span>
+                            <a href="{% url 'register' %}" class="text-masarx-orange text-decoration-none fw-bold ms-1">{% trans "Register" %}</a>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -58,6 +105,15 @@
 </section>
 
 <style>
+    .nav-pills .nav-link {
+        color: #6c757d;
+        border-radius: 8px;
+        padding: 10px 15px;
+    }
+    .nav-pills .nav-link.active {
+        background-color: var(--accent-orange);
+        color: white;
+    }
     .form-control {
         border-radius: 8px;
         padding: 12px 15px;
@@ -85,5 +141,130 @@
     .hover-orange:hover {
         color: var(--accent-orange) !important;
     }
+    .letter-spacing-2 {
+        letter-spacing: 4px;
+        font-size: 1.2rem;
+    }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnSendOtp = document.getElementById('btn-send-otp');
+        const btnVerifyOtp = document.getElementById('btn-verify-otp');
+        const btnBackOtp = document.getElementById('btn-back-otp');
+        const otpStep1 = document.getElementById('otp-step-1');
+        const otpStep2 = document.getElementById('otp-step-2');
+        const inputIdentifier = document.getElementById('otp-identifier');
+        const inputCode = document.getElementById('otp-code');
+        const errorIdentifier = document.getElementById('otp-identifier-error');
+        const errorCode = document.getElementById('otp-code-error');
+        const msgSent = document.getElementById('otp-sent-msg');
+        
+        let userId = null;
+
+        function showLoading(btnId, show) {
+            const btn = document.getElementById(btnId);
+            const textSpan = document.getElementById(btnId + '-text');
+            const spinnerSpan = document.getElementById(btnId + '-spinner');
+            
+            if (show) {
+                btn.disabled = true;
+                textSpan.classList.add('d-none');
+                spinnerSpan.classList.remove('d-none');
+            } else {
+                btn.disabled = false;
+                textSpan.classList.remove('d-none');
+                spinnerSpan.classList.add('d-none');
+            }
+        }
+
+        function showError(element, message) {
+            element.innerText = message;
+            element.classList.remove('d-none');
+        }
+
+        function clearErrors() {
+            errorIdentifier.classList.add('d-none');
+            errorCode.classList.add('d-none');
+        }
+
+        btnSendOtp.addEventListener('click', function() {
+            const identifier = inputIdentifier.value.trim();
+            if (!identifier) {
+                showError(errorIdentifier, "{% trans 'Please enter your email or phone number.' %}");
+                return;
+            }
+
+            clearErrors();
+            showLoading('btn-send-otp', true);
+
+            fetch("{% url 'request_login_otp' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: 'identifier=' + encodeURIComponent(identifier)
+            })
+            .then(response => response.json())
+            .then(data => {
+                showLoading('btn-send-otp', false);
+                if (data.success) {
+                    userId = data.user_id;
+                    msgSent.innerText = data.message;
+                    otpStep1.classList.add('d-none');
+                    otpStep2.classList.remove('d-none');
+                } else {
+                    showError(errorIdentifier, data.message);
+                }
+            })
+            .catch(error => {
+                showLoading('btn-send-otp', false);
+                showError(errorIdentifier, "{% trans 'An error occurred. Please try again.' %}");
+                console.error('Error:', error);
+            });
+        });
+
+        btnVerifyOtp.addEventListener('click', function() {
+            const code = inputCode.value.trim();
+            if (!code) {
+                showError(errorCode, "{% trans 'Please enter the code.' %}");
+                return;
+            }
+
+            clearErrors();
+            showLoading('btn-verify-otp', true);
+
+            fetch("{% url 'verify_login_otp' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: 'user_id=' + encodeURIComponent(userId) + '&code=' + encodeURIComponent(code)
+            })
+            .then(response => response.json())
+            .then(data => {
+                showLoading('btn-verify-otp', false);
+                if (data.success) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    showError(errorCode, data.message);
+                }
+            })
+            .catch(error => {
+                showLoading('btn-verify-otp', false);
+                showError(errorCode, "{% trans 'An error occurred. Please try again.' %}");
+                console.error('Error:', error);
+            });
+        });
+
+        btnBackOtp.addEventListener('click', function() {
+            otpStep2.classList.add('d-none');
+            otpStep1.classList.remove('d-none');
+            inputCode.value = '';
+            clearErrors();
+        });
+    });
+</script>
 {% endblock %}

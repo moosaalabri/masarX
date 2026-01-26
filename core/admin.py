@@ -8,7 +8,6 @@ from django.shortcuts import render
 from django.utils.html import format_html
 from django.contrib import messages
 from .whatsapp_utils import send_whatsapp_message_detailed
-from django.core.mail import send_html_email
 from django.conf import settings
 from .mail import send_html_email
 import logging
