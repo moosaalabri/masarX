@@ -17,30 +17,13 @@
             <div class="col-lg-5 offset-lg-1">
                 <div class="glass-card">
                     <h3 class="mb-4">{% trans "Track your Parcel" %}</h3>
-                    <form method="GET" action="{% url 'index' %}">
+                    <form method="GET" action="{% url 'track' %}">
                         <div class="input-group mb-3">
-                            <input type="text" name="tracking_id" class="form-control tracking-input" placeholder="{% trans 'Enter Tracking ID (e.g. 5A2B...)' %}" value="{{ tracking_id|default:'' }}">
+                            <input type="text" name="tracking_number" class="form-control tracking-input" placeholder="{% trans 'Enter Tracking ID (e.g. 5A2B...)' %}" value="{{ tracking_number|default:'' }}">
                             <button class="btn btn-masarx-primary px-4" type="submit">{% trans "Track" %}</button>
                         </div>
                     </form>
-                    
-                    {% if parcel %}
-                    <div class="mt-4 p-3 bg-white bg-opacity-10 rounded-3 text-start" dir="ltr">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-uppercase small opacity-75">{% trans "Status" %}</span>
-                            <span class="parcel-status-badge status-{{ parcel.status }}">{{ parcel.get_status_display }}</span>
-                        </div>
-                        <h5 class="mb-1">{{ parcel.description|truncatechars:30 }}</h5>
-                        <p class="small mb-0 opacity-75">{% trans "From" %}: {{ parcel.pickup_address }}</p>
-                        <p class="small mb-0 opacity-75">{% trans "To" %}: {{ parcel.delivery_address }}</p>
-                    </div>
-                    {% elif error %}
-                    <div class="mt-3 text-danger small">
-                        <i class="bi bi-exclamation-circle me-1"></i> {{ error }}
-                    </div>
-                    {% else %}
                     <p class="small opacity-50 mt-3 mb-0">{% trans "Enter your 10-character tracking ID to see live updates." %}</p>
-                    {% endif %}
                 </div>
             </div>
         </div>

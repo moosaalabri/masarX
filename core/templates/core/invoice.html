@@ -1,10 +1,10 @@
 {% load static %}
 {% load i18n %}
 <!DOCTYPE html>
-<html lang="{{ request.LANGUAGE_CODE }}" dir="{% if request.LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <title>{% trans "Tax Invoice" %} - {{ parcel.tracking_number }}</title>
+    <title>Invoice {{ parcel.tracking_number }}</title>
     <style>
         @page {
             size: A4;
@@ -14,45 +14,59 @@
             font-family: sans-serif;
             font-size: 14px;
             color: #333;
-            line-height: 1.5;
+            line-height: 1.4;
         }
         .header {
             width: 100%;
-            margin-bottom: 40px;
-            overflow: hidden;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
         }
-        .logo {
-            float: {% if request.LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %};
-            width: 150px;
+        .logo-section {
+            width: 40%;
         }
         .company-info {
-            float: {% if request.LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %};
-            text-align: {% if request.LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %};
+            width: 50%;
+            text-align: right;
+            font-size: 12px;
         }
         .title {
-            clear: both;
             text-align: center;
             font-size: 24px;
             font-weight: bold;
             margin-bottom: 30px;
             text-transform: uppercase;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #eee;
         }
+        .title span.ar { display: block; font-size: 18px; font-weight: normal; margin-top: 5px; }
+        
         .details-grid {
-            display: table;
-            width: 100%;
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 30px;
         }
         .details-col {
-            display: table-cell;
-            width: 50%;
-            vertical-align: top;
+            width: 48%;
+            background: #fdfdfd;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 4px;
         }
         .label {
             font-weight: bold;
             color: #666;
-            margin-bottom: 2px;
+            margin-bottom: 5px;
+            font-size: 11px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 2px;
+            display: flex;
+            justify-content: space-between;
         }
         .value {
             margin-bottom: 10px;
@@ -63,22 +77,23 @@
             margin-bottom: 30px;
         }
         th, td {
-            padding: 10px;
+            padding: 12px;
             border-bottom: 1px solid #eee;
+            text-align: left;
         }
         th {
-            background-color: #f9f9f9;
-            text-align: {% if request.LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %};
+            background-color: #f5f5f5;
             font-weight: bold;
+            font-size: 12px;
         }
-        .text-right {
-            text-align: {% if request.LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %};
-        }
+        th span.ar { display: block; font-weight: normal; font-size: 11px; color: #555; }
+        .text-right { text-align: right; }
         .total-row td {
             font-weight: bold;
             font-size: 16px;
             border-top: 2px solid #333;
             border-bottom: none;
+            background-color: #f9f9f9;
         }
         .footer {
             margin-top: 50px;
@@ -98,14 +113,15 @@
         }
         .paid { color: #0f9d58; border: 1px solid #0f9d58; }
         .pending { color: #f4b400; border: 1px solid #f4b400; }
+        .ar-text { direction: rtl; unicode-bidi: embed; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="logo">
+        <div class="logo-section">
             {% if logo_base64 %}
-                <img src="data:image/jpeg;base64,{{ logo_base64 }}" style="max-width: 100%; max-height: 80px;">
+                <img src="data:image/jpeg;base64,{{ logo_base64 }}" style="max-width: 200px; max-height: 80px;">
             {% else %}
                 <h2>{{ platform_profile.name }}</h2>
             {% endif %}
@@ -114,28 +130,41 @@
             <strong>{{ platform_profile.name }}</strong><br>
             {{ platform_profile.address|linebreaksbr }}<br>
             {% if platform_profile.vat_number %}
-                {% trans "VAT Number" %}: {{ platform_profile.vat_number }}<br>
+                VAT / الرقم الضريبي: {{ platform_profile.vat_number }}<br>
             {% endif %}
-            {{ platform_profile.phone_number }}
+            Tel: {{ platform_profile.phone_number }}
         </div>
     </div>
 
-    <div class="title">{% trans "Tax Invoice" %}</div>
+    <div class="title">
+        TAX INVOICE
+        <span class="ar ar-text">فاتورة ضريبية</span>
+    </div>
 
     <div class="details-grid">
         <div class="details-col">
-            <div class="label">{% trans "Invoice Details" %}</div>
+            <div class="label">
+                <span>INVOICE DETAILS</span>
+                <span class="ar-text">تفاصيل الفاتورة</span>
+            </div>
             <div class="value">
-                {% trans "Invoice No" %}: #{{ parcel.id }}<br>
-                {% trans "Date" %}: {{ parcel.created_at|date:"Y-m-d" }}<br>
-                {% trans "Status" %}: 
+                <strong>No / رقم:</strong> #{{ parcel.id }}<br>
+                <strong>Date / التاريخ:</strong> {{ parcel.created_at|date:"Y-m-d" }}<br>
+                <strong>Status / الحالة:</strong> 
                 <span class="status-badge {% if parcel.payment_status == 'paid' %}paid{% else %}pending{% endif %}">
-                    {{ parcel.get_payment_status_display }}
+                    {% if parcel.payment_status == 'paid' %}
+                        PAID / مدفوع
+                    {% else %}
+                        PENDING / غير مدفوع
+                    {% endif %}
                 </span>
             </div>
         </div>
-        <div class="details-col text-right">
-            <div class="label">{% trans "Bill To" %}</div>
+        <div class="details-col">
+            <div class="label">
+                <span>BILL TO (Shipper)</span>
+                <span class="ar-text">فاتورة إلى (الشاحن)</span>
+            </div>
             <div class="value">
                 <strong>{{ parcel.shipper.first_name }} {{ parcel.shipper.last_name }}</strong><br>
                 {{ parcel.shipper.profile.address }}<br>
@@ -148,15 +177,30 @@
     <table>
         <thead>
             <tr>
-                <th>{% trans "Description" %}</th>
-                <th>{% trans "Tracking Number" %}</th>
-                <th>{% trans "Weight" %}</th>
-                <th class="text-right">{% trans "Amount" %} (OMR)</th>
+                <th width="50%">
+                    Description
+                    <span class="ar ar-text">الوصف</span>
+                </th>
+                <th>
+                    Tracking No
+                    <span class="ar ar-text">رقم التتبع</span>
+                </th>
+                <th>
+                    Weight
+                    <span class="ar ar-text">الوزن</span>
+                </th>
+                <th class="text-right">
+                    Amount (OMR)
+                    <span class="ar ar-text">المبلغ</span>
+                </th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>{% trans "Delivery Service" %} - {{ parcel.description|truncatechars:50 }}</td>
+                <td>
+                    Delivery Service / خدمة توصيل<br>
+                    <small>{{ parcel.description|truncatechars:50 }}</small>
+                </td>
                 <td>{{ parcel.tracking_number }}</td>
                 <td>{{ parcel.weight }} kg</td>
                 <td class="text-right">{{ parcel.price }}</td>
@@ -164,16 +208,19 @@
         </tbody>
         <tfoot>
             <tr class="total-row">
-                <td colspan="3" class="text-right">{% trans "Total" %}</td>
+                <td colspan="3" class="text-right">
+                    TOTAL / الإجمالي
+                </td>
                 <td class="text-right">{{ parcel.price }} OMR</td>
             </tr>
         </tfoot>
     </table>
 
     <div class="footer">
-        <p>{% trans "Thank you for using" %} {{ platform_profile.name }}!</p>
+        <p>Thank you for using {{ platform_profile.name }}!</p>
+        <p class="ar-text">شكراً لاستخدامكم {{ platform_profile.name }}!</p>
         {% if platform_profile.registration_number %}
-            <p>{% trans "CR No" %}: {{ platform_profile.registration_number }}</p>
+            <p>CR No / السجل التجاري: {{ platform_profile.registration_number }}</p>
         {% endif %}
     </div>
 

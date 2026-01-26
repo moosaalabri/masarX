@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Track Shipment" %} - MasarX{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <h2 class="text-center mb-4">{% trans "Track Your Shipment" %}</h2>
+                    
+                    <!-- Search Form -->
+                    <form method="GET" action="{% url 'track' %}" class="mb-5">
+                        <div class="input-group input-group-lg">
+                            <input type="text" name="tracking_number" class="form-control border-end-0" placeholder="{% trans 'Enter Tracking ID (e.g. TRK123456789)' %}" value="{{ tracking_number|default:'' }}" required>
+                            <button class="btn btn-primary px-4" type="submit">
+                                <i class="bi bi-search me-2"></i>{% trans "Track" %}
+                            </button>
+                        </div>
+                    </form>
+
+                    {% if error %}
+                    <div class="alert alert-danger rounded-3" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ error }}
+                    </div>
+                    {% endif %}
+
+                    {% if parcel %}
+                    <!-- Status Timeline -->
+                    <div class="mb-5">
+                        <h5 class="mb-4 text-muted">{% trans "Shipment Status" %}</h5>
+                        <div class="position-relative m-4">
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar {% if parcel.status == 'delivered' %}bg-success{% else %}bg-primary{% endif %}" role="progressbar" style="width: 
+                                    {% if parcel.status == 'pending' %}10%
+                                    {% elif parcel.status == 'picked_up' %}50%
+                                    {% elif parcel.status == 'in_transit' %}75%
+                                    {% elif parcel.status == 'delivered' %}100%
+                                    {% else %}0%{% endif %}
+                                " aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            
+                            <!-- Steps -->
+                            <div class="position-absolute top-0 start-0 translate-middle btn btn-sm rounded-pill {% if parcel.status != 'cancelled' %}btn-primary{% else %}btn-secondary{% endif %}" style="width: 2rem; height:2rem;">1</div>
+                            <div class="position-absolute top-0 start-50 translate-middle btn btn-sm rounded-pill {% if parcel.status in 'picked_up,in_transit,delivered' %}btn-primary{% else %}btn-secondary{% endif %}" style="width: 2rem; height:2rem;">2</div>
+                            <div class="position-absolute top-0 start-100 translate-middle btn btn-sm rounded-pill {% if parcel.status == 'delivered' %}btn-success{% else %}btn-secondary{% endif %}" style="width: 2rem; height:2rem;">3</div>
+                            
+                            <!-- Labels -->
+                            <div class="d-flex justify-content-between mt-2">
+                                <small class="fw-bold">{% trans "Order Placed" %}</small>
+                                <small class="fw-bold">{% trans "On the Way" %}</small>
+                                <small class="fw-bold">{% trans "Delivered" %}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Parcel Details Card -->
+                    <div class="bg-light p-4 rounded-3 border">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <h6 class="text-uppercase text-muted small mb-2">{% trans "Tracking Number" %}</h6>
+                                <p class="fw-bold fs-5 mb-0">{{ parcel.tracking_number }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-uppercase text-muted small mb-2">{% trans "Current Status" %}</h6>
+                                <span class="badge {% if parcel.status == 'delivered' %}bg-success{% elif parcel.status == 'cancelled' %}bg-danger{% else %}bg-primary{% endif %} fs-6">
+                                    {{ parcel.get_status_display }}
+                                </span>
+                            </div>
+                            <div class="col-12"><hr class="my-1"></div>
+                            
+                            <!-- From / To (Public View: Only City/Governate) -->
+                            <div class="col-md-6">
+                                <h6 class="text-uppercase text-muted small mb-2">{% trans "From" %}</h6>
+                                <p class="mb-0 fw-medium">{{ parcel.pickup_city.name }}</p>
+                                <small class="text-muted">{{ parcel.pickup_governate.name }}</small>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-uppercase text-muted small mb-2">{% trans "To" %}</h6>
+                                <p class="mb-0 fw-medium">{{ parcel.delivery_city.name }}</p>
+                                <small class="text-muted">{{ parcel.delivery_governate.name }}</small>
+                            </div>
+                            
+                            <div class="col-12"><hr class="my-1"></div>
+
+                            <div class="col-md-6">
+                                <h6 class="text-uppercase text-muted small mb-2">{% trans "Last Updated" %}</h6>
+                                <p class="mb-0">{{ parcel.updated_at|date:"d M Y, h:i A" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-uppercase text-muted small mb-2">{% trans "Description" %}</h6>
+                                <p class="mb-0">{{ parcel.description }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <!-- Empty State / Instructions -->
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-box-seam display-1 opacity-25"></i>
+                        <p class="mt-3">{% trans "Enter your tracking number above to see shipment details." %}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

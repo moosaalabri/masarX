@@ -35,14 +35,10 @@ from io import BytesIO
 import base64
 
 def index(request):
+    # If tracking_id is present, redirect to the new track view
     tracking_id = request.GET.get('tracking_id')
-    parcel = None
-    error = None
     if tracking_id:
-        try:
-            parcel = Parcel.objects.get(tracking_number=tracking_id)
-        except Parcel.DoesNotExist:
-            error = _("Parcel not found.")
+        return redirect(f"{reverse('track')}?tracking_number={tracking_id}")
     
     testimonials = Testimonial.objects.filter(is_active=True)
     
@@ -58,12 +54,26 @@ def index(request):
     ).order_by('-shipment_count')[:5]
     
     return render(request, 'core/index.html', {
-        'parcel': parcel,
-        'error': error,
-        'tracking_id': tracking_id,
         'testimonials': testimonials,
         'top_drivers': top_drivers,
         'top_shippers': top_shippers
+    })
+
+def track_parcel(request):
+    tracking_number = request.GET.get('tracking_number')
+    parcel = None
+    error = None
+    
+    if tracking_number:
+        try:
+            parcel = Parcel.objects.get(tracking_number__iexact=tracking_number.strip())
+        except Parcel.DoesNotExist:
+            error = _("Parcel not found with this Tracking ID.")
+            
+    return render(request, 'core/track.html', {
+        'parcel': parcel,
+        'error': error,
+        'tracking_number': tracking_number
     })
 
 def register(request):

@@ -12,7 +12,7 @@ register = template.Library()
 def get_dashboard_stats():
     # User Stats
     total_users = User.objects.count()
-    drivers_count = Profile.objects.filter(role='driver').count()
+    drivers_count = Profile.objects.filter(role='car_owner').count()
     shippers_count = Profile.objects.filter(role='shipper').count()
 
     # Parcel Stats
@@ -21,6 +21,9 @@ def get_dashboard_stats():
     pending_parcels = Parcel.objects.filter(status='pending').count()
     
     # Financials
+    # Summing price of delivered parcels (assuming delivered = revenue realized)
+    # If payments are enabled, we might want to check payment_status='paid' as well.
+    # For now, sticking to delivered as a safe proxy for completed business.
     total_revenue = Parcel.objects.filter(status='delivered').aggregate(Sum('price'))['price__sum'] or 0
     
     # Recent Activity
@@ -32,6 +35,7 @@ def get_dashboard_stats():
     
     daily_counts = []
     for date_str in dates:
+        # We'll use created_at__date lookup
         count = Parcel.objects.filter(created_at__date=date_str).count()
         daily_counts.append(count)
 
