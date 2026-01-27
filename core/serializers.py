@@ -35,3 +35,24 @@ class ParcelSerializer(serializers.ModelSerializer):
         model = Parcel
         fields = '__all__'
         read_only_fields = ['shipper', 'tracking_number', 'created_at', 'updated_at', 'thawani_session_id']
+
+class PublicParcelSerializer(serializers.ModelSerializer):
+    pickup_governate_name = serializers.CharField(source='pickup_governate.name', read_only=True)
+    pickup_city_name = serializers.CharField(source='pickup_city.name', read_only=True)
+    delivery_governate_name = serializers.CharField(source='delivery_governate.name', read_only=True)
+    delivery_city_name = serializers.CharField(source='delivery_city.name', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    
+    class Meta:
+        model = Parcel
+        fields = [
+            'tracking_number', 
+            'status', 
+            'status_display', 
+            'pickup_governate_name', 
+            'pickup_city_name', 
+            'delivery_governate_name', 
+            'delivery_city_name',
+            'updated_at',
+            'description'
+        ]

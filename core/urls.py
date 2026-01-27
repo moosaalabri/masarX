@@ -70,5 +70,6 @@ urlpatterns = [
     path('api/auth/token/', api_views.CustomAuthToken.as_view(), name='api_token_auth'),
     path('api/parcels/', api_views.ParcelListCreateView.as_view(), name='api_parcel_list'),
     path('api/parcels/<int:pk>/', api_views.ParcelDetailView.as_view(), name='api_parcel_detail'),
+    path('api/track/<str:tracking_number>/', api_views.PublicParcelTrackView.as_view(), name='api_track_parcel'),
     path('api/profile/', api_views.UserProfileView.as_view(), name='api_user_profile'),
 ]

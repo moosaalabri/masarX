@@ -6,3 +6,4 @@ weasyprint
 qrcode
 django-jazzmin==3.0.1
 djangorestframework==3.15.1
+drf-yasg

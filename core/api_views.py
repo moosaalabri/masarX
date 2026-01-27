@@ -5,7 +5,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from django.db.models import Q
 from .models import Parcel, Profile
-from .serializers import ParcelSerializer, ProfileSerializer
+from .serializers import ParcelSerializer, ProfileSerializer, PublicParcelSerializer
 
 class CustomAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
@@ -78,3 +78,13 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user.profile
+
+class PublicParcelTrackView(generics.RetrieveAPIView):
+    """
+    Public endpoint to track a parcel by its tracking number.
+    No authentication required.
+    """
+    serializer_class = PublicParcelSerializer
+    permission_classes = [permissions.AllowAny]
+    queryset = Parcel.objects.all()
+    lookup_field = 'tracking_number'
