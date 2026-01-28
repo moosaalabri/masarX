@@ -180,8 +180,12 @@ class PlatformProfile(models.Model):
     phone_number = models.CharField(_('Phone Number'), max_length=50, blank=True)
     registration_number = models.CharField(_('Registration Number'), max_length=100, blank=True)
     vat_number = models.CharField(_('VAT Number'), max_length=100, blank=True)
-    privacy_policy = models.TextField(_('Privacy Policy'), blank=True)
-    terms_conditions = models.TextField(_('Terms and Conditions'), blank=True)
+    
+    # Bilingual Policies
+    privacy_policy_en = models.TextField(_('Privacy Policy (English)'), blank=True)
+    privacy_policy_ar = models.TextField(_('Privacy Policy (Arabic)'), blank=True)
+    terms_conditions_en = models.TextField(_('Terms and Conditions (English)'), blank=True)
+    terms_conditions_ar = models.TextField(_('Terms and Conditions (Arabic)'), blank=True)
     
     # WhatsApp Configuration (Wablas Gateway)
     whatsapp_access_token = models.TextField(_('Wablas API Token'), blank=True, help_text=_("Your Wablas API Token."))
@@ -190,6 +194,18 @@ class PlatformProfile(models.Model):
 
     # Payment Configuration
     enable_payment = models.BooleanField(_('Enable Payment'), default=True, help_text=_("Toggle to enable or disable payments on the platform."))
+
+    @property
+    def privacy_policy(self):
+        if get_language() == 'ar':
+            return self.privacy_policy_ar
+        return self.privacy_policy_en
+
+    @property
+    def terms_conditions(self):
+        if get_language() == 'ar':
+            return self.terms_conditions_ar
+        return self.terms_conditions_en
 
     def save(self, *args, **kwargs):
         # Auto-clean whitespace from credentials

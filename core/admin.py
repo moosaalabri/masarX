@@ -124,7 +124,7 @@ class PlatformProfileAdmin(admin.ModelAdmin):
             'fields': ('name', 'logo', 'slogan', 'address', 'phone_number', 'registration_number', 'vat_number')
         }),
         (_('Policies'), {
-            'fields': ('privacy_policy', 'terms_conditions')
+            'fields': ('privacy_policy_en', 'privacy_policy_ar', 'terms_conditions_en', 'terms_conditions_ar')
         }),
         (_('Payment Configuration'), {
             'fields': ('enable_payment',)
