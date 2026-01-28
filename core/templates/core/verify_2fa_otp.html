@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body p-4 text-center">
+                    <h3 class="mb-3 fw-bold">{% trans "Verify OTP" %}</h3>
+                    <p class="text-muted">{% trans "Enter the 6-digit code sent to your selected method." %}</p>
+                    
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <input type="text" name="otp" class="form-control form-control-lg text-center tracking-widest fw-bold" 
+                                   style="letter-spacing: 0.5em; font-size: 1.5rem;"
+                                   placeholder="------" maxlength="6" pattern="[0-9]*" inputmode="numeric" required autofocus>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                {% trans "Verify & Login" %}
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4 d-flex justify-content-between">
+                         <a href="{% url 'select_2fa_method' %}" class="text-muted small text-decoration-none">
+                            <i class="fas fa-arrow-left me-1"></i> {% trans "Try another method" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

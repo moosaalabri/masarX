@@ -1,3 +1,4 @@
+from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
@@ -956,3 +957,104 @@ def cancel_parcel(request, parcel_id):
         messages.success(request, _("Shipment cancelled successfully."))
         
     return redirect('dashboard')
+class CustomLoginView(LoginView):
+    template_name = 'core/login.html'
+
+    def form_valid(self, form):
+        # Authenticate checks are done by the form
+        user = form.get_user()
+        
+        # Store user ID in session for 2FA step
+        self.request.session['pre_2fa_user_id'] = user.id
+        self.request.session.set_expiry(600) # 10 minutes expiry for this session part
+        
+        return redirect('select_2fa_method')
+
+def select_2fa_method(request):
+    user_id = request.session.get('pre_2fa_user_id')
+    if not user_id:
+        return redirect('login')
+    
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return redirect('login')
+    
+    if request.method == 'POST':
+        method = request.POST.get('method')
+        code = ''.join(random.choices(string.digits, k=6))
+        
+        # Invalidate old login OTPs
+        OTPVerification.objects.filter(user=user, purpose='login').delete()
+        OTPVerification.objects.create(user=user, code=code, purpose='login')
+        
+        if method == 'email':
+            if user.email:
+                try:
+                    send_html_email(
+                        subject=_("Your Login OTP"),
+                        message=f"Your verification code is: {code}",
+                        recipient_list=[user.email],
+                        title=_("Login Verification")
+                    )
+                    messages.success(request, _("OTP sent to your email."))
+                    return redirect('verify_2fa_otp')
+                except Exception as e:
+                     messages.error(request, _("Failed to send email: ") + str(e))
+            else:
+                messages.error(request, _("No email address associated with this account."))
+                
+        elif method == 'whatsapp':
+             if hasattr(user, 'profile') and user.profile.phone_number:
+                if send_whatsapp_message(user.profile.phone_number, f"Your login verification code is: {code}"):
+                    messages.success(request, _("OTP sent to your WhatsApp."))
+                    return redirect('verify_2fa_otp')
+                else:
+                    messages.error(request, _("Failed to send WhatsApp message. Please check the logs."))
+             else:
+                messages.error(request, _("No phone number found for this account."))
+        
+    return render(request, 'core/select_2fa_method.html')
+
+def verify_2fa_otp(request):
+    user_id = request.session.get('pre_2fa_user_id')
+    if not user_id:
+        return redirect('login')
+        
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return redirect('login')
+    
+    if request.method == 'POST':
+        code = request.POST.get('otp')
+        
+        try:
+            # Find the most recent valid login OTP for this user
+            otp_record = OTPVerification.objects.filter(
+                user=user, 
+                purpose='login', 
+                is_verified=False
+            ).latest('created_at')
+            
+            if otp_record.code == code and otp_record.is_valid():
+                otp_record.is_verified = True
+                otp_record.save()
+                
+                # ACTUAL LOGIN HAPPENS HERE
+                login(request, user)
+                
+                # Clean up session
+                if 'pre_2fa_user_id' in request.session:
+                    del request.session['pre_2fa_user_id']
+                request.session.set_expiry(None)
+                
+                messages.success(request, _("Logged in successfully."))
+                return redirect('dashboard')
+            else:
+                messages.error(request, _("Invalid or expired OTP."))
+                
+        except OTPVerification.DoesNotExist:
+             messages.error(request, _("No valid OTP found. Please request a new one."))
+             
+    return render(request, 'core/verify_2fa_otp.html')

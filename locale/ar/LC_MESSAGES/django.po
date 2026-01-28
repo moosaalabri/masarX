@@ -1482,3 +1482,30 @@ msgid ""
 "drivers)."
 
 msgstr "يحدد ما إذا كان هذا المستخدم معتمداً لاستخدام المنصة (بشكل رئيسي للسائقين)."
+
+msgid "Two-Factor Authentication"
+msgstr "المصادقة الثنائية"
+
+msgid "Please choose how you would like to receive your verification code."
+msgstr "يرجى اختيار الطريقة التي تود استلام رمز التحقق عبرها."
+
+msgid "Send to Email"
+msgstr "إرسال إلى البريد الإلكتروني"
+
+msgid "Send to WhatsApp"
+msgstr "إرسال إلى واتساب"
+
+msgid "Verify OTP"
+msgstr "التحقق من الرمز"
+
+msgid "Enter the 6-digit code sent to your selected method."
+msgstr "أدخل الرمز المكون من 6 أرقام المرسل إلى الطريقة التي اخترتها."
+
+msgid "Verify & Login"
+msgstr "تحقق ودخول"
+
+msgid "Try another method"
+msgstr "جرب طريقة أخرى"
+
+msgid "Please login with your username and password"
+msgstr "يرجى تسجيل الدخول باستخدام اسم المستخدم وكلمة المرور"
