@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import Profile, Parcel, Country, Governate, City, PlatformProfile, Testimonial
+from .models import Profile, Parcel, Country, Governate, City, PlatformProfile, Testimonial, DriverRating
 from django.utils.translation import gettext_lazy as _
 from django.urls import path, reverse
 from django.shortcuts import render
@@ -18,9 +18,25 @@ class ProfileInline(admin.StackedInline):
     model = Profile
     can_delete = False
     verbose_name_plural = _('Profiles')
+    fieldsets = (
+        (None, {'fields': ('role', 'is_approved', 'phone_number', 'profile_picture', 'address')}),
+        (_('Driver Info'), {'fields': ('license_front_image', 'license_back_image', 'car_plate_number'), 'classes': ('collapse',)}),
+        (_('Location'), {'fields': ('country', 'governate', 'city'), 'classes': ('collapse',)}),
+    )
 
 class CustomUserAdmin(UserAdmin):
     inlines = (ProfileInline,)
+    list_display = ('username', 'email', 'get_role', 'get_approval_status', 'is_active', 'is_staff')
+    list_filter = ('is_active', 'is_staff', 'profile__role', 'profile__is_approved')
+
+    def get_role(self, obj):
+        return obj.profile.get_role_display()
+    get_role.short_description = _('Role')
+
+    def get_approval_status(self, obj):
+        return obj.profile.is_approved
+    get_approval_status.short_description = _('Approved')
+    get_approval_status.boolean = True
 
     def get_inline_instances(self, request, obj=None):
         if not obj:
@@ -171,6 +187,4 @@ admin.site.register(Governate)
 admin.site.register(City)
 admin.site.register(PlatformProfile, PlatformProfileAdmin)
 admin.site.register(Testimonial, TestimonialAdmin)
-
-# Set custom admin index template - using default 'admin/index.html' which we have overridden
-# admin.site.index_template = 'admin/dashboard.html'
+admin.site.register(DriverRating)

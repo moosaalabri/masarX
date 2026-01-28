@@ -88,6 +88,11 @@ def register_shipper(request):
             user.is_active = False
             user.save()
 
+            # Auto-approve Shippers
+            if hasattr(user, 'profile'):
+                user.profile.is_approved = True
+                user.profile.save()
+
             # Generate OTP
             code = ''.join(random.choices(string.digits, k=6))
             OTPVerification.objects.create(user=user, code=code, purpose='registration')
@@ -124,6 +129,12 @@ def register_driver(request):
             user = form.save(commit=True)
             user.is_active = False
             user.save()
+            
+            # Drivers are NOT approved by default (model default is False)
+            # We can rely on the default, but explicit is fine too if we want to be sure
+            if hasattr(user, 'profile'):
+                user.profile.is_approved = False
+                user.profile.save()
 
             # Generate OTP
             code = ''.join(random.choices(string.digits, k=6))
@@ -236,6 +247,12 @@ def dashboard(request):
         else:
             available_parcels_list = Parcel.objects.filter(status='pending').order_by('-created_at')
 
+        # Check Approval Status
+        if not profile.is_approved:
+            messages.warning(request, _("Your account is pending approval. You cannot accept shipments yet."))
+            # Empty list if not approved
+            available_parcels_list = Parcel.objects.none()
+
         # Pagination for Available Shipments
         page = request.GET.get('page', 1)
         paginator = Paginator(available_parcels_list, 9) # Show 9 parcels per page
@@ -260,7 +277,8 @@ def dashboard(request):
             'available_parcels': available_parcels,
             'my_parcels': my_parcels,
             'completed_parcels': completed_parcels,
-            'cancelled_parcels': cancelled_parcels
+            'cancelled_parcels': cancelled_parcels,
+            'is_approved': profile.is_approved  # Pass to template
         })
 
 @login_required
@@ -291,6 +309,11 @@ def accept_parcel(request, parcel_id):
     profile, created = Profile.objects.get_or_create(user=request.user)
     if profile.role != 'car_owner':
         messages.error(request, _("Only car owners can accept shipments."))
+        return redirect('dashboard')
+    
+    # Check Approval
+    if not profile.is_approved:
+        messages.error(request, _("Your account is pending approval. You cannot accept shipments yet."))
         return redirect('dashboard')
 
     platform_profile = PlatformProfile.objects.first()
@@ -876,6 +899,10 @@ def update_parcel_status_ajax(request):
             payments_enabled = platform_profile.enable_payment if platform_profile else True
             if payments_enabled and parcel.payment_status != 'paid':
                  return JsonResponse({'success': False, 'error': _('Payment pending')})
+            
+            # Check Approval for Driver via AJAX
+            if not request.user.profile.is_approved:
+                 return JsonResponse({'success': False, 'error': _('Account pending approval')})
             
             parcel.carrier = request.user
             parcel.status = 'picked_up' # Or 'assigned'? Logic says 'picked_up' in accept_parcel

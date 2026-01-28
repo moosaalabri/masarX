@@ -173,6 +173,20 @@
             <div class="value">
                 <strong>{{ parcel.shipper.first_name }} {{ parcel.shipper.last_name }}</strong><br>
                 {{ parcel.shipper.profile.address }}<br>
+                
+                {% if parcel.shipper.profile.city %}
+                    {{ parcel.shipper.profile.city.name_en }} / <span class="ar-text">{{ parcel.shipper.profile.city.name_ar }}</span><br>
+                {% endif %}
+                
+                {% if parcel.shipper.profile.governate %}
+                    {{ parcel.shipper.profile.governate.name_en }} / <span class="ar-text">{{ parcel.shipper.profile.governate.name_ar }}</span><br>
+                {% endif %}
+                
+                {% if parcel.shipper.profile.country %}
+                    {{ parcel.shipper.profile.country.name_en }} / <span class="ar-text">{{ parcel.shipper.profile.country.name_ar }}</span><br>
+                {% endif %}
+                
+                <br>
                 {{ parcel.shipper.email }}<br>
                 {{ parcel.shipper.profile.phone_number }}
             </div>
@@ -195,7 +209,7 @@
                     <span class="ar ar-text">الوزن</span>
                 </th>
                 <th class="text-right">
-                    Amount (OMR)
+                    Amount
                     <span class="ar ar-text">المبلغ</span>
                 </th>
             </tr>
@@ -208,7 +222,7 @@
                 </td>
                 <td>{{ parcel.tracking_number }}</td>
                 <td>{{ parcel.weight }} kg</td>
-                <td class="text-right">{{ parcel.price }}</td>
+                <td class="text-right">{{ parcel.price }} OMR / <span class="ar-text">ر.ع.</span></td>
             </tr>
         </tbody>
         <tfoot>
@@ -216,7 +230,7 @@
                 <td colspan="3" class="text-right">
                     TOTAL / الإجمالي
                 </td>
-                <td class="text-right">{{ parcel.price }} OMR</td>
+                <td class="text-right">{{ parcel.price }} OMR / <span class="ar-text">ر.ع.</span></td>
             </tr>
         </tfoot>
     </table>

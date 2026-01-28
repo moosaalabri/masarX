@@ -82,6 +82,9 @@ class Profile(models.Model):
     governate = models.ForeignKey(Governate, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_('Governate'))
     city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_('City'))
 
+    # Approval Status
+    is_approved = models.BooleanField(_('Approved'), default=False, help_text=_("Designates whether this user is approved to use the platform (mainly for drivers)."))
+
     def __str__(self):
         return f"{self.user.username} - {self.get_role_display()}"
         

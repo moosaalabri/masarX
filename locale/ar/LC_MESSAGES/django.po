@@ -1393,3 +1393,92 @@ msgstr "رقم التتبع"
 
 msgid "Cancelled Shipments"
 msgstr "الشحنات الملغاة"
+
+msgid "Grid"
+msgstr "شبكة"
+
+msgid "List"
+msgstr "قائمة"
+
+msgid "Scan Parcel"
+msgstr "مسح الطرد"
+
+msgid "Account Pending Approval"
+msgstr "الحساب قيد الانتظار"
+
+msgid ""
+"Your driver account is currently under review by our administrators. You "
+"will be notified once your documents are verified and your account is "
+"approved to accept shipments."
+msgstr ""
+"حساب السائق الخاص بك قيد المراجعة حالياً من قبل المشرفين. سيتم إشعارك "
+"بمجرد التحقق من مستنداتك والموافقة على حسابك لقبول الشحنات."
+
+msgid "Welcome to masarX"
+msgstr "مرحباً بك في مسارX"
+
+msgid "Choose how you want to join us today."
+msgstr "اختر كيف تريد الانضمام إلينا اليوم."
+
+msgid "I am a Shipper"
+msgstr "أنا شاحن"
+
+msgid "I want to send parcels and track my shipments easily."
+msgstr "أريد إرسال الطرود وتتبع شحناتي بسهولة."
+
+msgid "Register as Shipper"
+msgstr "التسجيل كشاحن"
+
+msgid "I am a Car Owner"
+msgstr "أنا صاحب سيارة"
+
+msgid "I want to deliver parcels and earn money on my own schedule."
+msgstr "أريد توصيل الطرود وكسب المال وفق جدولي الخاص."
+
+msgid "Register as Car Owner"
+msgstr "التسجيل كصاحب سيارة"
+
+msgid "Car Owner Registration"
+msgstr "تسجيل صاحب سيارة"
+
+msgid "Take photo with Webcam"
+msgstr "التقاط صورة بالكاميرا"
+
+msgid ""
+"Please provide clear photos of your license (front and back) and car plate "
+"number for verification."
+msgstr ""
+"يرجى تقديم صور واضحة لرخصتك (الأمام والخلف) ورقم لوحة السيارة للتحقق."
+
+msgid "Submit Application"
+msgstr "تقديم الطلب"
+
+msgid "Take Photo"
+msgstr "التقاط صورة"
+
+msgid "Could not access webcam. Please check permissions."
+msgstr "تعذر الوصول إلى الكاميرا. يرجى التحقق من الأذونات."
+
+msgid "Photo captured!"
+msgstr "تم التقاط الصورة!"
+
+msgid "Back"
+msgstr "عودة"
+
+msgid "License Front Image"
+msgstr "صورة الرخصة (الأمام)"
+
+msgid "License Back Image"
+msgstr "صورة الرخصة (الخلف)"
+
+msgid "Car Plate Number"
+msgstr "رقم لوحة السيارة"
+
+msgid "Approved"
+msgstr "موافق عليه"
+
+msgid ""
+"Designates whether this user is approved to use the platform (mainly for "
+"drivers)."
+
+msgstr "يحدد ما إذا كان هذا المستخدم معتمداً لاستخدام المنصة (بشكل رئيسي للسائقين)."
