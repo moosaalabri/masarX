@@ -12,7 +12,7 @@ from django.conf import settings
 from .mail import send_html_email
 import logging
 import csv
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 
 class ProfileInline(admin.StackedInline):
     model = Profile
@@ -26,7 +26,7 @@ class ProfileInline(admin.StackedInline):
 
 class CustomUserAdmin(UserAdmin):
     inlines = (ProfileInline,)
-    list_display = ('username', 'email', 'get_role', 'get_approval_status', 'is_active', 'is_staff')
+    list_display = ('username', 'email', 'get_role', 'get_approval_status', 'is_active', 'is_staff', 'send_whatsapp_link')
     list_filter = ('is_active', 'is_staff', 'profile__role', 'profile__is_approved')
 
     def get_role(self, obj):
@@ -42,6 +42,53 @@ class CustomUserAdmin(UserAdmin):
         if not obj:
             return list()
         return super(CustomUserAdmin, self).get_inline_instances(request, obj)
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('<int:user_id>/send-whatsapp/', self.admin_site.admin_view(self.send_whatsapp_view), name='user-send-whatsapp'),
+        ]
+        return custom_urls + urls
+
+    def send_whatsapp_view(self, request, user_id):
+        user = self.get_object(request, user_id)
+        if not user:
+            messages.error(request, _("User not found."))
+            return HttpResponseRedirect(reverse('admin:auth_user_changelist'))
+
+        if not hasattr(user, 'profile') or not user.profile.phone_number:
+            messages.warning(request, _("This user does not have a phone number in their profile."))
+            return HttpResponseRedirect(reverse('admin:auth_user_changelist'))
+            
+        if request.method == 'POST':
+            message = request.POST.get('message')
+            if message:
+                success, msg = send_whatsapp_message_detailed(user.profile.phone_number, message)
+                if success:
+                    messages.success(request, _("WhatsApp message sent successfully."))
+                    return HttpResponseRedirect(reverse('admin:auth_user_changelist'))
+                else:
+                    messages.error(request, _(f"Failed to send message: {msg}"))
+            else:
+                 messages.warning(request, _("Message cannot be empty."))
+
+        context = dict(
+           self.admin_site.each_context(request),
+           user_obj=user,
+           phone_number=user.profile.phone_number,
+        )
+        return render(request, "admin/core/user/send_whatsapp_message.html", context)
+
+    def send_whatsapp_link(self, obj):
+        if hasattr(obj, 'profile') and obj.profile.phone_number:
+            return format_html(
+                '<a class="button" href="{}">{}</a>',
+                reverse('admin:user-send-whatsapp', args=[obj.pk]),
+                _('Send WhatsApp')
+            )
+        return "-"
+    send_whatsapp_link.short_description = _("WhatsApp")
+    send_whatsapp_link.allow_tags = True
 
 class ParcelAdmin(admin.ModelAdmin):
     list_display = ('tracking_number', 'shipper', 'carrier', 'price', 'status', 'payment_status', 'created_at')
