@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Register" %} | masarX{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light" style="min-height: 80vh;">
+    <div class="container py-5">
+        <div class="row justify-content-center text-center mb-5">
+            <div class="col-lg-8">
+                <h2 class="fw-bold mb-3">{% trans "Welcome to masarX" %}</h2>
+                <p class="text-muted lead">{% trans "Choose how you want to join us today." %}</p>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center g-4">
+            <!-- Shipper Card -->
+            <div class="col-md-5 col-lg-4">
+                <div class="card h-100 shadow-sm border-0 transition-hover">
+                    <div class="card-body p-5 text-center">
+                        <div class="mb-4 text-masarx-orange">
+                            <i class="bi bi-box-seam display-4"></i>
+                        </div>
+                        <h3 class="h4 fw-bold mb-3">{% trans "I am a Shipper" %}</h3>
+                        <p class="text-muted mb-4">{% trans "I want to send parcels and track my shipments easily." %}</p>
+                        <a href="{% url 'register_shipper' %}" class="btn btn-masarx-primary w-100 py-2">{% trans "Register as Shipper" %}</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Driver Card -->
+            <div class="col-md-5 col-lg-4">
+                <div class="card h-100 shadow-sm border-0 transition-hover">
+                    <div class="card-body p-5 text-center">
+                        <div class="mb-4 text-masarx-dark">
+                            <i class="bi bi-truck display-4"></i>
+                        </div>
+                        <h3 class="h4 fw-bold mb-3">{% trans "I am a Car Owner" %}</h3>
+                        <p class="text-muted mb-4">{% trans "I want to deliver parcels and earn money on my own schedule." %}</p>
+                        <a href="{% url 'register_driver' %}" class="btn btn-outline-dark w-100 py-2">{% trans "Register as Car Owner" %}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5">
+            <p class="text-muted">{% trans "Already have an account?" %} <a href="{% url 'login' %}" class="text-masarx-orange fw-semibold">{% trans "Login here" %}</a></p>
+        </div>
+    </div>
+</section>
+
+<style>
+    .transition-hover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .transition-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+    }
+    .btn-masarx-primary {
+        background-color: var(--accent-orange);
+        border-color: var(--accent-orange);
+        color: white;
+        font-weight: 600;
+    }
+    .text-masarx-orange {
+        color: var(--accent-orange);
+    }
+    .text-masarx-dark {
+        color: var(--accent-dark);
+    }
+</style>
+{% endblock %}

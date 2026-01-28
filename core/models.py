@@ -73,6 +73,11 @@ class Profile(models.Model):
     profile_picture = models.ImageField(_('Profile Picture'), upload_to='profile_pics/', blank=True, null=True)
     address = models.CharField(_('Address'), max_length=255, blank=True)
     
+    # Driver specific fields
+    license_front_image = models.ImageField(_('License Front Image'), upload_to='licenses/', blank=True, null=True)
+    license_back_image = models.ImageField(_('License Back Image'), upload_to='licenses/', blank=True, null=True)
+    car_plate_number = models.CharField(_('Car Plate Number'), max_length=20, blank=True)
+    
     country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_('Country'))
     governate = models.ForeignKey(Governate, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_('Governate'))
     city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_('City'))

@@ -96,13 +96,43 @@ class UserRegistrationForm(forms.ModelForm):
             user.save()
             # Profile is created by signal, so we update it
             profile, created = Profile.objects.get_or_create(user=user)
-            profile.role = self.cleaned_data['role']
+            # Handle role if it exists in cleaned_data (it might be excluded in subclasses)
+            if 'role' in self.cleaned_data:
+                profile.role = self.cleaned_data['role']
             profile.phone_number = self.cleaned_data['phone_number']
             profile.country = self.cleaned_data['country']
             profile.governate = self.cleaned_data['governate']
             profile.city = self.cleaned_data['city']
+            
+            # Save extra driver fields if they exist
+            if 'profile_picture' in self.cleaned_data and self.cleaned_data['profile_picture']:
+                profile.profile_picture = self.cleaned_data['profile_picture']
+            if 'license_front_image' in self.cleaned_data and self.cleaned_data['license_front_image']:
+                profile.license_front_image = self.cleaned_data['license_front_image']
+            if 'license_back_image' in self.cleaned_data and self.cleaned_data['license_back_image']:
+                profile.license_back_image = self.cleaned_data['license_back_image']
+            if 'car_plate_number' in self.cleaned_data:
+                profile.car_plate_number = self.cleaned_data['car_plate_number']
+                
             profile.save()
         return user
+
+class ShipperRegistrationForm(UserRegistrationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['role'].widget = forms.HiddenInput()
+        self.fields['role'].initial = 'shipper'
+
+class DriverRegistrationForm(UserRegistrationForm):
+    profile_picture = forms.ImageField(label=_("Profile Picture (Webcam/Upload)"), required=True, widget=forms.FileInput(attrs={'class': 'form-control', 'capture': 'user', 'accept': 'image/*'}))
+    license_front_image = forms.ImageField(label=_("License Front Image"), required=True, widget=forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}))
+    license_back_image = forms.ImageField(label=_("License Back Image"), required=True, widget=forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}))
+    car_plate_number = forms.CharField(label=_("Car Plate Number"), max_length=20, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['role'].widget = forms.HiddenInput()
+        self.fields['role'].initial = 'car_owner'
 
 class UserProfileForm(forms.ModelForm):
     first_name = forms.CharField(label=_("First Name"), max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))

@@ -7,7 +7,11 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('login/', auth_views.LoginView.as_view(template_name='core/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+    
+    # Registration Flow
     path('register/', views.register, name='register'),
+    path('register/shipper/', views.register_shipper, name='register_shipper'),
+    path('register/driver/', views.register_driver, name='register_driver'),
     path('register/verify/', views.verify_registration, name='verify_registration'),
     
     # Password Reset URLs
@@ -66,10 +70,18 @@ urlpatterns = [
     path('login/request-otp/', views.request_login_otp, name='request_login_otp'),
     path('login/verify-otp/', views.verify_login_otp, name='verify_login_otp'),
 
-    # API Endpoints
+    # API Endpoints (Standard)
     path('api/auth/token/', api_views.CustomAuthToken.as_view(), name='api_token_auth'),
     path('api/parcels/', api_views.ParcelListCreateView.as_view(), name='api_parcel_list'),
     path('api/parcels/<int:pk>/', api_views.ParcelDetailView.as_view(), name='api_parcel_detail'),
     path('api/track/<str:tracking_number>/', api_views.PublicParcelTrackView.as_view(), name='api_track_parcel'),
     path('api/profile/', api_views.UserProfileView.as_view(), name='api_user_profile'),
+    
+    # Aliases for mobile app compatibility (API v1)
+    path('api/shipments/', api_views.ParcelListCreateView.as_view(), name='api_shipment_list'),
+    path('api/shipments/<int:pk>/', api_views.ParcelDetailView.as_view(), name='api_shipment_detail'),
+
+    # Root-level Aliases (for apps hardcoded to /shipments/)
+    path('shipments/', api_views.ParcelListCreateView.as_view(), name='root_shipment_list'),
+    path('shipments/<int:pk>/', api_views.ParcelDetailView.as_view(), name='root_shipment_detail'),
 ]

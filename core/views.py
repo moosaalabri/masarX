@@ -4,7 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .models import Parcel, Profile, Country, Governate, City, OTPVerification, PlatformProfile, Testimonial, DriverRating
-from .forms import UserRegistrationForm, ParcelForm, ContactForm, UserProfileForm, DriverRatingForm
+from .forms import UserRegistrationForm, ParcelForm, ContactForm, UserProfileForm, DriverRatingForm, ShipperRegistrationForm, DriverRegistrationForm
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
 from django.contrib import messages
@@ -77,8 +77,11 @@ def track_parcel(request):
     })
 
 def register(request):
+    return render(request, 'core/register_choice.html')
+
+def register_shipper(request):
     if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
+        form = ShipperRegistrationForm(request.POST)
         if form.is_valid():
             # Save user but inactive
             user = form.save(commit=True)
@@ -110,8 +113,45 @@ def register(request):
             request.session['registration_user_id'] = user.id
             return redirect('verify_registration')
     else:
-        form = UserRegistrationForm()
-    return render(request, 'core/register.html', {'form': form})
+        form = ShipperRegistrationForm()
+    return render(request, 'core/register_shipper.html', {'form': form})
+
+def register_driver(request):
+    if request.method == 'POST':
+        form = DriverRegistrationForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Save user but inactive
+            user = form.save(commit=True)
+            user.is_active = False
+            user.save()
+
+            # Generate OTP
+            code = ''.join(random.choices(string.digits, k=6))
+            OTPVerification.objects.create(user=user, code=code, purpose='registration')
+
+            # Send OTP
+            method = form.cleaned_data.get('verification_method', 'email')
+            otp_msg = _("Your Masar Verification Code is %(code)s") % {'code': code}
+            
+            if method == 'whatsapp':
+                phone = user.profile.phone_number
+                send_whatsapp_message(phone, otp_msg)
+                messages.info(request, _("Verification code sent to WhatsApp."))
+            else:
+                send_html_email(
+                    subject=_('Verification Code'),
+                    message=otp_msg,
+                    recipient_list=[user.email],
+                    title=_('Welcome to Masar!'),
+                    request=request
+                )
+                messages.info(request, _("Verification code sent to email."))
+
+            request.session['registration_user_id'] = user.id
+            return redirect('verify_registration')
+    else:
+        form = DriverRegistrationForm()
+    return render(request, 'core/register_driver.html', {'form': form})
 
 def verify_registration(request):
     if 'registration_user_id' not in request.session:

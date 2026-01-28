@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Register as Car Owner" %} | masarX{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light" style="min-height: 80vh;">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                <!-- Back -->
+                <div class="mb-4">
+                    <a href="{% url 'register' %}" class="btn btn-link text-decoration-none text-muted ps-0">
+                        <i class="bi {% if LANGUAGE_BIDI %}bi-arrow-right{% else %}bi-arrow-left{% endif %} me-2"></i>{% trans "Back" %}
+                    </a>
+                </div>
+
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-5">
+                        <h2 class="fw-bold mb-4 text-center">{% trans "Car Owner Registration" %}</h2>
+                        <form method="post" id="registrationForm" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="row">
+                                {% for field in form %}
+                                    {% if field.is_hidden %}
+                                        {{ field }}
+                                    {% else %}
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-semibold" for="{{ field.id_for_label }}">
+                                                {{ field.label }}
+                                            </label>
+                                            
+                                            {% if field.name == 'profile_picture' %}
+                                                <div class="input-group">
+                                                    {{ field }}
+                                                    <button type="button" class="btn btn-secondary" id="openWebcamBtn" title="{% trans 'Take photo with Webcam' %}">
+                                                        <i class="bi bi-camera-video"></i>
+                                                    </button>
+                                                </div>
+                                            {% else %}
+                                                {{ field }}
+                                            {% endif %}
+                                            
+                                            {% if field.help_text %}
+                                                <div class="form-text small">{{ field.help_text }}</div>
+                                            {% endif %}
+                                            {% if field.errors %}
+                                                <div class="text-danger small">{{ field.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="alert alert-info small">
+                                <i class="bi bi-info-circle me-1"></i>
+                                {% trans "Please provide clear photos of your license (front and back) and car plate number for verification." %}
+                            </div>
+                            
+                            <button type="submit" class="btn btn-dark w-100 py-2 mt-3">{% trans "Submit Application" %}</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Webcam Modal -->
+<div class="modal fade" id="webcamModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{% trans "Take Photo" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center bg-dark p-0">
+        <video id="webcamVideo" style="width: 100%; max-height: 400px;" autoplay playsinline></video>
+        <canvas id="webcamCanvas" style="display:none;"></canvas>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-primary rounded-circle p-3" id="captureBtn">
+            <i class="bi bi-camera-fill fs-4"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Location Logic
+    const countrySelect = document.getElementById('id_country');
+    const governateSelect = document.getElementById('id_governate');
+    const citySelect = document.getElementById('id_city');
+
+    if (countrySelect && governateSelect && citySelect) {
+        countrySelect.addEventListener('change', function() {
+            const countryId = this.value;
+            governateSelect.innerHTML = '<option value="">{% trans "Select Governate" %}</option>';
+            citySelect.innerHTML = '<option value="">{% trans "Select City" %}</option>';
+            
+            if (countryId) {
+                fetch(`{% url 'get_governates' %}?country_id=${countryId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(gov => {
+                            const option = document.createElement('option');
+                            option.value = gov.id;
+                            option.textContent = gov.name;
+                            governateSelect.appendChild(option);
+                        });
+                    });
+            }
+        });
+
+        governateSelect.addEventListener('change', function() {
+            const governateId = this.value;
+            citySelect.innerHTML = '<option value="">{% trans "Select City" %}</option>';
+            
+            if (governateId) {
+                fetch(`{% url 'get_cities' %}?governate_id=${governateId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(city => {
+                            const option = document.createElement('option');
+                            option.value = city.id;
+                            option.textContent = city.name;
+                            citySelect.appendChild(option);
+                        });
+                    });
+            }
+        });
+    }
+
+    // Webcam Logic
+    const openWebcamBtn = document.getElementById('openWebcamBtn');
+    const webcamModal = new bootstrap.Modal(document.getElementById('webcamModal'));
+    const video = document.getElementById('webcamVideo');
+    const canvas = document.getElementById('webcamCanvas');
+    const captureBtn = document.getElementById('captureBtn');
+    const profileInput = document.getElementById('id_profile_picture');
+    let stream = null;
+
+    if (openWebcamBtn) {
+        openWebcamBtn.addEventListener('click', function() {
+            webcamModal.show();
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(s) {
+                    stream = s;
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function(err) {
+                    console.error("An error occurred: " + err);
+                    alert("{% trans 'Could not access webcam. Please check permissions.' %}");
+                });
+        });
+
+        document.getElementById('webcamModal').addEventListener('hidden.bs.modal', function () {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+
+        captureBtn.addEventListener('click', function() {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            canvas.toBlob(function(blob) {
+                // Create a file from the blob
+                const file = new File([blob], "webcam_profile.jpg", { type: "image/jpeg" });
+                
+                // Use DataTransfer to set the file input value
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                profileInput.files = dataTransfer.files;
+                
+                // Close modal
+                webcamModal.hide();
+                
+                // Visual feedback (optional)
+                // alert("{% trans 'Photo captured!' %}");
+            }, 'image/jpeg');
+        });
+    }
+});
+</script>
+
+<style>
+    input:not([type=radio]):not([type=checkbox]), select {
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+    }
+    #id_verification_method {
+        list-style: none;
+        padding-left: 0;
+        display: flex;
+        gap: 1rem;
+    }
+    #id_verification_method li {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .input-group > .form-control {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    .input-group > .btn {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+</style>
+{% endblock %}
