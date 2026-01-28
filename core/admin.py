@@ -13,6 +13,9 @@ from .mail import send_html_email
 import logging
 import csv
 from django.http import HttpResponse, HttpResponseRedirect
+from rangefilter.filters import DateRangeFilter
+from django.template.loader import render_to_string
+import weasyprint
 
 class ProfileInline(admin.StackedInline):
     model = Profile
@@ -92,9 +95,13 @@ class CustomUserAdmin(UserAdmin):
 
 class ParcelAdmin(admin.ModelAdmin):
     list_display = ('tracking_number', 'shipper', 'carrier', 'price', 'status', 'payment_status', 'created_at')
-    list_filter = ('status', 'payment_status', 'created_at')
+    list_filter = (
+        'status', 
+        'payment_status', 
+        ('created_at', DateRangeFilter),
+    )
     search_fields = ('tracking_number', 'shipper__username', 'receiver_name', 'carrier__username')
-    actions = ['export_as_csv']
+    actions = ['export_as_csv', 'print_parcels', 'export_pdf']
 
     def export_as_csv(self, request, queryset):
         response = HttpResponse(content_type='text/csv')
@@ -117,6 +124,21 @@ class ParcelAdmin(admin.ModelAdmin):
 
         return response
     export_as_csv.short_description = _("Export Selected to CSV")
+
+    def print_parcels(self, request, queryset):
+        return render(request, 'admin/core/parcel/parcel_list_print.html', {'parcels': queryset, 'is_pdf': False})
+    print_parcels.short_description = _("Print Selected Parcels")
+
+    def export_pdf(self, request, queryset):
+        html_string = render_to_string('admin/core/parcel/parcel_list_print.html', {'parcels': queryset, 'is_pdf': True})
+        html = weasyprint.HTML(string=html_string, base_url=request.build_absolute_uri())
+        result = html.write_pdf()
+        
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="parcels_list.pdf"'
+        response.write(result)
+        return response
+    export_pdf.short_description = _("Download Selected as PDF")
 
 class PlatformProfileAdmin(admin.ModelAdmin):
     fieldsets = (

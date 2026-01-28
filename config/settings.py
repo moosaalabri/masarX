@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',
+    'rangefilter',
     'core',
 ]
 
@@ -242,6 +243,7 @@ JAZZMIN_SETTINGS = {
     "user_avatar": None,
     "topmenu_links": [
         {"name": "Home",  "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "View Website", "url": "index", "new_window": True},
         {"model": "auth.User"},
         {"app": "core"},
     ],
