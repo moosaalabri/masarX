@@ -20,13 +20,8 @@ load_dotenv(BASE_DIR.parent / ".env")
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "change-me")
 DEBUG = os.getenv("DJANGO_DEBUG", "true").lower() == "true"
 
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-    os.getenv("HOST_FQDN", ""),
-    ".sslip.io",
-    ".coolify.io",
-]
+# Allow all hosts to avoid 404/400 errors during initial deployment
+ALLOWED_HOSTS = ["*"]
 
 CSRF_TRUSTED_ORIGINS = [
     origin for origin in [
@@ -38,8 +33,8 @@ CSRF_TRUSTED_ORIGINS = [
     f"https://{host}" if not host.startswith(("http://", "https://")) else host
     for host in CSRF_TRUSTED_ORIGINS
 ]
-# Also allow sslip/coolify for CSRF if needed (wildcards not supported in CSRF_TRUSTED_ORIGINS, requires exact match)
-# Users must set HOST_FQDN or CSRF_TRUSTED_ORIGIN for POST requests to work on these domains.
+# Add the current sslip domain if known, or rely on wildcard matching (Django 4.0+ requires explicit trusted origins for CSRF)
+# For now, we rely on the user setting HOST_FQDN correctly.
 
 # Cookies must always be HTTPS-only; SameSite=Lax keeps CSRF working behind the proxy.
 SESSION_COOKIE_SECURE = True
