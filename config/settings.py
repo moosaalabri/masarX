@@ -24,6 +24,8 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
     os.getenv("HOST_FQDN", ""),
+    ".sslip.io",
+    ".coolify.io",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -36,6 +38,8 @@ CSRF_TRUSTED_ORIGINS = [
     f"https://{host}" if not host.startswith(("http://", "https://")) else host
     for host in CSRF_TRUSTED_ORIGINS
 ]
+# Also allow sslip/coolify for CSRF if needed (wildcards not supported in CSRF_TRUSTED_ORIGINS, requires exact match)
+# Users must set HOST_FQDN or CSRF_TRUSTED_ORIGIN for POST requests to work on these domains.
 
 # Cookies must always be HTTPS-only; SameSite=Lax keeps CSRF working behind the proxy.
 SESSION_COOKIE_SECURE = True
