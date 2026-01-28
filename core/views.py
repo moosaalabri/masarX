@@ -20,6 +20,7 @@ from django.db.models import Avg, Count
 from django.template.loader import render_to_string
 import random
 import string
+from .notifications import get_notification_content
 from .whatsapp_utils import (
     notify_shipment_created, 
     notify_payment_received, 
@@ -100,16 +101,16 @@ def register_shipper(request):
 
             # Send OTP
             method = form.cleaned_data.get('verification_method', 'email')
-            otp_msg = _("Your Masar Verification Code is %(code)s") % {'code': code}
+            subj, email_msg, wa_msg = get_notification_content('otp_registration', {'code': code}, language=get_language())
             
             if method == 'whatsapp':
                 phone = user.profile.phone_number
-                send_whatsapp_message(phone, otp_msg)
+                send_whatsapp_message(phone, wa_msg)
                 messages.info(request, _("Verification code sent to WhatsApp."))
             else:
                 send_html_email(
-                    subject=_('Verification Code'),
-                    message=otp_msg,
+                    subject=subj,
+                    message=email_msg,
                     recipient_list=[user.email],
                     title=_('Welcome to Masar!'),
                     request=request
@@ -143,16 +144,16 @@ def register_driver(request):
 
             # Send OTP
             method = form.cleaned_data.get('verification_method', 'email')
-            otp_msg = _("Your Masar Verification Code is %(code)s") % {'code': code}
+            subj, email_msg, wa_msg = get_notification_content('otp_registration', {'code': code}, language=get_language())
             
             if method == 'whatsapp':
                 phone = user.profile.phone_number
-                send_whatsapp_message(phone, otp_msg)
+                send_whatsapp_message(phone, wa_msg)
                 messages.info(request, _("Verification code sent to WhatsApp."))
             else:
                 send_html_email(
-                    subject=_('Verification Code'),
-                    message=otp_msg,
+                    subject=subj,
+                    message=email_msg,
                     recipient_list=[user.email],
                     title=_('Welcome to Masar!'),
                     request=request
@@ -489,22 +490,22 @@ def edit_profile(request):
 
             # 4. Send OTP
             method = data.get('otp_method', 'email')
-            otp_msg = _("Your Masar Update Code is %(code)s") % {'code': code}
+            subj, email_msg, wa_msg = get_notification_content('otp_profile_update', {'code': code}, language=get_language())
             
             if method == 'whatsapp':
                 # Use current phone if available, else new phone
                 phone = request.user.profile.phone_number or data['phone_number']
-                send_whatsapp_message(phone, otp_msg)
+                send_whatsapp_message(phone, wa_msg)
                 messages.info(request, _("Verification code sent to WhatsApp."))
             else:
                 # Default to email
                 # Send to the NEW email address (from the form), not the old one
                 target_email = data['email']
                 send_html_email(
-                    subject=_('Verification Code'),
-                    message=otp_msg,
+                    subject=subj,
+                    message=email_msg,
                     recipient_list=[target_email],
-                    title=_('Profile Update Verification'),
+                    title=subj,
                     request=request
                 )
                 messages.info(request, _("Verification code sent to email."))
@@ -641,20 +642,21 @@ def request_login_otp(request):
 
     # Generate OTP
     code = ''.join(random.choices(string.digits, k=6))
+    subj, email_msg, wa_msg = get_notification_content('otp_login', {'code': code}, language=get_language())
     OTPVerification.objects.create(user=user, code=code, purpose='login')
     
     # Send OTP
-    otp_msg = _("Your Masar Login Code is %(code)s. Do not share this code.") % {'code': code}
+    subj, email_msg, wa_msg = get_notification_content('otp_login', {'code': code}, language=get_language())
     
     try:
         if method == 'whatsapp':
             phone = user.profile.phone_number
-            send_whatsapp_message(phone, otp_msg)
+            send_whatsapp_message(phone, wa_msg)
             message_sent = _("OTP sent to your WhatsApp.")
         else:
             send_html_email(
-                subject=_('Login OTP'),
-                message=otp_msg,
+                subject=subj,
+                message=email_msg,
                 recipient_list=[user.email],
                 title=_('Login Verification'),
                 request=request
@@ -983,6 +985,7 @@ def select_2fa_method(request):
     if request.method == 'POST':
         method = request.POST.get('method')
         code = ''.join(random.choices(string.digits, k=6))
+        subj, email_msg, wa_msg = get_notification_content('otp_login', {'code': code}, language=get_language())
         
         # Invalidate old login OTPs
         OTPVerification.objects.filter(user=user, purpose='login').delete()
@@ -993,7 +996,7 @@ def select_2fa_method(request):
                 try:
                     send_html_email(
                         subject=_("Your Login OTP"),
-                        message=f"Your verification code is: {code}",
+                        message=email_msg,
                         recipient_list=[user.email],
                         title=_("Login Verification")
                     )
@@ -1006,7 +1009,7 @@ def select_2fa_method(request):
                 
         elif method == 'whatsapp':
              if hasattr(user, 'profile') and user.profile.phone_number:
-                if send_whatsapp_message(user.profile.phone_number, f"Your login verification code is: {code}"):
+                if send_whatsapp_message(user.profile.phone_number, wa_msg):
                     messages.success(request, _("OTP sent to your WhatsApp."))
                     return redirect('verify_2fa_otp')
                 else:

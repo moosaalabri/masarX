@@ -295,3 +295,40 @@ class DriverRating(models.Model):
     class Meta:
         verbose_name = _('Driver Rating')
         verbose_name_plural = _('Driver Ratings')
+
+class NotificationTemplate(models.Model):
+    KEY_CHOICES = (
+        ('otp_registration', 'OTP Registration'),
+        ('otp_login', 'OTP Login'),
+        ('otp_profile_update', 'OTP Profile Update'),
+        ('shipment_created_shipper', 'Shipment Created (Shipper)'),
+        ('payment_success_shipper', 'Payment Success (Shipper)'),
+        ('shipment_visible_receiver', 'Shipment Visible (Receiver)'),
+        ('driver_pickup_shipper', 'Driver Pickup (Shipper)'),
+        ('driver_pickup_receiver', 'Driver Pickup (Receiver)'),
+        ('driver_pickup_driver', 'Driver Pickup (Driver/Carrier)'),
+        ('shipment_status_update', 'Shipment Status Update'),
+        ('admin_alert_driver_accept', 'Admin Alert: Driver Accepted'),
+        ('contact_form_admin', 'Contact Form (Admin)'),
+    )
+
+    key = models.CharField(max_length=50, choices=KEY_CHOICES, unique=True)
+    description = models.CharField(max_length=255, help_text="Description of where this notification is used.")
+    available_variables = models.TextField(help_text="Comma-separated list of variables available in this template (e.g. {{ code }}, {{ name }}).", blank=True)
+    
+    # Email
+    subject_en = models.CharField(max_length=255, blank=True, verbose_name="Email Subject (EN)")
+    subject_ar = models.CharField(max_length=255, blank=True, verbose_name="Email Subject (AR)")
+    email_body_en = models.TextField(blank=True, verbose_name="Email Body (EN)", help_text="HTML allowed.")
+    email_body_ar = models.TextField(blank=True, verbose_name="Email Body (AR)", help_text="HTML allowed.")
+
+    # WhatsApp
+    whatsapp_body_en = models.TextField(blank=True, verbose_name="WhatsApp Message (EN)")
+    whatsapp_body_ar = models.TextField(blank=True, verbose_name="WhatsApp Message (AR)")
+
+    def __str__(self):
+        return f"{self.get_key_display()}"
+
+    class Meta:
+        verbose_name = _('Notification Template')
+        verbose_name_plural = _('Notification Templates')

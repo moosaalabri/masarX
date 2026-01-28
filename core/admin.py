@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import Profile, Parcel, Country, Governate, City, PlatformProfile, Testimonial, DriverRating
+from .models import Profile, Parcel, Country, Governate, City, PlatformProfile, Testimonial, DriverRating, NotificationTemplate
 from django.utils.translation import gettext_lazy as _
 from django.urls import path, reverse
 from django.shortcuts import render
@@ -235,3 +235,29 @@ admin.site.register(City)
 admin.site.register(PlatformProfile, PlatformProfileAdmin)
 admin.site.register(Testimonial, TestimonialAdmin)
 admin.site.register(DriverRating)
+class NotificationTemplateAdmin(admin.ModelAdmin):
+    list_display = ('key', 'description')
+    readonly_fields = ('key', 'description', 'available_variables')
+    search_fields = ('key', 'description')
+    
+    fieldsets = (
+        (None, {
+            'fields': ('key', 'description', 'available_variables')
+        }),
+        (_('Email Content'), {
+            'fields': ('subject_en', 'subject_ar', 'email_body_en', 'email_body_ar'),
+            'description': _('For emails, the body is wrapped in a base template. Use HTML if needed.')
+        }),
+        (_('WhatsApp Content'), {
+            'fields': ('whatsapp_body_en', 'whatsapp_body_ar'),
+            'description': _('For WhatsApp, use plain text with newlines.')
+        }),
+    )
+
+    def has_add_permission(self, request):
+        return False # Prevent adding new keys manually
+        
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+admin.site.register(NotificationTemplate, NotificationTemplateAdmin)

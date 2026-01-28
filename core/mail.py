@@ -55,31 +55,36 @@ def send_html_email(subject, message, recipient_list, title=None, action_url=Non
 def send_contact_message(name, email, message):
     """
     Sends a contact form message to the platform admins.
-    
-    Args:
-        name (str): Sender's name
-        email (str): Sender's email
-        message (str): The message content
-        
-    Returns:
-        bool: True if sent successfully, False otherwise
     """
     try:
-        subject = f"New Contact Message from {name}"
-        full_message = f"You have received a new message from your website contact form.\n\n" \
-                       f"Name: {name}\n" \
-                       f"Email: {email}\n\n" \
-                       f"Message:\n{message}"
+        from .notifications import get_notification_content
+        
+        context = {'name': name, 'email': email, 'message': message}
+        # Admin alerts default to EN
+        subj, email_msg, wa_msg = get_notification_content('contact_form_admin', context, language='en')
         
         recipient_list = settings.CONTACT_EMAIL_TO or [settings.DEFAULT_FROM_EMAIL]
         
-        # Use HTML email for contact form too, for consistency
-        return send_html_email(
-            subject=subject,
-            message=full_message,
+        # Email
+        email_sent = send_html_email(
+            subject=subj,
+            message=email_msg,
             recipient_list=recipient_list,
             title="New Contact Message"
         )
+        
+        # WhatsApp (New feature: Notify admin on WhatsApp too)
+        try:
+            from .models import PlatformProfile
+            from .whatsapp_utils import send_whatsapp_message
+            
+            profile = PlatformProfile.objects.first()
+            if profile and profile.phone_number:
+                send_whatsapp_message(profile.phone_number, wa_msg)
+        except Exception as e:
+            logger.warning(f"Failed to send admin WhatsApp for contact form: {e}")
+            
+        return email_sent
     except Exception as e:
         logger.error(f"Failed to send contact message: {e}")
         return False

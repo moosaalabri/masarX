@@ -6,6 +6,7 @@ from django.core.mail import send_mail
 from django.utils.translation import gettext_lazy as _
 from .models import PlatformProfile
 from .mail import send_html_email
+from .notifications import get_notification_content
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +17,6 @@ def get_whatsapp_credentials():
     """
     # Defaults
     api_token = settings.WHATSAPP_API_KEY if hasattr(settings, 'WHATSAPP_API_KEY') else ""
-    # We repurpose Phone ID as Domain in settings if needed, or default to Wablas DEU
     domain = "https://deu.wablas.com"
     secret_key = "" 
     source = "Settings/Env"
@@ -25,19 +25,15 @@ def get_whatsapp_credentials():
     try:
         profile = PlatformProfile.objects.first()
         if profile:
-            # Check for token override
             if profile.whatsapp_access_token:
                 api_token = profile.whatsapp_access_token.strip()
                 source = "Database (PlatformProfile)"
             
-            # Check for secret key override
             if profile.whatsapp_app_secret:
                 secret_key = profile.whatsapp_app_secret.strip()
             
-            # Check for domain override
             if profile.whatsapp_business_phone_number_id:
                 domain = profile.whatsapp_business_phone_number_id.strip()
-                # Ensure no trailing slash
                 if domain.endswith('/'):
                     domain = domain[:-1]
             
@@ -71,28 +67,21 @@ def send_whatsapp_message_detailed(phone_number, message):
         logger.warning(msg)
         return False, msg
 
-    # Normalize phone number (Wablas expects international format without +, e.g. 628123...)
     clean_phone = str(phone_number).replace('+', '').replace(' ', '')
     
-    # Endpoint: /api/send-message (Simple Text)
-    # Ensure domain has schema
     if not domain.startswith('http'):
         domain = f"https://{domain}"
 
-    # Using the exact endpoint provided in user example
     url = f"{domain}/api/send-message"
     
-    # Header construction logic from user example
     auth_header = api_token
     if secret_key:
         auth_header = f"{api_token}.{secret_key}"
 
     headers = {
         "Authorization": auth_header,
-        # requests will set Content-Type to application/x-www-form-urlencoded when using 'data' param
     }
     
-    # Payload as form data (not JSON)
     data = {
         "phone": clean_phone,
         "message": message,
@@ -100,18 +89,14 @@ def send_whatsapp_message_detailed(phone_number, message):
     
     try:
         logger.info(f"Attempting to send WhatsApp message to {clean_phone} via {url}")
-        # Use data=data for form-urlencoded
         response = requests.post(url, headers=headers, data=data, timeout=15)
         
-        # Handle non-JSON response (HTML error pages)
         try:
             response_data = response.json()
         except ValueError:
             response_data = response.text
 
-        # Wablas success usually has status: true
         if response.status_code == 200:
-            # Check for logical success in JSON
             if isinstance(response_data, dict):
                 if response_data.get('status') is True:
                     logger.info(f"WhatsApp message sent to {clean_phone} via Wablas")
@@ -119,7 +104,6 @@ def send_whatsapp_message_detailed(phone_number, message):
                 else:
                     return False, f"Wablas API Logic Error (Source: {source}): {response_data}"
             else:
-                # If text, assume success if 200 OK? Or inspect text.
                 return True, f"Message sent (Raw Response). (Source: {source})"
         else:
             error_msg = f"Wablas API error (Source: {source}): {response.status_code} - {response_data}"
@@ -130,14 +114,19 @@ def send_whatsapp_message_detailed(phone_number, message):
         logger.error(error_msg)
         return False, error_msg
 
-def notify_admin(subject, message):
-    """Notifies the admin via Email and WhatsApp (if configured in PlatformProfile)."""
+def notify_admin_alert(key, context):
+    """Notifies the admin via Email and WhatsApp using a template key."""
+    # 1. Get Template Content (Admin likely prefers EN, or system default?)
+    # Let's force EN for admin alerts for now, or check generic language setting?
+    # Usually admin alerts are in EN or the default site language.
+    subject, email_body, whatsapp_body = get_notification_content(key, context, language='en')
+
     # Email
     try:
         if hasattr(settings, 'CONTACT_EMAIL_TO') and settings.CONTACT_EMAIL_TO:
              send_html_email(
                 subject=f"Admin Alert: {subject}",
-                message=message,
+                message=email_body,
                 recipient_list=settings.CONTACT_EMAIL_TO,
                 title="Admin Alert"
             )
@@ -148,146 +137,141 @@ def notify_admin(subject, message):
     try:
         profile = PlatformProfile.objects.first()
         if profile and profile.phone_number:
-             # Assuming profile.phone_number is a valid WhatsApp number for Admin alerts
-             send_whatsapp_message(profile.phone_number, f"ADMIN ALERT: {subject}\n{message}")
+             send_whatsapp_message(profile.phone_number, f"ADMIN ALERT: {subject}\n{whatsapp_body}")
     except Exception:
         pass
 
 def notify_shipment_created(parcel):
-    """Notifies the shipper that the shipment request was received via WhatsApp and Email."""
     shipper_name = parcel.shipper.get_full_name() or parcel.shipper.username
-    message = f"""Hello {shipper_name},
-
-Your shipment request for '{parcel.description}' has been received.
-Tracking Number: {parcel.tracking_number}
-Status: {parcel.get_status_display()}
-
-Please proceed to payment to make it visible to drivers."""
+    context = {
+        'name': shipper_name,
+        'description': parcel.description,
+        'tracking_number': parcel.tracking_number,
+        'status': parcel.get_status_display()
+    }
     
+    # Render for Shipper (check user language preference? For now assume session/request unavailable so maybe default or EN, 
+    # OR we need a user language profile field. The user didn't ask for user-pref language yet, just bilingual templates.
+    # I'll default to EN unless I can guess.)
+    # Actually, if I can't determine, EN is safe.
+    # Future improvement: Add language to User Profile.
+    
+    subj, email_msg, wa_msg = get_notification_content('shipment_created_shipper', context)
+
     # WhatsApp
     if hasattr(parcel.shipper, 'profile') and parcel.shipper.profile.phone_number:
-        send_whatsapp_message(parcel.shipper.profile.phone_number, message)
-    else:
-        logger.warning(f"No phone number found for shipper {shipper_name}, skipping WhatsApp.")
+        send_whatsapp_message(parcel.shipper.profile.phone_number, wa_msg)
 
     # Email
     if parcel.shipper.email:
-        try:
-            send_html_email(
-                subject='Shipment Request Received - ' + parcel.tracking_number,
-                message=message,
-                recipient_list=[parcel.shipper.email],
-                title='Shipment Request Received'
-            )
-            logger.info(f"Shipment created email sent to {parcel.shipper.email}")
-        except Exception as e:
-            logger.error(f"Failed to send shipment created email to {parcel.shipper.email}: {e}")
-    
+        send_html_email(
+            subject=subj,
+            message=email_msg,
+            recipient_list=[parcel.shipper.email],
+            title=subj
+        )
     return True
 
 def notify_payment_received(parcel):
-    """Notifies the shipper and receiver about successful payment via WhatsApp and Email."""
-    # Notify Shipper
+    # Shipper
     shipper_name = parcel.shipper.get_full_name() or parcel.shipper.username
-    shipper_msg = f"""Payment successful for shipment {parcel.tracking_number}.
-Your shipment is now visible to available drivers."""
+    context_shipper = {
+        'tracking_number': parcel.tracking_number
+    }
+    subj, email_msg, wa_msg = get_notification_content('payment_success_shipper', context_shipper)
     
-    # WhatsApp Shipper
     if hasattr(parcel.shipper, 'profile') and parcel.shipper.profile.phone_number:
-        send_whatsapp_message(parcel.shipper.profile.phone_number, shipper_msg)
+        send_whatsapp_message(parcel.shipper.profile.phone_number, wa_msg)
     
-    # Email Shipper
     if parcel.shipper.email:
-        try:
-            send_html_email(
-                subject='Payment Successful - ' + parcel.tracking_number,
-                message=shipper_msg,
-                recipient_list=[parcel.shipper.email],
-                title='Payment Successful'
-            )
-        except Exception as e:
-            logger.error(f"Failed to send payment email to {parcel.shipper.email}: {e}")
+        send_html_email(
+            subject=subj,
+            message=email_msg,
+            recipient_list=[parcel.shipper.email],
+            title=subj
+        )
 
-    # Notify Receiver
-    receiver_msg = f"""Hello {parcel.receiver_name},
-
-A shipment is coming your way from {shipper_name}.
-Tracking Number: {parcel.tracking_number}
-Status: {parcel.get_status_display()}"""
-    send_whatsapp_message(parcel.receiver_phone, receiver_msg)
+    # Receiver
+    context_receiver = {
+        'receiver_name': parcel.receiver_name,
+        'shipper_name': shipper_name,
+        'tracking_number': parcel.tracking_number,
+        'status': parcel.get_status_display()
+    }
+    _, _, wa_msg_rx = get_notification_content('shipment_visible_receiver', context_receiver)
+    send_whatsapp_message(parcel.receiver_phone, wa_msg_rx)
 
 def notify_driver_assigned(parcel):
-    """Notifies the shipper, receiver, driver, and admin that a driver has picked up the parcel."""
     driver_name = parcel.carrier.get_full_name() or parcel.carrier.username
     shipper_name = parcel.shipper.get_full_name() or parcel.shipper.username
     
+    # Get Car Plate
+    car_plate = ""
+    if hasattr(parcel.carrier, 'profile'):
+        car_plate = parcel.carrier.profile.car_plate_number
+    
     # 1. Notify Shipper
-    msg_shipper = f"""Shipment {parcel.tracking_number} has been picked up by {driver_name}.
-Status: {parcel.get_status_display()}"""
+    context_shipper = {
+        'tracking_number': parcel.tracking_number,
+        'driver_name': driver_name,
+        'car_plate_number': car_plate,
+        'status': parcel.get_status_display()
+    }
+    subj_s, email_s, wa_s = get_notification_content('driver_pickup_shipper', context_shipper)
     
     if hasattr(parcel.shipper, 'profile') and parcel.shipper.profile.phone_number:
-        send_whatsapp_message(parcel.shipper.profile.phone_number, msg_shipper)
+        send_whatsapp_message(parcel.shipper.profile.phone_number, wa_s)
         
     if parcel.shipper.email:
-        try:
-            send_html_email(
-                subject='Driver Assigned - ' + parcel.tracking_number,
-                message=msg_shipper,
-                recipient_list=[parcel.shipper.email],
-                title='Driver Assigned'
-            )
-        except Exception:
-            pass
+        send_html_email(subject=subj_s, message=email_s, recipient_list=[parcel.shipper.email], title=subj_s)
 
     # 2. Notify Receiver
-    msg_receiver = f"""Shipment {parcel.tracking_number} from {shipper_name} is on the way (Picked up).
-Driver: {driver_name}"""
-    send_whatsapp_message(parcel.receiver_phone, msg_receiver)
+    context_receiver = {
+        'tracking_number': parcel.tracking_number,
+        'shipper_name': shipper_name,
+        'driver_name': driver_name,
+        'car_plate_number': car_plate
+    }
+    _, _, wa_r = get_notification_content('driver_pickup_receiver', context_receiver)
+    send_whatsapp_message(parcel.receiver_phone, wa_r)
 
-    # 3. Notify Driver (Confirmation)
-    msg_driver = f"""You have successfully accepted Shipment {parcel.tracking_number}.
-Shipper: {shipper_name}
-Pickup: {parcel.pickup_address}
-Delivery: {parcel.delivery_address}
-Price/Bid: {parcel.price} OMR"""
+    # 3. Notify Driver
+    context_driver = {
+        'tracking_number': parcel.tracking_number,
+        'shipper_name': shipper_name,
+        'pickup_address': parcel.pickup_address,
+        'delivery_address': parcel.delivery_address,
+        'price': parcel.price
+    }
+    subj_d, email_d, wa_d = get_notification_content('driver_pickup_driver', context_driver)
     
     if hasattr(parcel.carrier, 'profile') and parcel.carrier.profile.phone_number:
-         send_whatsapp_message(parcel.carrier.profile.phone_number, msg_driver)
+         send_whatsapp_message(parcel.carrier.profile.phone_number, wa_d)
     
     if parcel.carrier.email:
-        try:
-            send_html_email(
-                subject='Shipment Accepted - ' + parcel.tracking_number,
-                message=msg_driver,
-                recipient_list=[parcel.carrier.email],
-                title='Shipment Accepted'
-            )
-        except Exception:
-            pass
+        send_html_email(subject=subj_d, message=email_d, recipient_list=[parcel.carrier.email], title=subj_d)
 
     # 4. Notify Admin
-    notify_admin(
-        subject=f"Shipment Accepted ({parcel.tracking_number})",
-        message=f"Driver {driver_name} accepted shipment {parcel.tracking_number} from {shipper_name}.\nPrice: {parcel.price} OMR"
-    )
+    context_admin = {
+        'driver_name': driver_name,
+        'car_plate_number': car_plate,
+        'tracking_number': parcel.tracking_number,
+        'shipper_name': shipper_name,
+        'price': parcel.price
+    }
+    notify_admin_alert('admin_alert_driver_accept', context_admin)
 
 def notify_status_change(parcel):
-    """Notifies parties about general status updates (In Transit, Delivered)."""
-    msg = f"""Update for shipment {parcel.tracking_number}:
-New Status: {parcel.get_status_display()}"""
+    context = {
+        'tracking_number': parcel.tracking_number,
+        'status': parcel.get_status_display()
+    }
+    subj, email_msg, wa_msg = get_notification_content('shipment_status_update', context)
     
     if hasattr(parcel.shipper, 'profile') and parcel.shipper.profile.phone_number:
-        send_whatsapp_message(parcel.shipper.profile.phone_number, msg)
+        send_whatsapp_message(parcel.shipper.profile.phone_number, wa_msg)
     
     if parcel.shipper.email:
-        try:
-            send_html_email(
-                subject='Shipment Update - ' + parcel.tracking_number,
-                message=msg,
-                recipient_list=[parcel.shipper.email],
-                title='Shipment Update'
-            )
-        except Exception:
-            pass
+        send_html_email(subject=subj, message=email_msg, recipient_list=[parcel.shipper.email], title=subj)
 
-    send_whatsapp_message(parcel.receiver_phone, msg)
+    send_whatsapp_message(parcel.receiver_phone, wa_msg)
