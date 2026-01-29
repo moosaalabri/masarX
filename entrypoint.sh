@@ -3,6 +3,19 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
+echo "Starting deployment script..."
+echo "Environment Verification:"
+echo "DB_ENGINE: ${DB_ENGINE:-'Not Set (will default to settings.py)'}"
+echo "DB_HOST: ${DB_HOST:-'Not Set'}"
+echo "DB_PORT: ${DB_PORT:-'Not Set'}"
+echo "DB_NAME: ${DB_NAME:-'Not Set'}"
+echo "DB_USER: ${DB_USER:-'Not Set'}"
+# Do NOT print DB_PASS
+
+# Wait for database to be ready
+echo "Checking database connection..."
+python manage.py wait_for_db
+
 # Apply database migrations
 echo "Applying database migrations..."
 python manage.py migrate
