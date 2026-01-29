@@ -9,13 +9,10 @@ WORKDIR /app
 
 # Install system dependencies
 # WeasyPrint needs: libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0 libjpeg-dev libopenjp2-7-dev libxcb1
-# MySQLclient needs: default-libmysqlclient-dev gcc pkg-config
-# MariaDB Client is added to ensure all authentication plugins (like mysql_native_password) are available for MariaDB 11
+# PyMySQL does not need libmysqlclient-dev, but we keep basic build tools
 RUN apt-get update && apt-get install -y \
     gcc \
     pkg-config \
-    default-libmysqlclient-dev \
-    mariadb-client \
     libpango-1.0-0 \
     libpangoft2-1.0-0 \
     libharfbuzz-subset0 \

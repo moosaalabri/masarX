@@ -16,6 +16,15 @@ class Command(BaseCommand):
         db_conf = settings.DATABASES['default']
         self.stdout.write(f"Debug Info - Host: {db_conf.get('HOST')}, Port: {db_conf.get('PORT')}, Name: {db_conf.get('NAME')}, User: {db_conf.get('USER')}")
 
+        # DEBUG: Check which MySQLdb is loaded
+        try:
+            import MySQLdb
+            self.stdout.write(f"DEBUG: MySQLdb module is: {MySQLdb}")
+            if hasattr(MySQLdb, '__file__'):
+                 self.stdout.write(f"DEBUG: MySQLdb location: {MySQLdb.__file__}")
+        except ImportError:
+            self.stdout.write("DEBUG: MySQLdb module could NOT be imported.")
+
         self.stdout.write('Waiting for database...')
         db_conn = None
         for i in range(30):  # Retry for 30 seconds

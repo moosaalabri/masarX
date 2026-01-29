@@ -1,5 +1,6 @@
 Django==5.2.7
-mysqlclient==2.2.7
+pymysql
+cryptography
 python-dotenv==1.1.1
 Pillow
 weasyprint
