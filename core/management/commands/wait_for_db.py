@@ -21,8 +21,8 @@ class Command(BaseCommand):
                 db_conn.cursor()
                 self.stdout.write(self.style.SUCCESS('Database available!'))
                 return
-            except OperationalError:
-                self.stdout.write('Database unavailable, waiting 1 second...')
+            except OperationalError as e:
+                self.stdout.write(f'Database unavailable ({e}), waiting 1 second...')
                 time.sleep(1)
             except Exception as e:
                  self.stdout.write(self.style.WARNING(f'Database error: {e}, waiting 1 second...'))
