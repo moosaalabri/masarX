@@ -1,31 +1,8 @@
 [phases.setup]
-nixPkgs = [
-    "python311",
-    "cairo",
-    "pango",
-    "gdk-pixbuf",
-    "glib",
-    "harfbuzz",
-    "libjpeg",
-    "openjpeg",
-    "libxcb",
-    "bash",
-    "gcc"
-]
+nixPkgs = ["python311", "cairo", "pango", "gdk-pixbuf", "glib", "shared-mime-info"]
 
 [phases.install]
-cmds = [
-    "python -m venv .venv",
-    ". .venv/bin/activate",
-    "pip install --upgrade pip",
-    "pip install -r requirements.txt"
-]
-
-[phases.build]
-cmds = [
-    ". .venv/bin/activate",
-    "python manage.py collectstatic --noinput"
-]
+cmds = ["python -m venv .venv", ". .venv/bin/activate", "pip install -r requirements.txt"]
 
 [start]
-cmd = ". .venv/bin/activate && gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+cmd = ". .venv/bin/activate && sh entrypoint.sh"
