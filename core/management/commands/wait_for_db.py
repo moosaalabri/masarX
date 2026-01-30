@@ -14,7 +14,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # Print the connection details (masked password) for debugging
         db_conf = settings.DATABASES['default']
-        self.stdout.write(f"Debug Info - Host: {db_conf.get('HOST')}, Port: {db_conf.get('PORT')}, Name: {db_conf.get('NAME')}, User: {db_conf.get('USER')}")
+        host_val = db_conf.get('HOST')
+        self.stdout.write(f"Debug Info - Host: {host_val}, Port: {db_conf.get('PORT')}, Name: {db_conf.get('NAME')}, User: {db_conf.get('USER')}")
 
         # DEBUG: Check which MySQLdb is loaded
         try:
@@ -46,6 +47,12 @@ class Command(BaseCommand):
                 # Print the full error message
                 self.stdout.write(f'Database unavailable (Error: {e}), waiting 1 second...')
                 time.sleep(1)
+            except UnicodeError as e:
+                self.stdout.write(self.style.ERROR(f"CONFIGURATION ERROR: The DB_HOST '{host_val}' is invalid."))
+                self.stdout.write(self.style.ERROR(f"Details: {e}"))
+                self.stdout.write(self.style.ERROR("Hint: Check your 'DB_HOST' variable in Coolify. It seems to be too long or contains invalid characters."))
+                self.stdout.write(self.style.ERROR("Common mistakes: pasting the full connection string (mysql://...) instead of just the hostname, or trailing spaces."))
+                return
             except Exception as e:
                  self.stdout.write(self.style.WARNING(f'Database error: {e}, waiting 1 second...'))
                  time.sleep(1)
