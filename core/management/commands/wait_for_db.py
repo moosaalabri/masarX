@@ -1,4 +1,5 @@
 import time
+import socket
 from django.db import connections
 from django.db.utils import OperationalError
 from django.core.management.base import BaseCommand
@@ -6,53 +7,52 @@ from django.conf import settings
 
 class Command(BaseCommand):
     """Django command to pause execution until database is available"""
-    
-    # Critical: Disable system checks to prevent the command from crashing 
-    # if the database is not yet available.
     requires_system_checks = []
 
     def handle(self, *args, **options):
-        # Print the connection details (masked password) for debugging
         db_conf = settings.DATABASES['default']
-        host_val = db_conf.get('HOST')
-        self.stdout.write(f"Debug Info - Host: {host_val}, Port: {db_conf.get('PORT')}, Name: {db_conf.get('NAME')}, User: {db_conf.get('USER')}")
+        host = db_conf.get('HOST')
+        port = db_conf.get('PORT')
+        
+        self.stdout.write(f"Debug Info - Host: {host}, Port: {port}, User: {db_conf.get('USER')}")
 
-        # DEBUG: Check which MySQLdb is loaded
+        # Try to resolve host immediately to catch DNS issues
         try:
-            import MySQLdb
-            self.stdout.write(f"DEBUG: MySQLdb module is: {MySQLdb}")
-            if hasattr(MySQLdb, '__file__'):
-                 self.stdout.write(f"DEBUG: MySQLdb location: {MySQLdb.__file__}")
-        except ImportError:
-            self.stdout.write("DEBUG: MySQLdb module could NOT be imported.")
+            ip = socket.gethostbyname(host)
+            self.stdout.write(f"DEBUG: Host '{host}' resolves to IP: {ip}")
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f"DEBUG ERROR: Could not resolve hostname '{host}': {e}"))
 
         self.stdout.write('Waiting for database...')
-        db_conn = None
-        for i in range(30):  # Retry for 30 seconds
+        for i in range(30):
             try:
-                db_conn = connections['default']
-                # Try to actually connect
-                db_conn.cursor()
+                connections['default'].cursor()
                 self.stdout.write(self.style.SUCCESS('Database available!'))
                 return
             except OperationalError as e:
-                # Check for specific "Unknown database" error (MySQL code 1049)
                 error_str = str(e)
-                if "1049" in error_str or "Unknown database" in error_str:
-                     self.stdout.write(self.style.ERROR(f"CRITICAL ERROR: The database '{db_conf.get('NAME')}' does not exist on the server."))
-                     self.stdout.write(self.style.ERROR("Solution: Check your DB_NAME environment variable. It usually defaults to 'default' or the service name."))
-                     # Fail immediately for this specific error as it won't resolve itself
+                if "2003" in error_str:
+                    self.stdout.write(self.style.WARNING(f"Connection Failed (Attempt {i+1}/30): Error 2003 - Can't connect to MySQL server."))
+                    # Perform a quick TCP check
+                    try:
+                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        sock.settimeout(2)
+                        result = sock.connect_ex((host, int(port)))
+                        if result == 0:
+                            self.stdout.write(f"  > TCP Check: SUCCESS. Server is reachable at {host}:{port}. Issue is likely Auth/SSL or strict User Host limits.")
+                        else:
+                            self.stdout.write(f"  > TCP Check: FAILED (Code {result}). Server is NOT reachable at {host}:{port}. Check Firewall/IP.")
+                        sock.close()
+                    except Exception as tcp_e:
+                        self.stdout.write(f"  > TCP Check Error: {tcp_e}")
+                
+                elif "1049" in error_str: # Unknown database
+                     self.stdout.write(self.style.ERROR(f"CRITICAL: Database '{db_conf.get('NAME')}' does not exist."))
                      return
-
-                # Print the full error message
-                self.stdout.write(f'Database unavailable (Error: {e}), waiting 1 second...')
+                else:
+                    self.stdout.write(f'Database unavailable (Error: {e}), waiting 1 second...')
+                
                 time.sleep(1)
-            except UnicodeError as e:
-                self.stdout.write(self.style.ERROR(f"CONFIGURATION ERROR: The DB_HOST '{host_val}' is invalid."))
-                self.stdout.write(self.style.ERROR(f"Details: {e}"))
-                self.stdout.write(self.style.ERROR("Hint: Check your 'DB_HOST' variable in Coolify. It seems to be too long or contains invalid characters."))
-                self.stdout.write(self.style.ERROR("Common mistakes: pasting the full connection string (mysql://...) instead of just the hostname, or trailing spaces."))
-                return
             except Exception as e:
                  self.stdout.write(self.style.WARNING(f'Database error: {e}, waiting 1 second...'))
                  time.sleep(1)
