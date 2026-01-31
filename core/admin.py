@@ -122,11 +122,6 @@ class ParcelAdmin(admin.ModelAdmin):
         }),
     )
 
-    def get_changeform_initial_data(self, request):
-        initial = super().get_changeform_initial_data(request)
-        initial['payment_status'] = 'paid'
-        return initial
-
     def export_as_csv(self, request, queryset):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="parcels_report.csv"'
@@ -175,6 +170,10 @@ class PlatformProfileAdmin(admin.ModelAdmin):
         }),
         (_('Financial Configuration'), {
             'fields': ('platform_fee_percentage', 'enable_payment')
+        }),
+        (_('Testing / Development'), {
+            'fields': ('auto_mark_paid',),
+            'description': _('Enable this to automatically mark NEW parcels as "Paid" (useful for testing so drivers can see them immediately).')
         }),
         (_('Integrations'), {
             'fields': ('google_maps_api_key',),

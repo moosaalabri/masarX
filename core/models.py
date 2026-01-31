@@ -131,6 +131,75 @@ class PricingRule(models.Model):
         verbose_name_plural = _('Pricing Rules')
         ordering = ['min_distance', 'min_weight']
 
+class PlatformProfile(models.Model):
+    name = models.CharField(_('Platform Name'), max_length=100)
+    logo = models.ImageField(_('Logo'), upload_to='platform_logos/', blank=True, null=True)
+    slogan = models.CharField(_('Slogan'), max_length=255, blank=True)
+    address = models.TextField(_('Address'), blank=True)
+    phone_number = models.CharField(_('Phone Number'), max_length=50, blank=True)
+    registration_number = models.CharField(_('Registration Number'), max_length=100, blank=True)
+    vat_number = models.CharField(_('VAT Number'), max_length=100, blank=True)
+    
+    # Financial Configuration
+    platform_fee_percentage = models.DecimalField(_('Platform Fee (%)'), max_digits=5, decimal_places=2, default=Decimal('0.00'), help_text=_("Percentage deducted from total trip price."))
+
+    # Integrations
+    google_maps_api_key = models.CharField(_('Google Maps API Key'), max_length=255, blank=True, help_text=_("API Key for Google Maps (Distance Matrix, Maps JS)."))
+
+    # Bilingual Policies
+    privacy_policy_en = models.TextField(_('Privacy Policy (English)'), blank=True)
+    privacy_policy_ar = models.TextField(_('Privacy Policy (Arabic)'), blank=True)
+    terms_conditions_en = models.TextField(_('Terms and Conditions (English)'), blank=True)
+    terms_conditions_ar = models.TextField(_('Terms and Conditions (Arabic)'), blank=True)
+    
+    # WhatsApp Configuration (Wablas Gateway)
+    whatsapp_access_token = models.TextField(_('Wablas API Token'), blank=True, help_text=_("Your Wablas API Token."))
+    whatsapp_business_phone_number_id = models.CharField(_('Wablas Domain'), max_length=100, blank=True, default="https://deu.wablas.com", help_text=_("The Wablas API domain (e.g., https://deu.wablas.com)."))
+    whatsapp_app_secret = models.CharField(_('Wablas Secret Key'), max_length=255, blank=True, help_text=_("Your Wablas API Secret Key (if required)."))
+
+    # Payment Configuration
+    enable_payment = models.BooleanField(_('Enable Payment'), default=True, help_text=_("Toggle to enable or disable payments on the platform."))
+    
+    # Testing / Development
+    auto_mark_paid = models.BooleanField(_('Test Mode: Auto-Paid'), default=False, help_text=_("If enabled, newly created parcels will automatically be marked as 'Paid' for testing."))
+
+    @property
+    def privacy_policy(self):
+        if get_language() == 'ar':
+            return self.privacy_policy_ar
+        return self.privacy_policy_en
+
+    @property
+    def terms_conditions(self):
+        if get_language() == 'ar':
+            return self.terms_conditions_ar
+        return self.terms_conditions_en
+
+    def save(self, *args, **kwargs):
+        # Auto-clean whitespace from credentials
+        if self.whatsapp_access_token:
+            self.whatsapp_access_token = self.whatsapp_access_token.strip()
+        if self.whatsapp_business_phone_number_id:
+            val = self.whatsapp_business_phone_number_id.strip()
+            # Remove common path suffixes if user pasted full URL
+            for suffix in ['/api/send-message', '/api/v2/send-message']:
+                if val.endswith(suffix):
+                    val = val[:-len(suffix)]
+            if val.endswith('/'):
+                val = val[:-1]
+            self.whatsapp_business_phone_number_id = val
+        if self.whatsapp_app_secret:
+            self.whatsapp_app_secret = self.whatsapp_app_secret.strip()
+            
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _('Platform Profile')
+        verbose_name_plural = _('Platform Profile')
+
 class Parcel(models.Model):
     STATUS_CHOICES = (
         ('pending', _('Pending Pickup')),
@@ -189,12 +258,24 @@ class Parcel(models.Model):
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
     def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        
+        # Test Mode Logic: Auto-Mark Paid
+        if is_new and self.payment_status == 'pending':
+            try:
+                # Use filter().first() to avoid error if table is empty
+                profile = PlatformProfile.objects.first()
+                if profile and profile.auto_mark_paid:
+                    self.payment_status = 'paid'
+            except Exception:
+                # Fail gracefully (e.g. during migrations)
+                pass
+
         if not self.tracking_number:
             self.tracking_number = str(uuid.uuid4().hex[:10]).upper()
         
         # Calculate Distance and Price if Lat/Lng provided and price is 0 (or always update to ensure accuracy)
         # We only recalculate if status is pending or if it's a new object to avoid changing history for completed trips
-        is_new = self.pk is None
         if (is_new or self.status == 'pending') and self.pickup_lat and self.pickup_lng and self.delivery_lat and self.delivery_lng:
              # Local import to avoid circular dependency
             from .pricing import calculate_haversine_distance, get_pricing_breakdown
@@ -222,72 +303,6 @@ class Parcel(models.Model):
     class Meta:
         verbose_name = _('Parcel')
         verbose_name_plural = _('Parcels')
-
-class PlatformProfile(models.Model):
-    name = models.CharField(_('Platform Name'), max_length=100)
-    logo = models.ImageField(_('Logo'), upload_to='platform_logos/', blank=True, null=True)
-    slogan = models.CharField(_('Slogan'), max_length=255, blank=True)
-    address = models.TextField(_('Address'), blank=True)
-    phone_number = models.CharField(_('Phone Number'), max_length=50, blank=True)
-    registration_number = models.CharField(_('Registration Number'), max_length=100, blank=True)
-    vat_number = models.CharField(_('VAT Number'), max_length=100, blank=True)
-    
-    # Financial Configuration
-    platform_fee_percentage = models.DecimalField(_('Platform Fee (%)'), max_digits=5, decimal_places=2, default=Decimal('0.00'), help_text=_("Percentage deducted from total trip price."))
-
-    # Integrations
-    google_maps_api_key = models.CharField(_('Google Maps API Key'), max_length=255, blank=True, help_text=_("API Key for Google Maps (Distance Matrix, Maps JS)."))
-
-    # Bilingual Policies
-    privacy_policy_en = models.TextField(_('Privacy Policy (English)'), blank=True)
-    privacy_policy_ar = models.TextField(_('Privacy Policy (Arabic)'), blank=True)
-    terms_conditions_en = models.TextField(_('Terms and Conditions (English)'), blank=True)
-    terms_conditions_ar = models.TextField(_('Terms and Conditions (Arabic)'), blank=True)
-    
-    # WhatsApp Configuration (Wablas Gateway)
-    whatsapp_access_token = models.TextField(_('Wablas API Token'), blank=True, help_text=_("Your Wablas API Token."))
-    whatsapp_business_phone_number_id = models.CharField(_('Wablas Domain'), max_length=100, blank=True, default="https://deu.wablas.com", help_text=_("The Wablas API domain (e.g., https://deu.wablas.com)."))
-    whatsapp_app_secret = models.CharField(_('Wablas Secret Key'), max_length=255, blank=True, help_text=_("Your Wablas API Secret Key (if required)."))
-
-    # Payment Configuration
-    enable_payment = models.BooleanField(_('Enable Payment'), default=True, help_text=_("Toggle to enable or disable payments on the platform."))
-
-    @property
-    def privacy_policy(self):
-        if get_language() == 'ar':
-            return self.privacy_policy_ar
-        return self.privacy_policy_en
-
-    @property
-    def terms_conditions(self):
-        if get_language() == 'ar':
-            return self.terms_conditions_ar
-        return self.terms_conditions_en
-
-    def save(self, *args, **kwargs):
-        # Auto-clean whitespace from credentials
-        if self.whatsapp_access_token:
-            self.whatsapp_access_token = self.whatsapp_access_token.strip()
-        if self.whatsapp_business_phone_number_id:
-            val = self.whatsapp_business_phone_number_id.strip()
-            # Remove common path suffixes if user pasted full URL
-            for suffix in ['/api/send-message', '/api/v2/send-message']:
-                if val.endswith(suffix):
-                    val = val[:-len(suffix)]
-            if val.endswith('/'):
-                val = val[:-1]
-            self.whatsapp_business_phone_number_id = val
-        if self.whatsapp_app_secret:
-            self.whatsapp_app_secret = self.whatsapp_app_secret.strip()
-            
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = _('Platform Profile')
-        verbose_name_plural = _('Platform Profile')
 
 class OTPVerification(models.Model):
     PURPOSE_CHOICES = (
