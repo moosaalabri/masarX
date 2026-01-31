@@ -66,6 +66,7 @@
                                     <p class="card-text mb-3 small"><strong>{% trans "Delivery" %}:</strong> {{ parcel.delivery_governate.name }} / {{ parcel.delivery_city.name }}</p>
                                     
                                     <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-muted small"><strong>{% trans "Distance" %}:</strong> {{ parcel.distance_km }} km</span>
                                         <span class="text-muted small"><strong>{% trans "Weight" %}:</strong> {{ parcel.weight }} kg</span>
                                     </div>
                                     
@@ -102,6 +103,9 @@
                                                 <span class="d-flex align-items-center gap-1">
                                                     <i class="bi bi-geo-alt-fill text-danger"></i> 
                                                     <strong>{% trans "To" %}:</strong> {{ parcel.delivery_governate.name }} / {{ parcel.delivery_city.name }}
+                                                </span>
+                                                <span class="d-flex align-items-center gap-1">
+                                                    <i class="bi bi-signpost-2"></i> {{ parcel.distance_km }} km
                                                 </span>
                                                 <span class="d-flex align-items-center gap-1">
                                                     <i class="bi bi-box-seam"></i> {{ parcel.weight }} kg
@@ -228,6 +232,7 @@
                                     <th>{% trans "Tracking ID" %}</th>
                                     <th>{% trans "From" %}</th>
                                     <th>{% trans "To" %}</th>
+                                    <th>{% trans "Distance" %}</th>
                                     <th>{% trans "Price" %}</th>
                                     <th>{% trans "Status" %}</th>
                                 </tr>
@@ -239,6 +244,7 @@
                                     <td><span class="badge bg-light text-dark">#{{ parcel.tracking_number }}</span></td>
                                     <td>{{ parcel.pickup_governate.name }} / {{ parcel.pickup_city.name }}</td>
                                     <td>{{ parcel.delivery_governate.name }} / {{ parcel.delivery_city.name }}</td>
+                                    <td>{{ parcel.distance_km }} km</td>
                                     <td>{{ parcel.price }} OMR</td>
                                     <td>
                                         <span class="badge bg-success">
@@ -272,6 +278,7 @@
                                     <th>{% trans "Tracking ID" %}</th>
                                     <th>{% trans "From" %}</th>
                                     <th>{% trans "To" %}</th>
+                                    <th>{% trans "Distance" %}</th>
                                     <th>{% trans "Price" %}</th>
                                     <th>{% trans "Status" %}</th>
                                 </tr>
@@ -283,6 +290,7 @@
                                     <td><span class="badge bg-light text-dark">#{{ parcel.tracking_number }}</span></td>
                                     <td>{{ parcel.pickup_governate.name }} / {{ parcel.pickup_city.name }}</td>
                                     <td>{{ parcel.delivery_governate.name }} / {{ parcel.delivery_city.name }}</td>
+                                    <td>{{ parcel.distance_km }} km</td>
                                     <td>{{ parcel.price }} OMR</td>
                                     <td>
                                         <span class="badge bg-danger">

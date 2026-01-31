@@ -191,6 +191,29 @@ class Parcel(models.Model):
     def save(self, *args, **kwargs):
         if not self.tracking_number:
             self.tracking_number = str(uuid.uuid4().hex[:10]).upper()
+        
+        # Calculate Distance and Price if Lat/Lng provided and price is 0 (or always update to ensure accuracy)
+        # We only recalculate if status is pending or if it's a new object to avoid changing history for completed trips
+        is_new = self.pk is None
+        if (is_new or self.status == 'pending') and self.pickup_lat and self.pickup_lng and self.delivery_lat and self.delivery_lng:
+             # Local import to avoid circular dependency
+            from .pricing import calculate_haversine_distance, get_pricing_breakdown
+            
+            # Calculate Distance
+            dist = calculate_haversine_distance(
+                self.pickup_lat, self.pickup_lng,
+                self.delivery_lat, self.delivery_lng
+            )
+            self.distance_km = dist
+            
+            # Calculate Price
+            breakdown = get_pricing_breakdown(self.distance_km, self.weight)
+            if not breakdown.get('error'):
+                self.price = breakdown['price']
+                self.platform_fee = breakdown['platform_fee']
+                self.platform_fee_percentage = breakdown['platform_fee_percentage']
+                self.driver_amount = breakdown['driver_amount']
+
         super().save(*args, **kwargs)
 
     def __str__(self):

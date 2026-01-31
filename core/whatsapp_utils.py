@@ -147,7 +147,9 @@ def notify_shipment_created(parcel):
         'name': shipper_name,
         'description': parcel.description,
         'tracking_number': parcel.tracking_number,
-        'status': parcel.get_status_display()
+        'status': parcel.get_status_display(),
+        'distance': parcel.distance_km,
+        'price': parcel.price
     }
     
     # Render for Shipper (check user language preference? For now assume session/request unavailable so maybe default or EN, 
@@ -241,7 +243,8 @@ def notify_driver_assigned(parcel):
         'shipper_name': shipper_name,
         'pickup_address': parcel.pickup_address,
         'delivery_address': parcel.delivery_address,
-        'price': parcel.price
+        'price': parcel.price,
+        'distance': parcel.distance_km
     }
     subj_d, email_d, wa_d = get_notification_content('driver_pickup_driver', context_driver)
     
@@ -257,7 +260,8 @@ def notify_driver_assigned(parcel):
         'car_plate_number': car_plate,
         'tracking_number': parcel.tracking_number,
         'shipper_name': shipper_name,
-        'price': parcel.price
+        'price': parcel.price,
+        'distance': parcel.distance_km
     }
     notify_admin_alert('admin_alert_driver_accept', context_admin)
 

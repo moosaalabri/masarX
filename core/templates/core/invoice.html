@@ -196,13 +196,17 @@
     <table>
         <thead>
             <tr>
-                <th width="50%">
+                <th width="40%">
                     Description
                     <span class="ar ar-text">الوصف</span>
                 </th>
                 <th>
                     Tracking No
                     <span class="ar ar-text">رقم التتبع</span>
+                </th>
+                <th>
+                    Distance
+                    <span class="ar ar-text">المسافة</span>
                 </th>
                 <th>
                     Weight
@@ -221,13 +225,14 @@
                     <small>{{ parcel.description|truncatechars:50 }}</small>
                 </td>
                 <td>{{ parcel.tracking_number }}</td>
+                <td>{{ parcel.distance_km }} km</td>
                 <td>{{ parcel.weight }} kg</td>
                 <td class="text-right">{{ parcel.price }} OMR / <span class="ar-text">ر.ع.</span></td>
             </tr>
         </tbody>
         <tfoot>
             <tr class="total-row">
-                <td colspan="3" class="text-right">
+                <td colspan="4" class="text-right">
                     TOTAL / الإجمالي
                 </td>
                 <td class="text-right">{{ parcel.price }} OMR / <span class="ar-text">ر.ع.</span></td>
