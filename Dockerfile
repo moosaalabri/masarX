@@ -8,8 +8,8 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # Install system dependencies
-# WeasyPrint needs: libpango-1.0-0 libpangoft2-1.0-0 libjpeg-dev libopenjp2-7-dev libxcb1
-# Removed libharfbuzz-subset0 as it is not available in Bookworm (Debian 12), handled by dependencies
+# WeasyPrint/Pango dependencies for Debian 12 (Bookworm)
+# Note: package names must match Bookworm repositories
 RUN apt-get update && apt-get install -y \
     gcc \
     pkg-config \
@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
     libjpeg-dev \
     libopenjp2-7-dev \
     libxcb1 \
-    libgdk-pixbuf2.0-0 \
+    libgdk-pixbuf-2.0-0 \
     shared-mime-info \
     libffi-dev \
     libssl-dev \
