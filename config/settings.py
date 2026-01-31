@@ -23,18 +23,29 @@ DEBUG = os.getenv("DJANGO_DEBUG", "true").lower() == "true"
 # Allow all hosts to avoid 404/400 errors during initial deployment
 ALLOWED_HOSTS = ["*"]
 
-CSRF_TRUSTED_ORIGINS = [
-    origin for origin in [
-        os.getenv("HOST_FQDN", ""),
-        os.getenv("CSRF_TRUSTED_ORIGIN", "")
-    ] if origin
-]
-CSRF_TRUSTED_ORIGINS = [
-    f"https://{host}" if not host.startswith(("http://", "https://")) else host
-    for host in CSRF_TRUSTED_ORIGINS
-]
-# Add the current sslip domain if known, or rely on wildcard matching (Django 4.0+ requires explicit trusted origins for CSRF)
-# For now, we rely on the user setting HOST_FQDN correctly.
+# CSRF & Proxy Settings
+# ------------------------------------------------------------------------------
+# Trust the 'X-Forwarded-Proto' header from the proxy (Traefik/Nginx)
+# This is required for Django to know it's running over HTTPS.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Parse comma-separated trusted origins from env
+_csrf_env_list = (
+    os.getenv("HOST_FQDN", "") + "," + os.getenv("CSRF_TRUSTED_ORIGINS", "")
+).split(",")
+
+CSRF_TRUSTED_ORIGINS = []
+for origin in _csrf_env_list:
+    origin = origin.strip()
+    if origin:
+        if not origin.startswith(("http://", "https://")):
+            CSRF_TRUSTED_ORIGINS.append(f"https://{origin}")
+        else:
+            CSRF_TRUSTED_ORIGINS.append(origin)
+
+# Remove duplicates
+CSRF_TRUSTED_ORIGINS = list(set(CSRF_TRUSTED_ORIGINS))
+
 
 # Cookies must always be HTTPS-only; SameSite=Lax keeps CSRF working behind the proxy.
 SESSION_COOKIE_SECURE = True
