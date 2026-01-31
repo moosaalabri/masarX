@@ -12,6 +12,14 @@ echo "DB_NAME: ${DB_NAME:-'Not Set'}"
 echo "DB_USER: ${DB_USER:-'Not Set'}"
 # Do NOT print DB_PASS
 
+# Detect and print Public IP (Helpful for Whitelisting)
+echo "--------------------------------------------------------"
+echo "DETECTING PUBLIC IP FOR DATABASE WHITELISTING:"
+PUBLIC_IP=$(curl -s --connect-timeout 5 ifconfig.me || echo "Unavailable")
+echo "YOUR VPS PUBLIC IP IS: ${PUBLIC_IP}"
+echo "Make sure this IP is allowed in Hostinger -> Databases -> Remote MySQL"
+echo "--------------------------------------------------------"
+
 # Wait for database to be ready
 echo "Checking database connection..."
 python manage.py wait_for_db
