@@ -94,7 +94,7 @@ class CustomUserAdmin(UserAdmin):
     send_whatsapp_link.allow_tags = True
 
 class ParcelAdmin(admin.ModelAdmin):
-    list_display = ('tracking_number', 'shipper', 'carrier', 'price', 'distance_km', 'status', 'payment_status', 'created_at')
+    list_display = ('tracking_number', 'shipper', 'carrier', 'price', 'driver_amount', 'platform_fee', 'distance_km', 'status', 'payment_status', 'created_at')
     list_filter = (
         'status', 
         'payment_status', 
