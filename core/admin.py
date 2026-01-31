@@ -122,6 +122,11 @@ class ParcelAdmin(admin.ModelAdmin):
         }),
     )
 
+    def get_changeform_initial_data(self, request):
+        initial = super().get_changeform_initial_data(request)
+        initial['payment_status'] = 'paid'
+        return initial
+
     def export_as_csv(self, request, queryset):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="parcels_report.csv"'
