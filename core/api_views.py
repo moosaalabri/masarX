@@ -6,6 +6,8 @@ from rest_framework.views import APIView
 from django.db.models import Q
 from .models import Parcel, Profile
 from .serializers import ParcelSerializer, ProfileSerializer, PublicParcelSerializer
+from .pricing import calculate_haversine_distance, get_pricing_breakdown
+from decimal import Decimal
 
 class CustomAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
@@ -88,3 +90,43 @@ class PublicParcelTrackView(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
     queryset = Parcel.objects.all()
     lookup_field = 'tracking_number'
+
+class PriceCalculatorView(APIView):
+    permission_classes = [permissions.AllowAny] # Allow frontend to query without strict auth if needed, or IsAuthenticated
+
+    def post(self, request):
+        try:
+            data = request.data
+            pickup_lat = data.get('pickup_lat')
+            pickup_lng = data.get('pickup_lng')
+            delivery_lat = data.get('delivery_lat')
+            delivery_lng = data.get('delivery_lng')
+            weight = data.get('weight')
+
+            if not all([pickup_lat, pickup_lng, delivery_lat, delivery_lng, weight]):
+                return Response({'error': 'Missing location or weight data.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            weight = Decimal(str(weight))
+            
+            # Calculate Distance
+            distance_km = calculate_haversine_distance(pickup_lat, pickup_lng, delivery_lat, delivery_lng)
+            
+            # Get Breakdown
+            breakdown = get_pricing_breakdown(distance_km, weight)
+            
+            if 'error' in breakdown:
+                return Response(breakdown, status=status.HTTP_400_BAD_REQUEST)
+            
+            response_data = {
+                'distance_km': round(float(distance_km), 2),
+                'weight_kg': float(weight),
+                'price': float(breakdown['price']),
+                'platform_fee': float(breakdown['platform_fee']),
+                'driver_amount': float(breakdown['driver_amount']),
+                'platform_fee_percentage': float(breakdown['platform_fee_percentage']),
+            }
+            
+            return Response(response_data)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

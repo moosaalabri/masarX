@@ -15,8 +15,26 @@
 
             <div class="card border-0 shadow-sm p-4" style="border-radius: 20px;">
                 <h2 class="mb-4">{% trans "Request a Shipment" %}</h2>
-                <form method="POST">
+                
+                {% if not google_maps_api_key %}
+                <div class="alert alert-warning">
+                    {% trans "Map integration is disabled (API Key missing). Distance must be entered manually or functionality is limited." %}
+                </div>
+                {% endif %}
+
+                <form method="POST" id="shipmentForm">
                     {% csrf_token %}
+                    
+                    <!-- Hidden Fields -->
+                    {{ form.pickup_lat }}
+                    {{ form.pickup_lng }}
+                    {{ form.delivery_lat }}
+                    {{ form.delivery_lng }}
+                    {{ form.distance_km }}
+                    {{ form.platform_fee }}
+                    {{ form.driver_amount }}
+                    {{ form.platform_fee_percentage }}
+
                     <div class="row g-3">
                         <!-- General Info -->
                         <div class="col-12">
@@ -36,6 +54,7 @@
                         <div class="col-md-6">
                             <label class="form-label" for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
                             {{ form.price }}
+                            <small class="text-muted">{% trans "Calculated automatically based on distance and weight." %}</small>
                             {% if form.price.errors %}
                             <div class="text-danger small">{{ form.price.errors }}</div>
                             {% endif %}
@@ -43,68 +62,58 @@
 
                         <!-- Pickup Details -->
                         <div class="col-12 mt-4">
-                            <h4 class="mb-3 text-secondary border-bottom pb-2">{% trans "Pickup Details" %}</h4>
+                            <h4 class="mb-3 text-secondary border-bottom pb-2 d-flex justify-content-between align-items-center">
+                                {% trans "Pickup Details" %}
+                                {% if google_maps_api_key %}
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="openMap('pickup')">
+                                    <i class="bi bi-geo-alt-fill"></i> {% trans "Select on Map" %}
+                                </button>
+                                {% endif %}
+                            </h4>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="{{ form.pickup_country.id_for_label }}">{{ form.pickup_country.label }}</label>
                             {{ form.pickup_country }}
-                            {% if form.pickup_country.errors %}
-                            <div class="text-danger small">{{ form.pickup_country.errors }}</div>
-                            {% endif %}
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="{{ form.pickup_governate.id_for_label }}">{{ form.pickup_governate.label }}</label>
                             {{ form.pickup_governate }}
-                            {% if form.pickup_governate.errors %}
-                            <div class="text-danger small">{{ form.pickup_governate.errors }}</div>
-                            {% endif %}
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="{{ form.pickup_city.id_for_label }}">{{ form.pickup_city.label }}</label>
                             {{ form.pickup_city }}
-                            {% if form.pickup_city.errors %}
-                            <div class="text-danger small">{{ form.pickup_city.errors }}</div>
-                            {% endif %}
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="{{ form.pickup_address.id_for_label }}">{{ form.pickup_address.label }}</label>
                             {{ form.pickup_address }}
-                            {% if form.pickup_address.errors %}
-                            <div class="text-danger small">{{ form.pickup_address.errors }}</div>
-                            {% endif %}
                         </div>
 
                         <!-- Delivery Details -->
                         <div class="col-12 mt-4">
-                            <h4 class="mb-3 text-secondary border-bottom pb-2">{% trans "Delivery Details" %}</h4>
+                            <h4 class="mb-3 text-secondary border-bottom pb-2 d-flex justify-content-between align-items-center">
+                                {% trans "Delivery Details" %}
+                                {% if google_maps_api_key %}
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="openMap('delivery')">
+                                    <i class="bi bi-geo-alt-fill"></i> {% trans "Select on Map" %}
+                                </button>
+                                {% endif %}
+                            </h4>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="{{ form.delivery_country.id_for_label }}">{{ form.delivery_country.label }}</label>
                             {{ form.delivery_country }}
-                            {% if form.delivery_country.errors %}
-                            <div class="text-danger small">{{ form.delivery_country.errors }}</div>
-                            {% endif %}
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="{{ form.delivery_governate.id_for_label }}">{{ form.delivery_governate.label }}</label>
                             {{ form.delivery_governate }}
-                            {% if form.delivery_governate.errors %}
-                            <div class="text-danger small">{{ form.delivery_governate.errors }}</div>
-                            {% endif %}
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="{{ form.delivery_city.id_for_label }}">{{ form.delivery_city.label }}</label>
                             {{ form.delivery_city }}
-                            {% if form.delivery_city.errors %}
-                            <div class="text-danger small">{{ form.delivery_city.errors }}</div>
-                            {% endif %}
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="{{ form.delivery_address.id_for_label }}">{{ form.delivery_address.label }}</label>
                             {{ form.delivery_address }}
-                            {% if form.delivery_address.errors %}
-                            <div class="text-danger small">{{ form.delivery_address.errors }}</div>
-                            {% endif %}
                         </div>
 
                         <!-- Receiver Details -->
@@ -114,9 +123,6 @@
                         <div class="col-md-6">
                             <label class="form-label" for="{{ form.receiver_name.id_for_label }}">{{ form.receiver_name.label }}</label>
                             {{ form.receiver_name }}
-                            {% if form.receiver_name.errors %}
-                            <div class="text-danger small">{{ form.receiver_name.errors }}</div>
-                            {% endif %}
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="{{ form.receiver_phone.id_for_label }}">{{ form.receiver_phone.label }}</label>
@@ -128,12 +134,6 @@
                                      {{ form.receiver_phone }}
                                 </div>
                             </div>
-                            {% if form.receiver_phone_code.errors %}
-                            <div class="text-danger small">{{ form.receiver_phone_code.errors }}</div>
-                            {% endif %}
-                            {% if form.receiver_phone.errors %}
-                            <div class="text-danger small">{{ form.receiver_phone.errors }}</div>
-                            {% endif %}
                         </div>
 
                         <div class="col-12 mt-4 d-flex gap-2">
@@ -146,6 +146,159 @@
         </div>
     </div>
 </div>
+
+<!-- Map Modal -->
+<div class="modal fade" id="mapModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Choose Location" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="map" style="height: 450px; width: 100%;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
+                <button type="button" class="btn btn-primary" onclick="confirmLocation()">{% trans "Confirm Location" %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if google_maps_api_key %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places"></script>
+<script>
+    let map;
+    let marker;
+    let currentMode = 'pickup'; // 'pickup' or 'delivery'
+    let mapModal;
+
+    function initMap() {
+        const defaultLocation = { lat: 23.5880, lng: 58.3829 }; // Muscat, Oman
+        
+        map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 12,
+            center: defaultLocation,
+        });
+
+        marker = new google.maps.Marker({
+            map: map,
+            draggable: true,
+            animation: google.maps.Animation.DROP,
+        });
+
+        map.addListener("click", (e) => {
+            placeMarkerAndPanTo(e.latLng, map);
+        });
+    }
+
+    function placeMarkerAndPanTo(latLng, map) {
+        marker.setPosition(latLng);
+        map.panTo(latLng);
+    }
+
+    function openMap(mode) {
+        currentMode = mode;
+        mapModal = new bootstrap.Modal(document.getElementById('mapModal'));
+        mapModal.show();
+        
+        // Resize map when modal opens
+        document.getElementById('mapModal').addEventListener('shown.bs.modal', function () {
+            google.maps.event.trigger(map, "resize");
+            
+            // Set marker if existing value
+            let latField = document.getElementById(`id_${mode}_lat`);
+            let lngField = document.getElementById(`id_${mode}_lng`);
+            
+            if (latField.value && lngField.value) {
+                let loc = { lat: parseFloat(latField.value), lng: parseFloat(lngField.value) };
+                marker.setPosition(loc);
+                map.setCenter(loc);
+            } else {
+                // Default to Muscat if no value
+                map.setCenter({ lat: 23.5880, lng: 58.3829 });
+            }
+        });
+    }
+
+    function confirmLocation() {
+        if (!marker.getPosition()) return;
+        
+        const lat = marker.getPosition().lat();
+        const lng = marker.getPosition().lng();
+        
+        document.getElementById(`id_${currentMode}_lat`).value = lat;
+        document.getElementById(`id_${currentMode}_lng`).value = lng;
+        
+        // Try reverse geocoding to fill address (optional but nice)
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ location: { lat: lat, lng: lng } }, (results, status) => {
+            if (status === "OK" && results[0]) {
+                // Simple fill of address field if empty
+                const addrField = document.getElementById(`id_${currentMode}_address`);
+                if (!addrField.value) {
+                    addrField.value = results[0].formatted_address;
+                }
+            }
+        });
+
+        // Close modal
+        const modalEl = document.getElementById('mapModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+
+        // Trigger Price Calculation
+        calculatePrice();
+    }
+
+    function calculatePrice() {
+        const pickupLat = document.getElementById('id_pickup_lat').value;
+        const pickupLng = document.getElementById('id_pickup_lng').value;
+        const deliveryLat = document.getElementById('id_delivery_lat').value;
+        const deliveryLng = document.getElementById('id_delivery_lng').value;
+        const weight = document.getElementById('id_weight').value;
+
+        if (pickupLat && pickupLng && deliveryLat && deliveryLng && weight) {
+            fetch('{% url "api_calculate_price" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    pickup_lat: pickupLat,
+                    pickup_lng: pickupLng,
+                    delivery_lat: deliveryLat,
+                    delivery_lng: deliveryLng,
+                    weight: weight
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    // console.error(data.error);
+                    // Maybe show error to user?
+                    // alert(data.error); 
+                } else {
+                    document.getElementById('id_price').value = data.price;
+                    document.getElementById('id_distance_km').value = data.distance_km;
+                    document.getElementById('id_platform_fee').value = data.platform_fee;
+                    document.getElementById('id_driver_amount').value = data.driver_amount;
+                    document.getElementById('id_platform_fee_percentage').value = data.platform_fee_percentage;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    }
+    
+    // Attach listener to weight
+    document.getElementById('id_weight').addEventListener('change', calculatePrice);
+    document.getElementById('id_weight').addEventListener('keyup', calculatePrice);
+
+    window.initMap = initMap;
+</script>
+{% endif %}
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

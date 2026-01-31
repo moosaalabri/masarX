@@ -7,6 +7,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 import uuid
+from decimal import Decimal
 
 class Country(models.Model):
     name_en = models.CharField(_('Name (English)'), max_length=100)
@@ -115,6 +116,21 @@ def save_user_profile(sender, instance, **kwargs):
     if hasattr(instance, 'profile'):
         instance.profile.save()
 
+class PricingRule(models.Model):
+    min_distance = models.DecimalField(_('Min Distance (km)'), max_digits=10, decimal_places=2)
+    max_distance = models.DecimalField(_('Max Distance (km)'), max_digits=10, decimal_places=2)
+    min_weight = models.DecimalField(_('Min Weight (kg)'), max_digits=10, decimal_places=2)
+    max_weight = models.DecimalField(_('Max Weight (kg)'), max_digits=10, decimal_places=2)
+    price = models.DecimalField(_('Price (OMR)'), max_digits=10, decimal_places=3)
+
+    def __str__(self):
+        return f"{self.min_distance}-{self.max_distance}km | {self.min_weight}-{self.max_weight}kg = {self.price} OMR"
+
+    class Meta:
+        verbose_name = _('Pricing Rule')
+        verbose_name_plural = _('Pricing Rules')
+        ordering = ['min_distance', 'min_weight']
+
 class Parcel(models.Model):
     STATUS_CHOICES = (
         ('pending', _('Pending Pickup')),
@@ -136,19 +152,31 @@ class Parcel(models.Model):
     
     description = models.TextField(_('Description'))
     weight = models.DecimalField(_('Weight (kg)'), max_digits=5, decimal_places=2, help_text=_("Weight in kg"))
-    price = models.DecimalField(_('Price (OMR)'), max_digits=10, decimal_places=3, default=0.000)
+    price = models.DecimalField(_('Total Price (OMR)'), max_digits=10, decimal_places=3, default=Decimal('0.000'))
     
+    # Financial Breakdown
+    platform_fee = models.DecimalField(_('Platform Fee (OMR)'), max_digits=10, decimal_places=3, default=Decimal('0.000'))
+    platform_fee_percentage = models.DecimalField(_('Fee Percentage (%)'), max_digits=5, decimal_places=2, default=Decimal('0.00'))
+    driver_amount = models.DecimalField(_('Driver Amount (OMR)'), max_digits=10, decimal_places=3, default=Decimal('0.000'))
+    
+    # Trip Info
+    distance_km = models.DecimalField(_('Distance (km)'), max_digits=10, decimal_places=2, default=Decimal('0.00'))
+
     # Pickup Location
     pickup_country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True, related_name='pickup_parcels', verbose_name=_('Pickup Country'))
     pickup_governate = models.ForeignKey(Governate, on_delete=models.SET_NULL, null=True, blank=True, related_name='pickup_parcels', verbose_name=_('Pickup Governate'))
     pickup_city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, related_name='pickup_parcels', verbose_name=_('Pickup City'))
     pickup_address = models.CharField(_('Pickup Address'), max_length=255)
+    pickup_lat = models.DecimalField(_('Pickup Latitude'), max_digits=20, decimal_places=16, null=True, blank=True)
+    pickup_lng = models.DecimalField(_('Pickup Longitude'), max_digits=20, decimal_places=16, null=True, blank=True)
     
     # Delivery Location
     delivery_country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True, related_name='delivery_parcels', verbose_name=_('Delivery Country'))
     delivery_governate = models.ForeignKey(Governate, on_delete=models.SET_NULL, null=True, blank=True, related_name='delivery_parcels', verbose_name=_('Delivery Governate'))
     delivery_city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, related_name='delivery_city_parcels', verbose_name=_('Delivery City'))
     delivery_address = models.CharField(_('Delivery Address'), max_length=255)
+    delivery_lat = models.DecimalField(_('Delivery Latitude'), max_digits=20, decimal_places=16, null=True, blank=True)
+    delivery_lng = models.DecimalField(_('Delivery Longitude'), max_digits=20, decimal_places=16, null=True, blank=True)
     
     receiver_name = models.CharField(_('Receiver Name'), max_length=100)
     receiver_phone = models.CharField(_('Receiver Phone'), max_length=20)
@@ -181,6 +209,12 @@ class PlatformProfile(models.Model):
     registration_number = models.CharField(_('Registration Number'), max_length=100, blank=True)
     vat_number = models.CharField(_('VAT Number'), max_length=100, blank=True)
     
+    # Financial Configuration
+    platform_fee_percentage = models.DecimalField(_('Platform Fee (%)'), max_digits=5, decimal_places=2, default=Decimal('0.00'), help_text=_("Percentage deducted from total trip price."))
+
+    # Integrations
+    google_maps_api_key = models.CharField(_('Google Maps API Key'), max_length=255, blank=True, help_text=_("API Key for Google Maps (Distance Matrix, Maps JS)."))
+
     # Bilingual Policies
     privacy_policy_en = models.TextField(_('Privacy Policy (English)'), blank=True)
     privacy_policy_ar = models.TextField(_('Privacy Policy (Arabic)'), blank=True)

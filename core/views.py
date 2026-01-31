@@ -35,6 +35,7 @@ import weasyprint
 import qrcode
 from io import BytesIO
 import base64
+from .pricing import get_pricing_breakdown # Import pricing logic
 
 def index(request):
     # If tracking_id is present, redirect to the new track view
@@ -295,6 +296,17 @@ def shipment_request(request):
         if form.is_valid():
             parcel = form.save(commit=False)
             parcel.shipper = request.user
+            
+            # Recalculate price on backend to ensure integrity
+            # We trust the form's distance/weight if populated, but good to verify
+            # Ideally we recalculate from PricingRule here too
+            breakdown = get_pricing_breakdown(parcel.distance_km, parcel.weight)
+            if 'error' not in breakdown:
+                 parcel.price = breakdown['price']
+                 parcel.platform_fee = breakdown['platform_fee']
+                 parcel.platform_fee_percentage = breakdown['platform_fee_percentage']
+                 parcel.driver_amount = breakdown['driver_amount']
+            
             parcel.save()
             
             # WhatsApp Notification
@@ -304,7 +316,14 @@ def shipment_request(request):
             return redirect('dashboard')
     else:
         form = ParcelForm()
-    return render(request, 'core/shipment_request.html', {'form': form})
+    
+    platform_profile = PlatformProfile.objects.first()
+    google_maps_api_key = platform_profile.google_maps_api_key if platform_profile else None
+    
+    return render(request, 'core/shipment_request.html', {
+        'form': form,
+        'google_maps_api_key': google_maps_api_key
+    })
 
 @login_required
 def accept_parcel(request, parcel_id):
@@ -939,13 +958,27 @@ def edit_parcel(request, parcel_id):
     if request.method == 'POST':
         form = ParcelForm(request.POST, instance=parcel)
         if form.is_valid():
-            form.save()
+            parcel_updated = form.save(commit=False)
+            
+            # Recalculate if fields changed
+            breakdown = get_pricing_breakdown(parcel_updated.distance_km, parcel_updated.weight)
+            if 'error' not in breakdown:
+                 parcel_updated.price = breakdown['price']
+                 parcel_updated.platform_fee = breakdown['platform_fee']
+                 parcel_updated.platform_fee_percentage = breakdown['platform_fee_percentage']
+                 parcel_updated.driver_amount = breakdown['driver_amount']
+            
+            parcel_updated.save()
+            
             messages.success(request, _("Shipment updated successfully."))
             return redirect('dashboard')
     else:
         form = ParcelForm(instance=parcel)
+    
+    platform_profile = PlatformProfile.objects.first()
+    google_maps_api_key = platform_profile.google_maps_api_key if platform_profile else None
         
-    return render(request, 'core/edit_parcel.html', {'form': form, 'parcel': parcel})
+    return render(request, 'core/edit_parcel.html', {'form': form, 'parcel': parcel, 'google_maps_api_key': google_maps_api_key})
 
 @login_required
 def cancel_parcel(request, parcel_id):

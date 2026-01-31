@@ -238,18 +238,30 @@ class ParcelForm(forms.ModelForm):
         fields = [
             'description', 'weight', 'price',
             'pickup_country', 'pickup_governate', 'pickup_city', 'pickup_address', 
+            'pickup_lat', 'pickup_lng',
             'delivery_country', 'delivery_governate', 'delivery_city', 'delivery_address', 
+            'delivery_lat', 'delivery_lng',
+            'distance_km', 'platform_fee', 'driver_amount', 'platform_fee_percentage',
             'receiver_name', 'receiver_phone'
         ]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': _('What are you sending?')}),
             'weight': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1'}),
-            'price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.001'}),
+            'price': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
             
             'pickup_country': forms.Select(attrs={'class': 'form-control'}),
             'pickup_governate': forms.Select(attrs={'class': 'form-control'}),
             'pickup_city': forms.Select(attrs={'class': 'form-control'}),
             'pickup_address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('Street/Building')}),
+            
+            'pickup_lat': forms.HiddenInput(),
+            'pickup_lng': forms.HiddenInput(),
+            'delivery_lat': forms.HiddenInput(),
+            'delivery_lng': forms.HiddenInput(),
+            'distance_km': forms.HiddenInput(),
+            'platform_fee': forms.HiddenInput(),
+            'driver_amount': forms.HiddenInput(),
+            'platform_fee_percentage': forms.HiddenInput(),
             
             'delivery_country': forms.Select(attrs={'class': 'form-control'}),
             'delivery_governate': forms.Select(attrs={'class': 'form-control'}),
@@ -262,7 +274,7 @@ class ParcelForm(forms.ModelForm):
         labels = {
             'description': _('Package Description'),
             'weight': _('Weight (kg)'),
-            'price': _('Your Offer Price (Bid) (OMR)'),
+            'price': _('Calculated Price (OMR)'),
             'pickup_country': _('Pickup Country'),
             'pickup_governate': _('Pickup Governate'),
             'pickup_city': _('Pickup City'),

@@ -78,6 +78,7 @@ urlpatterns = [
     path('api/parcels/<int:pk>/', api_views.ParcelDetailView.as_view(), name='api_parcel_detail'),
     path('api/track/<str:tracking_number>/', api_views.PublicParcelTrackView.as_view(), name='api_track_parcel'),
     path('api/profile/', api_views.UserProfileView.as_view(), name='api_user_profile'),
+    path('api/calculate-price/', api_views.PriceCalculatorView.as_view(), name='api_calculate_price'),
     
     # Aliases for mobile app compatibility (API v1)
     path('api/shipments/', api_views.ParcelListCreateView.as_view(), name='api_shipment_list'),

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import Profile, Parcel, Country, Governate, City, PlatformProfile, Testimonial, DriverRating, NotificationTemplate
+from .models import Profile, Parcel, Country, Governate, City, PlatformProfile, Testimonial, DriverRating, NotificationTemplate, PricingRule
 from django.utils.translation import gettext_lazy as _
 from django.urls import path, reverse
 from django.shortcuts import render
@@ -94,7 +94,7 @@ class CustomUserAdmin(UserAdmin):
     send_whatsapp_link.allow_tags = True
 
 class ParcelAdmin(admin.ModelAdmin):
-    list_display = ('tracking_number', 'shipper', 'carrier', 'price', 'status', 'payment_status', 'created_at')
+    list_display = ('tracking_number', 'shipper', 'carrier', 'price', 'distance_km', 'status', 'payment_status', 'created_at')
     list_filter = (
         'status', 
         'payment_status', 
@@ -102,13 +102,32 @@ class ParcelAdmin(admin.ModelAdmin):
     )
     search_fields = ('tracking_number', 'shipper__username', 'receiver_name', 'carrier__username')
     actions = ['export_as_csv', 'print_parcels', 'export_pdf']
+    
+    fieldsets = (
+        (None, {
+            'fields': ('tracking_number', 'shipper', 'carrier', 'status', 'payment_status', 'thawani_session_id')
+        }),
+        (_('Description'), {
+            'fields': ('description', 'receiver_name', 'receiver_phone')
+        }),
+        (_('Trip & Pricing'), {
+            'fields': ('distance_km', 'weight', 'price', 'platform_fee_percentage', 'platform_fee', 'driver_amount'),
+            'description': _('Pricing is calculated based on Distance and Weight.')
+        }),
+        (_('Pickup Location'), {
+            'fields': ('pickup_country', 'pickup_governate', 'pickup_city', 'pickup_address', 'pickup_lat', 'pickup_lng')
+        }),
+        (_('Delivery Location'), {
+            'fields': ('delivery_country', 'delivery_governate', 'delivery_city', 'delivery_address', 'delivery_lat', 'delivery_lng')
+        }),
+    )
 
     def export_as_csv(self, request, queryset):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="parcels_report.csv"'
         writer = csv.writer(response)
 
-        writer.writerow(['Tracking Number', 'Shipper', 'Carrier', 'Price (OMR)', 'Status', 'Payment Status', 'Created At', 'Updated At'])
+        writer.writerow(['Tracking Number', 'Shipper', 'Carrier', 'Total Price (OMR)', 'Platform Fee (%)', 'Platform Charge (OMR)', 'Driver Amount (OMR)', 'Distance (km)', 'Weight (kg)', 'Status', 'Payment Status', 'Created At'])
         
         for obj in queryset:
             writer.writerow([
@@ -116,10 +135,14 @@ class ParcelAdmin(admin.ModelAdmin):
                 obj.shipper.username if obj.shipper else '',
                 obj.carrier.username if obj.carrier else '',
                 obj.price,
+                obj.platform_fee_percentage,
+                obj.platform_fee,
+                obj.driver_amount,
+                obj.distance_km,
+                obj.weight,
                 obj.get_status_display(),
                 obj.get_payment_status_display(),
-                obj.created_at,
-                obj.updated_at
+                obj.created_at
             ])
 
         return response
@@ -145,11 +168,15 @@ class PlatformProfileAdmin(admin.ModelAdmin):
         (_('General Info'), {
             'fields': ('name', 'logo', 'slogan', 'address', 'phone_number', 'registration_number', 'vat_number')
         }),
+        (_('Financial Configuration'), {
+            'fields': ('platform_fee_percentage', 'enable_payment')
+        }),
+        (_('Integrations'), {
+            'fields': ('google_maps_api_key',),
+            'description': _('API Keys for external services.')
+        }),
         (_('Policies'), {
             'fields': ('privacy_policy_en', 'privacy_policy_ar', 'terms_conditions_en', 'terms_conditions_ar')
-        }),
-        (_('Payment Configuration'), {
-            'fields': ('enable_payment',)
         }),
         (_('WhatsApp Configuration (Wablas Gateway)'), {
             'fields': ('whatsapp_access_token', 'whatsapp_app_secret', 'whatsapp_business_phone_number_id'),
@@ -238,6 +265,20 @@ class PlatformProfileAdmin(admin.ModelAdmin):
              fieldsets += ((_('Tools'), {'fields': ('test_connection_link',)}),)
         return fieldsets
 
+class PricingRuleAdmin(admin.ModelAdmin):
+    list_display = ('distance_range', 'weight_range', 'price')
+    list_filter = ('min_distance', 'min_weight')
+    search_fields = ('price',)
+    ordering = ('min_distance', 'min_weight')
+
+    def distance_range(self, obj):
+        return f"{obj.min_distance} - {obj.max_distance} km"
+    distance_range.short_description = _("Distance Range")
+
+    def weight_range(self, obj):
+        return f"{obj.min_weight} - {obj.max_weight} kg"
+    weight_range.short_description = _("Weight Range")
+
 class CountryAdmin(admin.ModelAdmin):
     list_display = ('name_en', 'name_ar', 'phone_code')
     search_fields = ('name_en', 'name_ar', 'phone_code')
@@ -257,6 +298,7 @@ admin.site.register(City)
 admin.site.register(PlatformProfile, PlatformProfileAdmin)
 admin.site.register(Testimonial, TestimonialAdmin)
 admin.site.register(DriverRating)
+admin.site.register(PricingRule, PricingRuleAdmin)
 class NotificationTemplateAdmin(admin.ModelAdmin):
     list_display = ('key', 'description')
     readonly_fields = ('key', 'description', 'available_variables')
