@@ -155,7 +155,8 @@
                 <h5 class="modal-title">{% trans "Choose Location" %}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-0">
+            <div class="modal-body p-0 position-relative">
+                <div id="mapError" class="alert alert-danger m-3 d-none"></div>
                 <div id="map" style="height: 450px; width: 100%;"></div>
             </div>
             <div class="modal-footer">
@@ -167,30 +168,70 @@
 </div>
 
 {% if google_maps_api_key %}
-<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places"></script>
 <script>
+    // Global Auth Failure Handler (must be defined before script load)
+    window.gm_authFailure = function() {
+        const errorDiv = document.getElementById('mapError');
+        if (errorDiv) {
+            errorDiv.innerHTML = `
+                <strong>Google Maps Error:</strong> Authentication failed. 
+                <br>Please check your API Key and enable <strong>Billing</strong> in Google Cloud Console.
+                <br>Also ensure <strong>Maps JavaScript API</strong> and <strong>Geocoding API</strong> are enabled.
+            `;
+            errorDiv.classList.remove('d-none');
+        }
+        console.error("Google Maps Auth Failure");
+    }
+
     let map;
     let marker;
     let currentMode = 'pickup'; // 'pickup' or 'delivery'
     let mapModal;
+    let mapInitialized = false;
 
+    // This function is called by the Google Maps script when loaded
     function initMap() {
+        console.log("Google Maps API loaded.");
+    }
+
+    function initializeMapInstance() {
+        if (mapInitialized && map) return;
+        
+        console.log("Initializing Map Instance...");
+
         const defaultLocation = { lat: 23.5880, lng: 58.3829 }; // Muscat, Oman
         
-        map = new google.maps.Map(document.getElementById("map"), {
-            zoom: 12,
-            center: defaultLocation,
-        });
+        const mapElement = document.getElementById("map");
+        if (!mapElement) {
+            console.error("Map element not found!");
+            return;
+        }
 
-        marker = new google.maps.Marker({
-            map: map,
-            draggable: true,
-            animation: google.maps.Animation.DROP,
-        });
+        try {
+            map = new google.maps.Map(mapElement, {
+                zoom: 12,
+                center: defaultLocation,
+            });
 
-        map.addListener("click", (e) => {
-            placeMarkerAndPanTo(e.latLng, map);
-        });
+            marker = new google.maps.Marker({
+                map: map,
+                draggable: true,
+                animation: google.maps.Animation.DROP,
+            });
+
+            map.addListener("click", (e) => {
+                placeMarkerAndPanTo(e.latLng, map);
+            });
+            
+            mapInitialized = true;
+        } catch (e) {
+            console.error("Error creating map:", e);
+            const errorDiv = document.getElementById('mapError');
+            if (errorDiv) {
+                errorDiv.innerText = "Error initializing map: " + e.message;
+                errorDiv.classList.remove('d-none');
+            }
+        }
     }
 
     function placeMarkerAndPanTo(latLng, map) {
@@ -200,30 +241,37 @@
 
     function openMap(mode) {
         currentMode = mode;
-        mapModal = new bootstrap.Modal(document.getElementById('mapModal'));
+        const modalEl = document.getElementById('mapModal');
+        
+        // Hide previous errors
+        const errorDiv = document.getElementById('mapError');
+        if (errorDiv) errorDiv.classList.add('d-none');
+
+        mapModal = new bootstrap.Modal(modalEl);
         mapModal.show();
         
-        // Resize map when modal opens
-        document.getElementById('mapModal').addEventListener('shown.bs.modal', function () {
-            google.maps.event.trigger(map, "resize");
+        // Ensure map is initialized and resized when modal is fully shown
+        modalEl.addEventListener('shown.bs.modal', function () {
+            initializeMapInstance();
             
-            // Set marker if existing value
-            let latField = document.getElementById(`id_${mode}_lat`);
-            let lngField = document.getElementById(`id_${mode}_lng`);
-            
-            if (latField.value && lngField.value) {
-                let loc = { lat: parseFloat(latField.value), lng: parseFloat(lngField.value) };
-                marker.setPosition(loc);
-                map.setCenter(loc);
-            } else {
-                // Default to Muscat if no value
-                map.setCenter({ lat: 23.5880, lng: 58.3829 });
+            if (map) {
+                google.maps.event.trigger(map, "resize");
+                
+                // Set marker if existing value
+                let latField = document.getElementById(`id_${mode}_lat`);
+                let lngField = document.getElementById(`id_${mode}_lng`);
+                
+                if (latField.value && lngField.value) {
+                    let loc = { lat: parseFloat(latField.value), lng: parseFloat(lngField.value) };
+                    marker.setPosition(loc);
+                    map.setCenter(loc);
+                }
             }
-        });
+        }, { once: true });
     }
 
     function confirmLocation() {
-        if (!marker.getPosition()) return;
+        if (!marker || !marker.getPosition()) return;
         
         const lat = marker.getPosition().lat();
         const lng = marker.getPosition().lng();
@@ -231,15 +279,14 @@
         document.getElementById(`id_${currentMode}_lat`).value = lat;
         document.getElementById(`id_${currentMode}_lng`).value = lng;
         
-        // Try reverse geocoding to fill address (optional but nice)
+        // Try reverse geocoding to fill address
         const geocoder = new google.maps.Geocoder();
         geocoder.geocode({ location: { lat: lat, lng: lng } }, (results, status) => {
             if (status === "OK" && results[0]) {
-                // Simple fill of address field if empty
                 const addrField = document.getElementById(`id_${currentMode}_address`);
-                if (!addrField.value) {
-                    addrField.value = results[0].formatted_address;
-                }
+                addrField.value = results[0].formatted_address;
+            } else {
+                console.warn("Geocoder failed due to: " + status);
             }
         });
 
@@ -277,9 +324,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
-                    // console.error(data.error);
-                    // Maybe show error to user?
-                    // alert(data.error); 
+                    console.error(data.error);
                 } else {
                     document.getElementById('id_price').value = data.price;
                     document.getElementById('id_distance_km').value = data.distance_km;
@@ -293,11 +338,15 @@
     }
     
     // Attach listener to weight
-    document.getElementById('id_weight').addEventListener('change', calculatePrice);
-    document.getElementById('id_weight').addEventListener('keyup', calculatePrice);
+    const weightInput = document.getElementById('id_weight');
+    if (weightInput) {
+        weightInput.addEventListener('change', calculatePrice);
+        weightInput.addEventListener('keyup', calculatePrice);
+    }
 
     window.initMap = initMap;
 </script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&loading=async&callback=initMap" async defer></script>
 {% endif %}
 
 <script>
