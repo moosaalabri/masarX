@@ -32,6 +32,10 @@ python manage.py migrate
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
+# Ensure Admin User
+echo "Ensuring admin user exists..."
+python manage.py ensure_admin
+
 # Start Gunicorn
 echo "Starting Gunicorn..."
 exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
