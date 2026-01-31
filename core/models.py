@@ -78,6 +78,7 @@ class Profile(models.Model):
     license_front_image = models.ImageField(_('License Front Image'), upload_to='licenses/', blank=True, null=True)
     license_back_image = models.ImageField(_('License Back Image'), upload_to='licenses/', blank=True, null=True)
     car_plate_number = models.CharField(_('Car Plate Number'), max_length=20, blank=True)
+    bank_account_number = models.CharField(_('Bank Account Number'), max_length=50, blank=True)
     
     country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_('Country'))
     governate = models.ForeignKey(Governate, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_('Governate'))

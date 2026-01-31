@@ -113,6 +113,8 @@ class UserRegistrationForm(forms.ModelForm):
                 profile.license_back_image = self.cleaned_data['license_back_image']
             if 'car_plate_number' in self.cleaned_data:
                 profile.car_plate_number = self.cleaned_data['car_plate_number']
+            if 'bank_account_number' in self.cleaned_data:
+                profile.bank_account_number = self.cleaned_data['bank_account_number']
                 
             profile.save()
         return user
@@ -128,6 +130,7 @@ class DriverRegistrationForm(UserRegistrationForm):
     license_front_image = forms.ImageField(label=_("License Front Image"), required=True, widget=forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}))
     license_back_image = forms.ImageField(label=_("License Back Image"), required=True, widget=forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}))
     car_plate_number = forms.CharField(label=_("Car Plate Number"), max_length=20, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    bank_account_number = forms.CharField(label=_("Bank Account Number"), max_length=50, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('Bank Name - Account Number')}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -144,6 +147,7 @@ class UserProfileForm(forms.ModelForm):
     
     address = forms.CharField(label=_("Address"), required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
     profile_picture = forms.ImageField(label=_("Profile Picture"), required=False, widget=forms.FileInput(attrs={'class': 'form-control'}))
+    bank_account_number = forms.CharField(label=_("Bank Account Number"), required=False, max_length=50, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('Bank Name - Account Number')}))
     
     otp_method = forms.ChoiceField(
         choices=[('email', _('Email')), ('whatsapp', _('WhatsApp'))], 
@@ -154,7 +158,7 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ['profile_picture', 'phone_number', 'address', 'country', 'governate', 'city']
+        fields = ['profile_picture', 'phone_number', 'address', 'country', 'governate', 'city', 'bank_account_number']
         widgets = {
              'country': forms.Select(attrs={'class': 'form-control'}),
              'governate': forms.Select(attrs={'class': 'form-control'}),

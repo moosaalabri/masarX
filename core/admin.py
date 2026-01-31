@@ -23,7 +23,7 @@ class ProfileInline(admin.StackedInline):
     verbose_name_plural = _('Profiles')
     fieldsets = (
         (None, {'fields': ('role', 'is_approved', 'phone_number', 'profile_picture', 'address')}),
-        (_('Driver Info'), {'fields': ('license_front_image', 'license_back_image', 'car_plate_number'), 'classes': ('collapse',)}),
+        (_('Driver Info'), {'fields': ('license_front_image', 'license_back_image', 'car_plate_number', 'bank_account_number'), 'classes': ('collapse',)}),
         (_('Location'), {'fields': ('country', 'governate', 'city'), 'classes': ('collapse',)}),
     )
 
