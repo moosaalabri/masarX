@@ -134,6 +134,8 @@ class PricingRule(models.Model):
 class PlatformProfile(models.Model):
     name = models.CharField(_('Platform Name'), max_length=100)
     logo = models.ImageField(_('Logo'), upload_to='platform_logos/', blank=True, null=True)
+    favicon = models.ImageField(_('Favicon'), upload_to='platform_logos/', blank=True, null=True, help_text=_("Upload a favicon (e.g., .ico or .png)"))
+    admin_panel_logo = models.ImageField(_('Admin Panel Logo'), upload_to='platform_logos/', blank=True, null=True, help_text=_("Logo for the Admin Panel (top left)."))
     slogan = models.CharField(_('Slogan'), max_length=255, blank=True)
     address = models.TextField(_('Address'), blank=True)
     phone_number = models.CharField(_('Phone Number'), max_length=50, blank=True)

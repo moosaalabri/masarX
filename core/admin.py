@@ -166,7 +166,7 @@ class ParcelAdmin(admin.ModelAdmin):
 class PlatformProfileAdmin(admin.ModelAdmin):
     fieldsets = (
         (_('General Info'), {
-            'fields': ('name', 'logo', 'slogan', 'address', 'phone_number', 'registration_number', 'vat_number')
+            'fields': ('name', 'logo', 'favicon', 'admin_panel_logo', 'slogan', 'address', 'phone_number', 'registration_number', 'vat_number')
         }),
         (_('Financial Configuration'), {
             'fields': ('platform_fee_percentage', 'enable_payment')

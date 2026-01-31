@@ -1,0 +1,29 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {% if platform_profile and platform_profile.favicon %}
+        <link rel="icon" href="{{ platform_profile.favicon.url }}">
+    {% endif %}
+    
+    {% if platform_profile and platform_profile.admin_panel_logo %}
+    <style>
+        /* Jazzmin Sidebar Logo Override */
+        .brand-link .brand-image {
+            content: url("{{ platform_profile.admin_panel_logo.url }}");
+            opacity: 1 !important;
+            box-shadow: none !important;
+            /* Adjust size to fit nicely */
+            max-height: 40px; 
+            width: auto;
+            border-radius: 0; /* Sometimes logos are square, remove circular radius if default has it */
+        }
+        
+        /* Optional: Hide the default elevation shadow if it looks weird with custom logo */
+        .brand-link .brand-image.elevation-3 {
+             box-shadow: none !important;
+        }
+    </style>
+    {% endif %}
+{% endblock %}
