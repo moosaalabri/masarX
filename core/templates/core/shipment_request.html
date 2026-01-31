@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-lg-10">
             <!-- Back to Dashboard -->
             <div class="mb-4">
                 <a href="{% url 'dashboard' %}" class="btn btn-link text-decoration-none text-muted ps-0">
@@ -14,7 +14,7 @@
             </div>
 
             <div class="card border-0 shadow-sm p-4" style="border-radius: 20px;">
-                <h2 class="mb-4">{% trans "Request a Shipment" %}</h2>
+                <h2 class="mb-4 text-center">{% trans "Request a Shipment" %}</h2>
                 
                 {% if not google_maps_api_key %}
                 <div class="alert alert-warning">
@@ -35,111 +35,140 @@
                     {{ form.driver_amount }}
                     {{ form.platform_fee_percentage }}
 
-                    <div class="row g-3">
-                        <!-- General Info -->
-                        <div class="col-12">
-                            <label class="form-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
-                            {{ form.description }}
-                            {% if form.description.errors %}
-                            <div class="text-danger small">{{ form.description.errors }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.weight.id_for_label }}">{{ form.weight.label }}</label>
-                            {{ form.weight }}
-                            {% if form.weight.errors %}
-                            <div class="text-danger small">{{ form.weight.errors }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
-                            {{ form.price }}
-                            <small class="text-muted">{% trans "Calculated automatically based on distance and weight." %}</small>
-                            {% if form.price.errors %}
-                            <div class="text-danger small">{{ form.price.errors }}</div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Pickup Details -->
-                        <div class="col-12 mt-4">
-                            <h4 class="mb-3 text-secondary border-bottom pb-2 d-flex justify-content-between align-items-center">
-                                {% trans "Pickup Details" %}
-                                {% if google_maps_api_key %}
-                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="openMap('pickup')">
-                                    <i class="bi bi-geo-alt-fill"></i> {% trans "Select on Map" %}
-                                </button>
-                                {% endif %}
-                            </h4>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.pickup_country.id_for_label }}">{{ form.pickup_country.label }}</label>
-                            {{ form.pickup_country }}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.pickup_governate.id_for_label }}">{{ form.pickup_governate.label }}</label>
-                            {{ form.pickup_governate }}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.pickup_city.id_for_label }}">{{ form.pickup_city.label }}</label>
-                            {{ form.pickup_city }}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.pickup_address.id_for_label }}">{{ form.pickup_address.label }}</label>
-                            {{ form.pickup_address }}
-                        </div>
-
-                        <!-- Delivery Details -->
-                        <div class="col-12 mt-4">
-                            <h4 class="mb-3 text-secondary border-bottom pb-2 d-flex justify-content-between align-items-center">
-                                {% trans "Delivery Details" %}
-                                {% if google_maps_api_key %}
-                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="openMap('delivery')">
-                                    <i class="bi bi-geo-alt-fill"></i> {% trans "Select on Map" %}
-                                </button>
-                                {% endif %}
-                            </h4>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.delivery_country.id_for_label }}">{{ form.delivery_country.label }}</label>
-                            {{ form.delivery_country }}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.delivery_governate.id_for_label }}">{{ form.delivery_governate.label }}</label>
-                            {{ form.delivery_governate }}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.delivery_city.id_for_label }}">{{ form.delivery_city.label }}</label>
-                            {{ form.delivery_city }}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.delivery_address.id_for_label }}">{{ form.delivery_address.label }}</label>
-                            {{ form.delivery_address }}
-                        </div>
-
-                        <!-- Receiver Details -->
-                        <div class="col-12 mt-4">
-                            <h4 class="mb-3 text-secondary border-bottom pb-2">{% trans "Receiver Details" %}</h4>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.receiver_name.id_for_label }}">{{ form.receiver_name.label }}</label>
-                            {{ form.receiver_name }}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.receiver_phone.id_for_label }}">{{ form.receiver_phone.label }}</label>
-                            <div class="d-flex gap-2">
-                                <div class="flex-shrink-0" style="width: 140px;">
-                                     {{ form.receiver_phone_code }}
+                    <!-- General Info Section -->
+                    <div class="card bg-light border-0 mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title text-secondary mb-3">{% trans "Shipment Information" %}</h5>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-bold" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                                    {{ form.description }}
+                                    {% if form.description.errors %}
+                                    <div class="text-danger small">{{ form.description.errors }}</div>
+                                    {% endif %}
                                 </div>
-                                <div class="flex-grow-1">
-                                     {{ form.receiver_phone }}
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold" for="{{ form.weight.id_for_label }}">{{ form.weight.label }}</label>
+                                    {{ form.weight }}
+                                    {% if form.weight.errors %}
+                                    <div class="text-danger small">{{ form.weight.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold" for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
+                                    {{ form.price }}
+                                    <small class="text-muted">{% trans "Calculated automatically based on distance and weight." %}</small>
+                                    {% if form.price.errors %}
+                                    <div class="text-danger small">{{ form.price.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Pickup Container -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 border shadow-sm">
+                                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0 text-primary">
+                                        <i class="bi bi-box-seam me-2"></i>{% trans "Pickup Details" %}
+                                    </h5>
+                                    {% if google_maps_api_key %}
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="openMap('pickup')">
+                                        <i class="bi bi-geo-alt-fill"></i> {% trans "Map" %}
+                                    </button>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <label class="form-label" for="{{ form.pickup_country.id_for_label }}">{{ form.pickup_country.label }}</label>
+                                            {{ form.pickup_country }}
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label" for="{{ form.pickup_governate.id_for_label }}">{{ form.pickup_governate.label }}</label>
+                                            {{ form.pickup_governate }}
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label" for="{{ form.pickup_city.id_for_label }}">{{ form.pickup_city.label }}</label>
+                                            {{ form.pickup_city }}
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label" for="{{ form.pickup_address.id_for_label }}">{{ form.pickup_address.label }}</label>
+                                            {{ form.pickup_address }}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-12 mt-4 d-flex gap-2">
-                             <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary w-50 py-3">{% trans "Cancel" %}</a>
-                            <button type="submit" class="btn btn-masarx-primary w-50 py-3">{% trans "Submit Request" %}</button>
+                        <!-- Delivery Container -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 border shadow-sm">
+                                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0 text-success">
+                                        <i class="bi bi-geo-alt me-2"></i>{% trans "Delivery Details" %}
+                                    </h5>
+                                    {% if google_maps_api_key %}
+                                    <button type="button" class="btn btn-sm btn-outline-success" onclick="openMap('delivery')">
+                                        <i class="bi bi-geo-alt-fill"></i> {% trans "Map" %}
+                                    </button>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <label class="form-label" for="{{ form.delivery_country.id_for_label }}">{{ form.delivery_country.label }}</label>
+                                            {{ form.delivery_country }}
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label" for="{{ form.delivery_governate.id_for_label }}">{{ form.delivery_governate.label }}</label>
+                                            {{ form.delivery_governate }}
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label" for="{{ form.delivery_city.id_for_label }}">{{ form.delivery_city.label }}</label>
+                                            {{ form.delivery_city }}
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label" for="{{ form.delivery_address.id_for_label }}">{{ form.delivery_address.label }}</label>
+                                            {{ form.delivery_address }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+
+                    <!-- Receiver Details -->
+                    <div class="card border mb-4">
+                        <div class="card-header bg-white py-3">
+                             <h5 class="mb-0 text-secondary">{% trans "Receiver Details" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="{{ form.receiver_name.id_for_label }}">{{ form.receiver_name.label }}</label>
+                                    {{ form.receiver_name }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="{{ form.receiver_phone.id_for_label }}">{{ form.receiver_phone.label }}</label>
+                                    <div class="d-flex gap-2">
+                                        <div class="flex-shrink-0" style="width: 140px;">
+                                             {{ form.receiver_phone_code }}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                             {{ form.receiver_phone }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 justify-content-end">
+                         <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary px-5 py-2">{% trans "Cancel" %}</a>
+                        <button type="submit" class="btn btn-masarx-primary px-5 py-2">{% trans "Submit Request" %}</button>
                     </div>
                 </form>
             </div>
@@ -239,6 +268,14 @@
         map.panTo(latLng);
     }
 
+    function getSelectedText(elementId) {
+        const el = document.getElementById(elementId);
+        if (el && el.selectedIndex !== -1 && el.options[el.selectedIndex].value) {
+            return el.options[el.selectedIndex].text;
+        }
+        return '';
+    }
+
     function openMap(mode) {
         currentMode = mode;
         const modalEl = document.getElementById('mapModal');
@@ -257,7 +294,7 @@
             if (map) {
                 google.maps.event.trigger(map, "resize");
                 
-                // Set marker if existing value
+                // 1. Check if lat/lng are already set (editing existing parcel or re-opening map)
                 let latField = document.getElementById(`id_${mode}_lat`);
                 let lngField = document.getElementById(`id_${mode}_lng`);
                 
@@ -265,6 +302,33 @@
                     let loc = { lat: parseFloat(latField.value), lng: parseFloat(lngField.value) };
                     marker.setPosition(loc);
                     map.setCenter(loc);
+                    map.setZoom(15);
+                } else {
+                    // 2. If no lat/lng, try to find the selected City/Governate/Country
+                    const city = getSelectedText(`id_${mode}_city`);
+                    const governate = getSelectedText(`id_${mode}_governate`);
+                    const country = getSelectedText(`id_${mode}_country`);
+                    
+                    if (city) {
+                        let addressQuery = city;
+                        if (governate) addressQuery += `, ${governate}`;
+                        if (country) addressQuery += `, ${country}`;
+                        
+                        console.log(`Geocoding selected location: ${addressQuery}`);
+                        
+                        const geocoder = new google.maps.Geocoder();
+                        geocoder.geocode({ address: addressQuery }, (results, status) => {
+                            if (status === "OK" && results[0]) {
+                                const location = results[0].geometry.location;
+                                map.setCenter(location);
+                                map.setZoom(14);
+                                // Optional: place marker at city center
+                                marker.setPosition(location);
+                            } else {
+                                console.warn("Could not geocode city: " + status);
+                            }
+                        });
+                    }
                 }
             }
         }, { once: true });
@@ -284,6 +348,8 @@
         geocoder.geocode({ location: { lat: lat, lng: lng } }, (results, status) => {
             if (status === "OK" && results[0]) {
                 const addrField = document.getElementById(`id_${currentMode}_address`);
+                // Only overwrite address if it's empty or user confirms? 
+                // Currently existing behavior is to overwrite.
                 addrField.value = results[0].formatted_address;
             } else {
                 console.warn("Geocoder failed due to: " + status);
