@@ -11,6 +11,7 @@ WORKDIR /app
 # WeasyPrint needs: libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0 libjpeg-dev libopenjp2-7-dev libxcb1
 # PyMySQL does not need libmysqlclient-dev, but we keep basic build tools
 # Added libgobject-2.0-0, libcairo2, libgdk-pixbuf2.0-0, shared-mime-info for full WeasyPrint support
+# Added libffi-dev, libssl-dev for general python compatibility
 RUN apt-get update && apt-get install -y \
     gcc \
     pkg-config \
@@ -24,6 +25,8 @@ RUN apt-get update && apt-get install -y \
     libxcb1 \
     libgdk-pixbuf2.0-0 \
     shared-mime-info \
+    libffi-dev \
+    libssl-dev \
     curl \
     && rm -rf /var/lib/apt/lists/*
 

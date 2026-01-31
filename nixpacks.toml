@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["python311", "cairo", "pango", "gdk-pixbuf", "glib", "shared-mime-info"]
+nixPkgs = ["python311", "cairo", "pango", "gdk-pixbuf", "glib", "shared-mime-info", "harfbuzz", "gobject-introspection", "libffi", "openssl"]
 
 [phases.install]
 cmds = ["python -m venv .venv", ". .venv/bin/activate", "pip install -r requirements.txt"]
