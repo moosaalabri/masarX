@@ -284,6 +284,7 @@ JAZZMIN_SETTINGS = {
     "custom_js": None,
     "use_google_fonts_cdn": True,
     "show_ui_builder": False,
+    "language_chooser": True,
 }
 
 JAZZMIN_UI_TWEAKS = {
