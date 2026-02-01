@@ -1,0 +1,359 @@
+/* masarX Custom Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700&display=swap');
+
+:root {
+    --primary-dark: #1A1A1D;
+    --accent-orange: #FF922B;
+    --soft-cloud: #F8F9FA;
+    --slate-blue: #4D96FF;
+    --glass-bg: rgba(255, 255, 255, 0.1);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--soft-cloud);
+    color: var(--primary-dark);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, #2D2D30 100%);
+    padding: 100px 0;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    background: var(--accent-orange);
+    filter: blur(80px);
+    opacity: 0.2;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+}
+
+.btn-masarx-primary {
+    background-color: var(--accent-orange);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-masarx-primary:hover {
+    background-color: #E87E1B;
+    transform: translateY(-2px);
+    color: white;
+}
+
+.tracking-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 12px 0 0 12px;
+    padding: 15px 20px;
+}
+
+.tracking-input:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--accent-orange);
+    box-shadow: none;
+    color: white;
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--accent-orange);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: white;
+    font-size: 24px;
+}
+
+.parcel-status-badge {
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.status-pending { background: #FFE8CC; color: #D9480F; }
+.status-picked_up { background: #E3FAFC; color: #0B7285; }
+.status-in_transit { background: #E7F5FF; color: #1864AB; }
+.status-delivered { background: #EBFBEE; color: #2B8A3E; }
+
+/* Chat Widget */
+#masar-chat-widget {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 350px;
+    height: 500px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+}
+
+#masar-chat-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    background-color: var(--accent-orange);
+    color: white;
+    border: none;
+    transition: transform 0.2s;
+}
+
+#masar-chat-toggle:hover {
+    transform: scale(1.05);
+}
+
+/* RTL Support for Chat */
+[dir="rtl"] #masar-chat-widget {
+    right: auto;
+    left: 20px;
+}
+[dir="rtl"] #masar-chat-toggle {
+    right: auto;
+    left: 20px;
+}
+
+.typing-dots span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #adb5bd;
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: typing 1s infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* --- Admin Panel Customizations --- */
+
+/* Fix: Prevent accidental file dialog open when clicking labels for logos/favicons */
+body.model-platformprofile label[for="id_logo"],
+body.model-platformprofile label[for="id_favicon"],
+body.model-platformprofile label[for="id_admin_panel_logo"] {
+    pointer-events: none;
+    cursor: default;
+}
+
+/* Improve Admin Form Spacing */
+.form-row {
+    padding: 15px 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* --- Fix Admin Search Box & Filter Layout --- */
+
+/* Target the search form container in Jazzmin/AdminLTE */
+#changelist-search .input-group {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    max-width: 300px !important;
+}
+
+/* Make the input field take available space */
+#changelist-search input[type="text"] {
+    flex-grow: 1 !important;
+    width: auto !important;
+}
+
+/* Ensure the button stays inline */
+#changelist-search button[type="submit"],
+#changelist-search .btn {
+    white-space: nowrap !important;
+}
+
+/* Force filters to sit nicely in a row */
+.filter-wrapper .form-group, 
+.filter-wrapper select, 
+.filter-wrapper .select2-container {
+    margin-bottom: 0 !important;
+    display: inline-block !important;
+    width: auto !important;
+}
+
+/* Fix for Date Range Inputs if they appear */
+.admindatefilter .controls {
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+/* --- Search Box RTL/LTR Border Radius Handling --- */
+
+/* LTR (Default) */
+.masar-search-input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.masar-search-btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* RTL Override for Search Box */
+[dir="rtl"] .masar-search-input {
+    border-top-right-radius: 0.25rem !important;
+    border-bottom-right-radius: 0.25rem !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+[dir="rtl"] .masar-search-btn {
+    border-top-left-radius: 0.25rem !important;
+    border-bottom-left-radius: 0.25rem !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+/* --- Admin Panel RTL Sidebar Override (Agresive) --- */
+
+/* We use [dir="rtl"] selector which should be on html tag */
+
+@media (min-width: 992px) {
+    /* Main Sidebar */
+    [dir="rtl"] .main-sidebar {
+        left: auto !important;
+        right: 0 !important;
+        border-right: none !important;
+        border-left: 1px solid rgba(0,0,0,0.1) !important;
+    }
+
+    /* Content Wrapper & Headers */
+    [dir="rtl"] .content-wrapper,
+    [dir="rtl"] .main-header,
+    [dir="rtl"] .main-footer {
+        margin-left: 0 !important;
+        margin-right: 250px !important;
+        transition: margin-right .3s ease-in-out !important;
+    }
+
+    /* Collapsed Sidebar State */
+    [dir="rtl"].sidebar-collapse .main-sidebar {
+        margin-left: 0 !important;
+        margin-right: 0 !important; /* AdminLTE collapses by width, not margin usually, but ensure position matches */
+        width: 4.6rem !important;
+    }
+
+    [dir="rtl"].sidebar-collapse .content-wrapper,
+    [dir="rtl"].sidebar-collapse .main-header,
+    [dir="rtl"].sidebar-collapse .main-footer {
+        margin-left: 0 !important;
+        margin-right: 4.6rem !important;
+    }
+
+    /* Fix Brand Logo Area */
+    [dir="rtl"] .brand-link {
+        float: right !important;
+        width: 100% !important;
+        text-align: right !important;
+    }
+    [dir="rtl"] .brand-image {
+        float: right !important;
+        margin-right: 0.8rem !important;
+        margin-left: 0.5rem !important;
+    }
+    
+    /* Navbar alignment */
+    [dir="rtl"] .navbar-nav {
+        flex-direction: row; /* bootstrap default, but ensure items flow right to left visually */
+    }
+    [dir="rtl"] .navbar-nav .nav-item {
+        float: right; 
+    }
+    
+    /* Right side navbar items (user menu etc) should be on left now? 
+       In RTL, "ml-auto" (margin-left: auto) pushes items to the LEFT. 
+       Jazzmin uses ml-auto for the user menu. 
+       In RTL, we want them on the LEFT. 
+       Bootstrap 4 RTL support usually flips ml-auto to mr-auto, 
+       but if we are running LTR bootstrap in RTL mode, ml-auto pushes to Right.
+       Wait, ml-auto = margin-left: auto. In LTR, this pushes to Right.
+       In RTL, we want these items on the LEFT. So we need margin-right: auto.
+    */
+    
+    [dir="rtl"] .ml-auto {
+        margin-left: 0 !important;
+        margin-right: auto !important;
+    }
+    
+    [dir="rtl"] .mr-auto {
+        margin-right: 0 !important;
+        margin-left: auto !important;
+    }
+}
+
+/* Sidebar Navigation Items RTL */
+[dir="rtl"] .nav-sidebar .nav-item > .nav-link {
+    display: flex !important;
+    flex-direction: row !important; /* Standard flow: RTL = Start(Right) to End(Left) */
+    align-items: center !important;
+}
+
+[dir="rtl"] .nav-sidebar .nav-icon {
+    margin-left: 0.5rem !important;
+    margin-right: 0 !important;
+}
+
+[dir="rtl"] .nav-sidebar .nav-link p {
+    display: inline-block !important;
+    margin-right: 0 !important;
+    text-align: right !important;
+    width: 100% !important;
+}
+
+/* Fix sidebar angle icon (arrow) */
+[dir="rtl"] .nav-sidebar .nav-icon.fa-angle-left {
+    transform: rotate(180deg);
+    margin-left: 0 !important;
+    margin-right: auto !important; /* Push to the far left */
+}
+
+/* General Utils */
+[dir="rtl"] .float-right {
+    float: left !important;
+}
+[dir="rtl"] .float-left {
+    float: right !important;
+}
+[dir="rtl"] .text-right {
+    text-align: left !important;
+}
+[dir="rtl"] .text-left {
+    text-align: right !important;
+}

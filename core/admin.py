@@ -18,9 +18,6 @@ from django.template.loader import render_to_string
 import weasyprint
 from django.db.models import Sum
 
-class DropdownDateRangeFilter(DateRangeFilter):
-    pass
-
 class ProfileInline(admin.StackedInline):
     model = Profile
     can_delete = False
@@ -104,7 +101,7 @@ class ParcelAdmin(admin.ModelAdmin):
     list_filter = (
         'status', 
         'payment_status', 
-        ('created_at', DropdownDateRangeFilter),
+        ('created_at', DateRangeFilter),
     )
     search_fields = ('tracking_number', 'shipper__username', 'receiver_name', 'carrier__username')
     actions = ['export_as_csv', 'print_parcels', 'export_pdf']
