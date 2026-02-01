@@ -16,9 +16,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from rangefilter.filters import DateRangeFilter
 from django.template.loader import render_to_string
 import weasyprint
+from django.db.models import Sum
 
 class DropdownDateRangeFilter(DateRangeFilter):
-    template = 'admin/dropdown_date_range_filter.html'
+    pass
 
 class ProfileInline(admin.StackedInline):
     model = Profile
@@ -97,6 +98,8 @@ class CustomUserAdmin(UserAdmin):
     send_whatsapp_link.allow_tags = True
 
 class ParcelAdmin(admin.ModelAdmin):
+    change_list_template = 'admin/core/parcel/change_list.html'
+    
     list_display = ('tracking_number', 'shipper', 'carrier', 'price', 'driver_amount', 'platform_fee', 'distance_km', 'status', 'payment_status', 'created_at')
     list_filter = (
         'status', 
@@ -105,6 +108,9 @@ class ParcelAdmin(admin.ModelAdmin):
     )
     search_fields = ('tracking_number', 'shipper__username', 'receiver_name', 'carrier__username')
     actions = ['export_as_csv', 'print_parcels', 'export_pdf']
+    
+    class Media:
+        js = ('js/admin_date_range_dropdown.js',)
     
     fieldsets = (
         (None, {
@@ -124,6 +130,21 @@ class ParcelAdmin(admin.ModelAdmin):
             'fields': ('delivery_country', 'delivery_governate', 'delivery_city', 'delivery_address', 'delivery_lat', 'delivery_lng')
         }),
     )
+    
+    def changelist_view(self, request, extra_context=None):
+        response = super().changelist_view(request, extra_context)
+        
+        # Calculate totals for the filtered queryset
+        if hasattr(response, 'context_data') and 'cl' in response.context_data:
+            qs = response.context_data['cl'].queryset
+            metrics = qs.aggregate(
+                total_price=Sum('price'),
+                total_driver_amount=Sum('driver_amount'),
+                total_platform_fee=Sum('platform_fee')
+            )
+            response.context_data['summary_metrics'] = metrics
+            
+        return response
 
     def export_as_csv(self, request, queryset):
         response = HttpResponse(content_type='text/csv')

@@ -178,3 +178,38 @@ body.model-platformprofile label[for="id_admin_panel_logo"] {
     padding: 15px 10px;
     border-bottom: 1px solid #f0f0f0;
 }
+
+/* --- Fix Admin Search Box Layout --- */
+
+/* Target the search form container in Jazzmin/AdminLTE */
+#changelist-search,
+#changelist-search .form-group,
+#changelist-search .input-group {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important; /* Prevent wrapping */
+    max-width: 400px !important; /* Reduce the overall width */
+}
+
+/* Make the input field take available space but respect the container width */
+#changelist-search input[type="text"] {
+    width: auto !important;
+    flex-grow: 1 !important;
+    margin-right: 8px !important; /* Space between input and button */
+}
+
+/* Fix for RTL */
+[dir="rtl"] #changelist-search input[type="text"] {
+    margin-right: 0 !important;
+    margin-left: 8px !important;
+}
+
+/* Ensure the button stays inline and overrides any block behavior */
+#changelist-search button[type="submit"],
+#changelist-search .btn {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    white-space: nowrap !important;
+    width: auto !important;
+    height: auto !important;
+}
