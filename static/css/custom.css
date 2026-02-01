@@ -214,3 +214,29 @@ body.model-platformprofile label[for="id_admin_panel_logo"] {
     display: inline-flex !important;
     align-items: center !important;
 }
+
+/* --- Search Box RTL/LTR Border Radius Handling --- */
+
+/* LTR (Default) */
+.masar-search-input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.masar-search-btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* RTL Override */
+[dir="rtl"] .masar-search-input {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+[dir="rtl"] .masar-search-btn {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}

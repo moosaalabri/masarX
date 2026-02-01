@@ -19,9 +19,9 @@
         {% if cl.search_fields %}
         <div class="search-container" style="display: flex; gap: 5px; align-items: center;">
             <div class="input-group" style="width: auto; max-width: 300px; display: flex; flex-wrap: nowrap;">
-                <input type="text" size="40" name="{{ search_var }}" value="{{ cl.query }}" id="searchbar" class="form-control" placeholder="{% trans 'Search' %}" autofocus style="border-top-right-radius: 0; border-bottom-right-radius: 0; flex: 1;">
+                <input type="text" size="40" name="{{ search_var }}" value="{{ cl.query }}" id="searchbar" class="form-control masar-search-input" placeholder="{% trans 'Search' %}" autofocus style="flex: 1;">
                 <div class="input-group-append">
-                    <button type="submit" class="btn {{ jazzmin_ui.button_classes.primary|default:'btn-primary' }}" style="border-top-left-radius: 0; border-bottom-left-radius: 0; white-space: nowrap;">
+                    <button type="submit" class="btn {{ jazzmin_ui.button_classes.primary|default:'btn-primary' }} masar-search-btn" style="white-space: nowrap;">
                         <i class="fas fa-search"></i> {% trans 'Search' %}
                     </button>
                 </div>
