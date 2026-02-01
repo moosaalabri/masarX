@@ -300,6 +300,18 @@ class Parcel(models.Model):
 
         super().save(*args, **kwargs)
 
+    @property
+    def pickup_google_maps_url(self):
+        if self.pickup_lat and self.pickup_lng:
+            return f"https://www.google.com/maps/search/?api=1&query={self.pickup_lat},{self.pickup_lng}"
+        return f"https://www.google.com/maps/search/?api=1&query={self.pickup_address}"
+
+    @property
+    def delivery_google_maps_url(self):
+        if self.delivery_lat and self.delivery_lng:
+            return f"https://www.google.com/maps/search/?api=1&query={self.delivery_lat},{self.delivery_lng}"
+        return f"https://www.google.com/maps/search/?api=1&query={self.delivery_address}"
+
     def __str__(self):
         return f"Parcel {self.tracking_number} - {self.status}"
 

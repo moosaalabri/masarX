@@ -198,6 +198,16 @@
                             <p class="card-text mb-1 small"><strong>{% trans "To" %}:</strong> {{ parcel.delivery_governate.name }} / {{ parcel.delivery_city.name }}</p>
                             <p class="card-text mb-3 small"><strong>{% trans "Receiver" %}:</strong> {{ parcel.receiver_name }}</p>
                             
+                            <!-- Google Maps Navigation Buttons -->
+                            <div class="d-grid gap-2 mb-3">
+                                <a href="{{ parcel.pickup_google_maps_url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-geo-alt-fill me-1"></i> {% trans "Navigate to Pickup" %}
+                                </a>
+                                <a href="{{ parcel.delivery_google_maps_url }}" target="_blank" class="btn btn-outline-success btn-sm">
+                                    <i class="bi bi-geo-alt-fill me-1"></i> {% trans "Navigate to Delivery" %}
+                                </a>
+                            </div>
+
                             <form action="{% url 'update_status' parcel.id %}" method="POST" class="d-flex gap-2">
                                 {% csrf_token %}
                                 <select name="status" class="form-select form-select-sm">

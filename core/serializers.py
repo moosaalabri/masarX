@@ -30,6 +30,8 @@ class ParcelSerializer(serializers.ModelSerializer):
     delivery_governate_detail = GovernateSerializer(source='delivery_governate', read_only=True)
     delivery_city_detail = CitySerializer(source='delivery_city', read_only=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
+    pickup_google_maps_url = serializers.ReadOnlyField()
+    delivery_google_maps_url = serializers.ReadOnlyField()
     
     class Meta:
         model = Parcel
