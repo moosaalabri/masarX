@@ -183,7 +183,7 @@ STATICFILES_DIRS = [
 ]
 
 # Enable WhiteNoise's Gzip compression of static assets.
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 
 # Media files
