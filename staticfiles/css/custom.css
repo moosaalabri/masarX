@@ -179,7 +179,7 @@ body.model-platformprofile label[for="id_admin_panel_logo"] {
     border-bottom: 1px solid #f0f0f0;
 }
 
-/* --- Fix Admin Search Box Layout (Backup for overridden template) --- */
+/* --- Fix Admin Search Box & Filter Layout --- */
 
 /* Target the search form container in Jazzmin/AdminLTE */
 #changelist-search .input-group {
@@ -198,4 +198,19 @@ body.model-platformprofile label[for="id_admin_panel_logo"] {
 #changelist-search button[type="submit"],
 #changelist-search .btn {
     white-space: nowrap !important;
+}
+
+/* Force filters to sit nicely in a row */
+.filter-wrapper .form-group, 
+.filter-wrapper select, 
+.filter-wrapper .select2-container {
+    margin-bottom: 0 !important;
+    display: inline-block !important;
+    width: auto !important;
+}
+
+/* Fix for Date Range Inputs if they appear */
+.admindatefilter .controls {
+    display: inline-flex !important;
+    align-items: center !important;
 }

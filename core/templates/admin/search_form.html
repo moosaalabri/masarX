@@ -2,26 +2,37 @@
 {% get_jazzmin_ui_tweaks as jazzmin_ui %}
 
 <div id="toolbar" class="clearfix mb-3">
-    <form id="changelist-search" method="get" class="form-inline">
+    <form id="changelist-search" method="get" class="form-inline" style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
         
         {# --- RESTORED FILTERS (Sorting Panel) --- #}
         {% if cl.has_filters %}
-            <div class="mr-2 mb-2" style="display: flex; flex-wrap: wrap; gap: 5px;">
+            <div id="filters-container" style="display: flex; flex-wrap: wrap; gap: 5px; align-items: center;">
                 {% for spec in cl.filter_specs %}
-                    {% jazzmin_list_filter cl spec %}
+                    <div class="filter-wrapper" style="display: inline-flex; align-items: center;">
+                        {% jazzmin_list_filter cl spec %}
+                    </div>
                 {% endfor %}
             </div>
         {% endif %}
         {# ---------------------------------------- #}
 
         {% if cl.search_fields %}
-        <div class="input-group mb-2" style="width: auto; max-width: 300px; display: flex; flex-wrap: nowrap;">
-            <input type="text" size="40" name="{{ search_var }}" value="{{ cl.query }}" id="searchbar" class="form-control" placeholder="{% trans 'Search' %}" autofocus style="border-top-right-radius: 0; border-bottom-right-radius: 0; flex: 1;">
-            <div class="input-group-append">
-                <button type="submit" class="btn {{ jazzmin_ui.button_classes.primary|default:'btn-primary' }}" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                    <i class="fas fa-search"></i> {% trans 'Search' %}
-                </button>
+        <div class="search-container" style="display: flex; gap: 5px; align-items: center;">
+            <div class="input-group" style="width: auto; max-width: 300px; display: flex; flex-wrap: nowrap;">
+                <input type="text" size="40" name="{{ search_var }}" value="{{ cl.query }}" id="searchbar" class="form-control" placeholder="{% trans 'Search' %}" autofocus style="border-top-right-radius: 0; border-bottom-right-radius: 0; flex: 1;">
+                <div class="input-group-append">
+                    <button type="submit" class="btn {{ jazzmin_ui.button_classes.primary|default:'btn-primary' }}" style="border-top-left-radius: 0; border-bottom-left-radius: 0; white-space: nowrap;">
+                        <i class="fas fa-search"></i> {% trans 'Search' %}
+                    </button>
+                </div>
             </div>
+            
+            {# --- RESET BUTTON --- #}
+            {% if cl.query or cl.has_filters %}
+                <a href="." class="btn {{ jazzmin_ui.button_classes.secondary|default:'btn-secondary' }}" style="white-space: nowrap;">
+                    <i class="fas fa-undo"></i> {% trans 'Reset' %}
+                </a>
+            {% endif %}
         </div>
         {% endif %}
 
