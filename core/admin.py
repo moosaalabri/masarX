@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import Profile, Parcel, Country, Governate, City, PlatformProfile, Testimonial, DriverRating, NotificationTemplate, PricingRule
+from .models import Profile, Parcel, Country, Governate, City, PlatformProfile, Testimonial, DriverRating, NotificationTemplate, PricingRule, DriverReport, DriverRejection
 from django.utils.translation import gettext_lazy as _
 from django.urls import path, reverse
 from django.shortcuts import render, redirect
@@ -23,7 +23,7 @@ class ProfileInline(admin.StackedInline):
     can_delete = False
     verbose_name_plural = _('Profiles')
     fieldsets = (
-        (None, {'fields': ('role', 'is_approved', 'phone_number', 'profile_picture', 'address')}),
+        (None, {'fields': ('role', 'is_approved', 'is_banned', 'ban_reason', 'phone_number', 'profile_picture', 'address')}),
         (_('Driver Assessment'), {'fields': ('driver_grade', 'is_recommended')}),
         (_('Driver Info'), {'fields': ('license_front_image', 'license_back_image', 'car_plate_number', 'bank_account_number'), 'classes': ('collapse',)}),
         (_('Location'), {'fields': ('country', 'governate', 'city'), 'classes': ('collapse',)}),
@@ -31,8 +31,8 @@ class ProfileInline(admin.StackedInline):
 
 class CustomUserAdmin(UserAdmin):
     inlines = (ProfileInline,)
-    list_display = ('username', 'email', 'get_role', 'get_driver_grade', 'get_approval_status', 'is_active', 'is_staff', 'send_whatsapp_link')
-    list_filter = ('is_active', 'is_staff', 'profile__role', 'profile__is_approved', 'profile__driver_grade')
+    list_display = ('username', 'email', 'get_role', 'get_driver_grade', 'get_approval_status', 'get_ban_status', 'is_active', 'is_staff', 'send_whatsapp_link')
+    list_filter = ('is_active', 'is_staff', 'profile__role', 'profile__is_approved', 'profile__is_banned', 'profile__driver_grade')
 
     def get_role(self, obj):
         return obj.profile.get_role_display()
@@ -48,6 +48,11 @@ class CustomUserAdmin(UserAdmin):
         return obj.profile.is_approved
     get_approval_status.short_description = _('Approved')
     get_approval_status.boolean = True
+    
+    def get_ban_status(self, obj):
+        return obj.profile.is_banned
+    get_ban_status.short_description = _('Banned')
+    get_ban_status.boolean = True
 
     def get_inline_instances(self, request, obj=None):
         if not obj:
@@ -203,6 +208,10 @@ class PlatformProfileAdmin(admin.ModelAdmin):
             'fields': ('accepting_shipments', 'maintenance_message_en', 'maintenance_message_ar'),
             'description': _('Toggle to allow or stop receiving new parcel shipments. If stopped, buttons will turn red and an alert will be shown.')
         }),
+        (_('Driver Rejection / Auto-Ban'), {
+            'fields': ('auto_ban_on_rejections', 'rejection_limit'),
+            'description': _('Configure automatic banning for drivers who reject too many shipments.')
+        }),
         (_('Testing / Development'), {
             'fields': ('auto_mark_paid',),
             'description': _('Enable this to automatically mark NEW parcels as "Paid" (useful for testing so drivers can see them immediately).')
@@ -332,6 +341,28 @@ class TestimonialAdmin(admin.ModelAdmin):
     search_fields = ('name_en', 'name_ar', 'content_en', 'content_ar')
     list_editable = ('is_active',)
 
+class DriverReportAdmin(admin.ModelAdmin):
+    list_display = ('driver', 'reporter', 'reason', 'status', 'created_at')
+    list_filter = ('status', 'reason', 'created_at')
+    search_fields = ('driver__username', 'reporter__username', 'description', 'admin_note')
+    list_editable = ('status',)
+    
+    fieldsets = (
+        (_('Report Details'), {
+            'fields': ('reporter', 'driver', 'parcel', 'reason', 'description', 'created_at')
+        }),
+        (_('Investigation'), {
+            'fields': ('status', 'admin_note')
+        }),
+    )
+    readonly_fields = ('created_at',)
+
+class DriverRejectionAdmin(admin.ModelAdmin):
+    list_display = ('driver', 'parcel', 'reason', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('driver__username', 'parcel__tracking_number', 'reason')
+    readonly_fields = ('driver', 'parcel', 'reason', 'created_at')
+
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Parcel, ParcelAdmin)
@@ -342,6 +373,9 @@ admin.site.register(PlatformProfile, PlatformProfileAdmin)
 admin.site.register(Testimonial, TestimonialAdmin)
 admin.site.register(DriverRating)
 admin.site.register(PricingRule, PricingRuleAdmin)
+admin.site.register(DriverReport, DriverReportAdmin)
+admin.site.register(DriverRejection, DriverRejectionAdmin)
+
 class NotificationTemplateAdmin(admin.ModelAdmin):
     list_display = ('key', 'description')
     readonly_fields = ('key', 'description', 'available_variables')

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{% trans "Report Driver" %}</li>
+                    </ol>
+                </nav>
+
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <h2 class="h4 mb-4 text-danger">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            {% trans "Report Driver" %}
+                        </h2>
+                        
+                        <div class="alert alert-light border mb-4">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    {% if parcel.carrier.profile.profile_picture %}
+                                        <img src="{{ parcel.carrier.profile.profile_picture.url }}" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 50px; height: 50px;">
+                                            <i class="bi bi-person-fill h4 mb-0"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col">
+                                    <p class="mb-0 fw-bold">{{ parcel.carrier.get_full_name|default:parcel.carrier.username }}</p>
+                                    <small class="text-muted">{% trans "Tracking ID" %}: {{ parcel.tracking_number }}</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form method="post">
+                            {% csrf_token %}
+                            {% for field in form %}
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.help_text %}
+                                        <div class="form-text">{{ field.help_text }}</div>
+                                    {% endif %}
+                                    {% if field.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ field.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                <a href="{% url 'dashboard' %}" class="btn btn-light px-4">{% trans "Cancel" %}</a>
+                                <button type="submit" class="btn btn-danger px-5">
+                                    {% trans "Submit Report" %}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="mt-4 p-3 bg-light rounded small text-muted">
+                    <p class="mb-0">
+                        <i class="bi bi-info-circle me-1"></i>
+                        {% trans "Our administration team investigates all reports. Misuse of the reporting system may lead to account suspension." %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

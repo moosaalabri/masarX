@@ -43,6 +43,34 @@
     </div>
 </section>
 
+{% if recent_shipments %}
+<div class="ticker-wrap" style="background-color: {{ platform_profile.ticker_bg_color|default:'#FFFFFF' }};">
+    <div class="ticker" style="color: {{ platform_profile.ticker_text_color|default:'#1A1A1D' }};">
+        {% for parcel in recent_shipments %}
+        <div class="ticker-item">
+            <i class="bi bi-activity"></i>
+            <strong>{% trans "Shipment:" %}</strong> {{ parcel.pickup_city.name }} 
+            <i class="bi {% if LANGUAGE_CODE == 'ar' %}bi-arrow-left{% else %}bi-arrow-right{% endif %} mx-2"></i> 
+            {{ parcel.delivery_city.name }}
+            <span class="ticker-badge">{{ parcel.get_status_display }}</span>
+            <span style="opacity: 0.6; font-size: 0.8rem;" class="ms-2">{{ parcel.created_at|timesince }} {% trans "ago" %}</span>
+        </div>
+        {% endfor %}
+        <!-- Duplicate for seamless loop -->
+        {% for parcel in recent_shipments %}
+        <div class="ticker-item">
+            <i class="bi bi-activity"></i>
+            <strong>{% trans "Shipment:" %}</strong> {{ parcel.pickup_city.name }} 
+            <i class="bi {% if LANGUAGE_CODE == 'ar' %}bi-arrow-left{% else %}bi-arrow-right{% endif %} mx-2"></i> 
+            {{ parcel.delivery_city.name }}
+            <span class="ticker-badge">{{ parcel.get_status_display }}</span>
+            <span style="opacity: 0.6; font-size: 0.8rem;" class="ms-2">{{ parcel.created_at|timesince }} {% trans "ago" %}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 <!-- Features Section -->
 <section id="how-it-works" class="py-5 bg-white">
     <div class="container py-5">

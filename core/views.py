@@ -4,8 +4,8 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Parcel, Profile, Country, Governate, City, OTPVerification, PlatformProfile, Testimonial, DriverRating
-from .forms import UserRegistrationForm, ParcelForm, ContactForm, UserProfileForm, DriverRatingForm, ShipperRegistrationForm, DriverRegistrationForm
+from .models import Parcel, Profile, Country, Governate, City, OTPVerification, PlatformProfile, Testimonial, DriverRating, DriverRejection
+from .forms import UserRegistrationForm, ParcelForm, ContactForm, UserProfileForm, DriverRatingForm, ShipperRegistrationForm, DriverRegistrationForm, DriverReportForm
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
 from django.contrib import messages
@@ -44,6 +44,9 @@ def index(request):
         return redirect(f"{reverse('track')}?tracking_number={tracking_id}")
     
     testimonials = Testimonial.objects.filter(is_active=True)
+    platform_profile = PlatformProfile.objects.first()
+    ticker_limit = platform_profile.ticker_limit if platform_profile else 10
+    recent_shipments = Parcel.objects.exclude(status="cancelled").order_by("-created_at")[:ticker_limit]
     
     # Top 5 Drivers (by Average Rating)
     top_drivers = Profile.objects.filter(role='car_owner').annotate(
@@ -59,7 +62,8 @@ def index(request):
     return render(request, 'core/index.html', {
         'testimonials': testimonials,
         'top_drivers': top_drivers,
-        'top_shippers': top_shippers
+        'top_shippers': top_shippers,
+        'recent_shipments': recent_shipments
     })
 
 def track_parcel(request):
@@ -210,6 +214,12 @@ def verify_registration(request):
 def dashboard(request):
     # Ensure profile exists
     profile, created = Profile.objects.get_or_create(user=request.user)
+    
+    # Check for Ban
+    if profile.is_banned:
+        logout(request)
+        messages.error(request, _("Your account is banned. Reason: ") + profile.ban_reason)
+        return redirect('login')
 
     if profile.role == 'shipper':
         all_parcels = Parcel.objects.filter(shipper=request.user).order_by('-created_at')
@@ -245,10 +255,13 @@ def dashboard(request):
         platform_profile = PlatformProfile.objects.first()
         payments_enabled = platform_profile.enable_payment if platform_profile else True
         
+        # Filter out parcels this driver already rejected
+        rejected_parcel_ids = DriverRejection.objects.filter(driver=request.user).values_list('parcel_id', flat=True)
+        
         if payments_enabled:
-            available_parcels_list = Parcel.objects.filter(status='pending', payment_status='paid').order_by('-created_at')
+            available_parcels_list = Parcel.objects.filter(status='pending', payment_status='paid').exclude(id__in=rejected_parcel_ids).order_by('-created_at')
         else:
-            available_parcels_list = Parcel.objects.filter(status='pending').order_by('-created_at')
+            available_parcels_list = Parcel.objects.filter(status='pending').exclude(id__in=rejected_parcel_ids).order_by('-created_at')
 
         # Check Approval Status
         if not profile.is_approved:
@@ -337,7 +350,11 @@ def accept_parcel(request, parcel_id):
         messages.error(request, _("Only car owners can accept shipments."))
         return redirect('dashboard')
     
-    # Check Approval
+    # Check Approval and Ban
+    if profile.is_banned:
+        messages.error(request, _("Your account is banned."))
+        return redirect('dashboard')
+
     if not profile.is_approved:
         messages.error(request, _("Your account is pending approval. You cannot accept shipments yet."))
         return redirect('dashboard')
@@ -358,6 +375,45 @@ def accept_parcel(request, parcel_id):
     notify_driver_assigned(parcel)
     
     messages.success(request, _("You have accepted the shipment!"))
+    return redirect('dashboard')
+
+@login_required
+@require_POST
+def reject_parcel(request, parcel_id):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    if profile.role != 'car_owner':
+        messages.error(request, _("Only car owners can reject shipments."))
+        return redirect('dashboard')
+    
+    parcel = get_object_or_404(Parcel, id=parcel_id, status='pending')
+    reason = request.POST.get('reason')
+    
+    if not reason:
+        messages.error(request, _("Please provide a reason for rejection."))
+        return redirect('dashboard')
+    
+    # Record Rejection
+    DriverRejection.objects.create(
+        driver=request.user,
+        parcel=parcel,
+        reason=reason
+    )
+    
+    # Check Auto-Ban
+    platform_profile = PlatformProfile.objects.first()
+    if platform_profile and platform_profile.auto_ban_on_rejections:
+        rejection_count = DriverRejection.objects.filter(driver=request.user).count()
+        if rejection_count >= platform_profile.rejection_limit:
+            profile.is_banned = True
+            profile.is_approved = False # Also unapprove to be safe
+            profile.ban_reason = _("Automated ban: Exceeded rejection limit ({}).").format(platform_profile.rejection_limit)
+            profile.save()
+            
+            logout(request)
+            messages.error(request, _("Your account has been banned due to excessive shipment rejections."))
+            return redirect('login')
+
+    messages.success(request, _("Shipment rejected successfully."))
     return redirect('dashboard')
 
 @login_required
@@ -927,7 +983,10 @@ def update_parcel_status_ajax(request):
             if payments_enabled and parcel.payment_status != 'paid':
                  return JsonResponse({'success': False, 'error': _('Payment pending')})
             
-            # Check Approval for Driver via AJAX
+            # Check Approval and Ban for Driver via AJAX
+            if request.user.profile.is_banned:
+                 return JsonResponse({'success': False, 'error': _('Account is banned')})
+
             if not request.user.profile.is_approved:
                  return JsonResponse({'success': False, 'error': _('Account pending approval')})
             
@@ -1099,3 +1158,34 @@ def verify_2fa_otp(request):
              messages.error(request, _("No valid OTP found. Please request a new one."))
              
     return render(request, 'core/verify_2fa_otp.html')
+
+@login_required
+def report_driver(request, parcel_id):
+    parcel = get_object_or_404(Parcel, id=parcel_id)
+    
+    # Validation: Only shipper of the parcel can report the carrier
+    if parcel.shipper != request.user:
+        messages.error(request, _("You are not authorized to report for this shipment."))
+        return redirect('dashboard')
+        
+    if not parcel.carrier:
+        messages.error(request, _("No driver was assigned to this shipment."))
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        form = DriverReportForm(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.reporter = request.user
+            report.driver = parcel.carrier
+            report.parcel = parcel
+            report.save()
+            messages.success(request, _("Thank you. Your report has been submitted and will be investigated."))
+            return redirect('dashboard')
+    else:
+        form = DriverReportForm()
+
+    return render(request, 'core/report_driver.html', {
+        'form': form,
+        'parcel': parcel
+    })

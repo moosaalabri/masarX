@@ -98,6 +98,10 @@ class Profile(models.Model):
     is_recommended = models.BooleanField(_("Recommended by Shippers"), default=False)
 
     is_approved = models.BooleanField(_('Approved'), default=False, help_text=_("Designates whether this user is approved to use the platform (mainly for drivers)."))
+    
+    # Ban Status
+    is_banned = models.BooleanField(_('Banned'), default=False)
+    ban_reason = models.TextField(_('Ban Reason'), blank=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.get_role_display()}"
@@ -182,6 +186,14 @@ class PlatformProfile(models.Model):
     accepting_shipments = models.BooleanField(_("Accepting Shipments"), default=True, help_text=_("Toggle to allow or stop receiving new parcel shipments."))
     maintenance_message_en = models.TextField(_("Maintenance Message (English)"), blank=True, help_text=_("Message to show when shipments are stopped."))
     maintenance_message_ar = models.TextField(_("Maintenance Message (Arabic)"), blank=True, help_text=_("Message to show when shipments are stopped."))
+
+    # Driver Rejection / Auto-Ban
+    auto_ban_on_rejections = models.BooleanField(_("Enable Auto-Ban on Rejections"), default=False, help_text=_("Automatically ban drivers who exceed a certain number of rejections."))
+    rejection_limit = models.PositiveIntegerField(_("Rejection Limit"), default=5, help_text=_("Number of rejections allowed before auto-ban."))
+    # Live Activity Ticker 
+    ticker_limit = models.PositiveIntegerField(_("Ticker Shipment Limit"), default=10, help_text=_("Number of recent shipments to show in the live activity ticker.")) 
+    ticker_bg_color = models.CharField(_("Ticker Background Color"), max_length=20, default="#FFFFFF", help_text=_("Background color for the live activity ticker (e.g. #FFFFFF or white).")) 
+    ticker_text_color = models.CharField(_("Ticker Text Color"), max_length=20, default="#1A1A1D", help_text=_("Text color for the live activity ticker."))
 
     @property
     def maintenance_message(self):
@@ -442,3 +454,55 @@ class NotificationTemplate(models.Model):
     class Meta:
         verbose_name = _('Notification Template')
         verbose_name_plural = _('Notification Templates')
+
+class DriverReport(models.Model):
+    STATUS_CHOICES = (
+        ('pending', _('Pending Investigation')),
+        ('investigating', _('Investigating')),
+        ('resolved', _('Resolved')),
+        ('dismissed', _('Dismissed')),
+    )
+    
+    REASON_CHOICES = (
+        ('unprofessional', _('Unprofessional Behavior')),
+        ('reckless_driving', _('Reckless Driving')),
+        ('delayed_delivery', _('Significant Delay')),
+        ('item_damaged', _('Item Damaged')),
+        ('item_missing', _('Item Missing')),
+        ('other', _('Other')),
+    )
+
+    reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='filed_reports', verbose_name=_('Reporter'))
+    driver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reports_received', verbose_name=_('Driver'))
+    parcel = models.ForeignKey('Parcel', on_delete=models.SET_NULL, null=True, blank=True, related_name='reports', verbose_name=_('Related Parcel'))
+    
+    reason = models.CharField(_('Reason'), max_length=50, choices=REASON_CHOICES)
+    description = models.TextField(_('Detailed Description'))
+    
+    status = models.CharField(_('Status'), max_length=20, choices=STATUS_CHOICES, default='pending')
+    admin_note = models.TextField(_('Admin Internal Note'), blank=True)
+    
+    created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
+
+    def __str__(self):
+        return f"Report against {self.driver.username} by {self.reporter.username} - {self.get_status_display()}"
+
+    class Meta:
+        verbose_name = _('Driver Report')
+        verbose_name_plural = _('Driver Reports')
+        ordering = ['-created_at']
+
+class DriverRejection(models.Model):
+    driver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rejections', verbose_name=_('Driver'))
+    parcel = models.ForeignKey(Parcel, on_delete=models.CASCADE, related_name='rejections', verbose_name=_('Parcel'))
+    reason = models.TextField(_('Reason for Rejection'))
+    created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
+
+    def __str__(self):
+        return f"Rejection by {self.driver.username} for {self.parcel.tracking_number}"
+
+    class Meta:
+        verbose_name = _('Driver Rejection')
+        verbose_name_plural = _('Driver Rejections')
+        ordering = ['-created_at']

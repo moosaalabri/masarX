@@ -76,10 +76,15 @@
                                         <div class="text-primary fw-bold fs-4">{{ parcel.price }} <span class="fs-6">OMR</span></div>
                                     </div>
 
-                                    <form action="{% url 'accept_parcel' parcel.id %}" method="POST">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-masarx-primary w-100">{% trans "Accept Shipment" %}</button>
-                                    </form>
+                                    <div class="d-grid gap-2">
+                                        <form action="{% url 'accept_parcel' parcel.id %}" method="POST">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-masarx-primary w-100">{% trans "Accept Shipment" %}</button>
+                                        </form>
+                                        <button type="button" class="btn btn-outline-danger w-100" data-bs-toggle="modal" data-bs-target="#rejectModal{{ parcel.id }}">
+                                            {% trans "Reject" %}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -114,11 +119,16 @@
                                         </div>
                                         <div class="col-md-4 text-md-end">
                                             <div class="d-flex flex-column align-items-md-end gap-2">
-                                                <div class="text-primary fw-bold fs-5">{{ parcel.price }} OMR</div>
-                                                <form action="{% url 'accept_parcel' parcel.id %}" method="POST" class="w-100 w-md-auto">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-masarx-primary btn-sm w-100">{% trans "Accept" %}</button>
-                                                </form>
+                                                <div class="text-primary fw-bold fs-5 mb-1">{{ parcel.price }} OMR</div>
+                                                <div class="d-flex gap-2 w-100 w-md-auto">
+                                                    <form action="{% url 'accept_parcel' parcel.id %}" method="POST" class="flex-grow-1">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-masarx-primary btn-sm w-100">{% trans "Accept" %}</button>
+                                                    </form>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal{{ parcel.id }}">
+                                                        {% trans "Reject" %}
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -127,6 +137,38 @@
                             {% endfor %}
                         </div>
                     </div>
+
+                    <!-- Rejection Modals -->
+                    {% for parcel in available_parcels %}
+                    <div class="modal fade" id="rejectModal{{ parcel.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header border-0 pb-0">
+                                    <h5 class="modal-title fw-bold">{% trans "Reject Shipment" %}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <form action="{% url 'reject_parcel' parcel.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <div class="modal-body">
+                                        <p class="text-muted small">{% trans "Please provide a reason for rejecting shipment" %} <strong>#{{ parcel.tracking_number }}</strong>. {% trans "This information is tracked by administration." %}</p>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold">{% trans "Reason for Rejection" %}</label>
+                                            <textarea name="reason" class="form-control" rows="3" required placeholder="{% trans 'e.g., Too far, item too large, etc.' %}"></textarea>
+                                        </div>
+                                        <div class="alert alert-info small mb-0">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            {% trans "Note: Excessive rejections may lead to automated account suspension." %}
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer border-0 pt-0">
+                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+                                        <button type="submit" class="btn btn-danger px-4">{% trans "Submit Rejection" %}</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
 
                     <!-- Pagination -->
                     {% if available_parcels.has_other_pages %}

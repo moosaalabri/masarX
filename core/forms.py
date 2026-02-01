@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
-from .models import Profile, Parcel, Country, Governate, City, DriverRating
+from .models import Profile, Parcel, Country, Governate, City, DriverRating, DriverReport
 
 class ContactForm(forms.Form):
     name = forms.CharField(max_length=100, label=_("Name"), widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('Your Name')}))
@@ -394,3 +394,16 @@ class DriverRatingForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Reverse choices for CSS star rating logic (5 to 1) to ensure left-to-right filling
         self.fields['rating'].choices = [(i, str(i)) for i in range(5, 0, -1)]
+
+class DriverReportForm(forms.ModelForm):
+    class Meta:
+        model = DriverReport
+        fields = ['reason', 'description']
+        widgets = {
+            'reason': forms.Select(attrs={'class': 'form-select'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': _('Please provide details about the incident...')}),
+        }
+        labels = {
+            'reason': _('Reason for Reporting'),
+            'description': _('Details'),
+        }

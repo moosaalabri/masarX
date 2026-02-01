@@ -12,7 +12,6 @@
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--soft-cloud);
-    color: var(--primary-dark);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -260,9 +259,81 @@ h1, h2, h3, h4, h5, h6 {
     padding: 12px 30px !important;
     border-radius: 12px !important;
     font-weight: 600 !important;
+    cursor: not-allowed;
+    opacity: 0.8;
 }
 .btn-masarx-stopped:hover {
     background-color: #b02a2a !important;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(214, 57, 57, 0.2);
+}
+
+/* Live Ticker Styling - Aggressive Horizontal Enforcement */
+.ticker-wrap {
+    width: 100%;
+    overflow: hidden !important;
+    background-color: white;
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    white-space: nowrap !important;
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    display: block !important;
+}
+
+.ticker {
+    display: inline-flex !important; /* Flex ensures items stay in line */
+    align-items: center;
+    white-space: nowrap !important;
+    padding-right: 50px;
+    box-sizing: content-box;
+    animation: ticker 40s linear infinite;
+    will-change: transform;
+}
+
+.ticker:hover {
+    animation-play-state: paused;
+}
+
+.ticker-item {
+    display: inline-flex !important;
+    align-items: center;
+    padding: 0 3rem;
+    font-size: 0.95rem;
+    color: inherit;
+    font-weight: 500;
+    white-space: nowrap !important;
+    flex-shrink: 0; /* Prevent items from shrinking */
+}
+
+.ticker-item i {
+    color: var(--accent-orange);
+    margin-right: 12px;
+}
+
+.ticker-badge {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(0,0,0,0.05); border: 1px solid currentColor;
+    margin-left: 10px;
+    vertical-align: middle;
+    color: inherit; opacity: 0.8;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+@keyframes ticker {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); } /* Updated to 50% because we duplicate items */
+}
+
+[dir="rtl"] .ticker {
+    animation: ticker-rtl 40s linear infinite;
+}
+
+@keyframes ticker-rtl {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(50%, 0, 0); }
 }
