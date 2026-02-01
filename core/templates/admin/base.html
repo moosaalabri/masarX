@@ -26,4 +26,23 @@
         }
     </style>
     {% endif %}
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Fix for PlatformProfile: Prevent labels from triggering file upload dialog
+            if (document.body.classList.contains('model-platformprofile')) {
+                const fieldIds = ['id_logo', 'id_favicon', 'id_admin_panel_logo'];
+                
+                fieldIds.forEach(function(id) {
+                    const label = document.querySelector('label[for="' + id + '"]');
+                    if (label) {
+                        // Remove the 'for' attribute so clicking the label does NOT trigger the file input
+                        label.removeAttribute('for');
+                        // Optional: Ensure it looks like plain text
+                        label.style.cursor = 'default';
+                    }
+                });
+            }
+        });
+    </script>
 {% endblock %}
