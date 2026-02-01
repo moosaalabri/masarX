@@ -25,25 +25,53 @@ h1, h2, h3, h4, h5, h6 {
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    gap: 3px !important;
+    justify-content: space-between !important;
+    gap: 2px !important;
     width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important; /* Prevent wrapping overflow */
+}
+
+/* Hide any stray shortcuts that might have survived JS cleanup */
+.masar-date-filter-row .datetimeshortcuts {
+    display: none !important;
 }
 
 .masar-date-filter-row select {
     width: 32% !important;
-    min-width: 50px !important;
+    min-width: 0 !important;
     font-size: 11px !important;
-    padding: 2px !important;
-    height: 30px !important;
+    padding: 0 2px !important;
+    height: 28px !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
 }
 
 .masar-date-filter-row input {
     width: 33% !important;
-    min-width: 50px !important;
+    min-width: 0 !important;
     font-size: 11px !important;
-    padding: 2px !important;
-    height: 30px !important;
+    padding: 0 2px !important;
+    height: 28px !important;
     margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Specific fix for date inputs to ensure they look clean */
+.masar-date-filter-row input[type="date"] {
+    -webkit-appearance: none; /* Remove some browser defaults */
+    appearance: none;
+    line-height: 28px;
+}
+.masar-date-filter-row input[type="date"]::-webkit-inner-spin-button,
+.masar-date-filter-row input[type="date"]::-webkit-calendar-picker-indicator {
+    /* Make the calendar icon smaller and fit */
+    width: 12px;
+    height: 12px;
+    margin: 0;
+    padding: 0;
+    opacity: 0.6;
 }
 
 

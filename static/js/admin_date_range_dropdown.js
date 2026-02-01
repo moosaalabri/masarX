@@ -1,9 +1,9 @@
 (function($) {
-    // Masar Date Range Filter Layout Fix v3
+    // Masar Date Range Filter Layout Fix v4
     // Forces a horizontal layout for the Date Range Filter in Django Admin Sidebar
+    // v4: Switches to type="date", removes Django's calendar shortcuts to prevent layout breakage.
 
     function initDateRangeDropdown() {
-        console.log("Masar Date Filter: Initializing v3...");
         
         // Find all "Greater Than or Equal" inputs (the start date of the range)
         var $gteInputs = $('input[name$="__gte"]');
@@ -23,22 +23,12 @@
 
             if ($lte.length === 0) return; 
 
-            // Locate the container in the sidebar.
-            // Usually it's inside a <li class="... field-created_at ..."> or similar.
-            // We want to find the direct parent that holds these inputs.
+            // Locate the container
             var $parent = $gte.parent();
 
-            // Create our custom flex wrapper
+            // Create custom flex wrapper
             var $wrapper = $('<div class="masar-date-filter-row"></div>');
-            $wrapper.css({
-                'display': 'flex',
-                'flex-direction': 'row',
-                'align-items': 'center',
-                'gap': '3px',
-                'width': '100%',
-                'margin-bottom': '10px'
-            });
-
+            
             // Create the Quick Select Dropdown
             var $select = $('<select class="form-control custom-select admin-date-dropdown">' +
                 '<option value="any">Any</option>' +
@@ -48,24 +38,10 @@
                 '<option value="custom">Custom</option>' +
                 '</select>');
             
-            $select.css({
-                'width': '34%', 
-                'min-width': '60px',
-                'height': '30px',
-                'padding': '0 4px',
-                'font-size': '11px'
-            });
-
-            // Style inputs
-            var inputStyle = {
-                'width': '33%',
-                'min-width': '0',
-                'height': '30px',
-                'padding': '4px',
-                'font-size': '11px'
-            };
-            $gte.css(inputStyle).attr('placeholder', 'Start');
-            $lte.css(inputStyle).attr('placeholder', 'End');
+            // CONVERT INPUTS TO HTML5 DATE
+            // This gives us a native picker and removes the need for Django's clunky JS shortcuts
+            $gte.attr('type', 'date').removeClass('vDateField');
+            $lte.attr('type', 'date').removeClass('vDateField');
 
             // --- RESTRUCTURING DOM ---
             // 1. Insert wrapper before the start input
@@ -76,13 +52,21 @@
             $wrapper.append($gte);
             $wrapper.append($lte);
 
-            // 3. Cleanup: Hide any left-over text nodes (like "-", "From", "To") or <br> in the parent
+            // 3. AGGRESSIVE CLEANUP
+            // Remove text nodes, BRs, AND Django's calendar shortcuts (.datetimeshortcuts)
+            // We search the *original parent* for these leftovers.
             $parent.contents().filter(function() {
-                return (this.nodeType === 3 && $.trim($(this).text()) !== '') || this.tagName === 'BR';
+                return (
+                    (this.nodeType === 3 && $.trim($(this).text()) !== '') || // Text
+                    this.tagName === 'BR' || // Line breaks
+                    $(this).hasClass('datetimeshortcuts') // Django Calendar Icons
+                );
             }).remove();
 
+            // Also hide any shortcuts that might be dynamically appended later (via CSS rule or observer)
+            // But removing the 'vDateField' class above usually prevents Django from initializing them.
+
             // Logic for Dropdown Changes
-            // Helper to format date as YYYY-MM-DD
             function formatDate(d) {
                 var year = d.getFullYear();
                 var month = ('0' + (d.getMonth() + 1)).slice(-2);
@@ -125,20 +109,10 @@
                         $gte.val(startStr);
                         $lte.val(endStr);
                     }
-                    // Trigger Form Submit (Changes URL)
-                    // Try to find the filter form
-                    var $form = $gte.closest('form'); // Usually #changelist-search
+                    // Trigger Form Submit
+                    var $form = $gte.closest('form');
                     if ($form.length) {
                          $form.submit();
-                    } else {
-                        // Sometimes filters are links, but date range usually has a button or relies on form
-                        // If there is an "Apply" button nearby?
-                        var $applyBtn = $parent.closest('.admindatefilter').find('input[type="submit"], button');
-                        if ($applyBtn.length) {
-                            $applyBtn.click();
-                        } else {
-                            // Fallback: reload page with query params (complex, skip for now, rely on standard form)
-                        }
                     }
                 }
             });
@@ -146,10 +120,8 @@
     }
 
     $(document).ready(function() {
-        // Run immediately
         initDateRangeDropdown();
-        
-        // And retry a few times to catch slow rendering
+        // Retry logic for stubborn renderers
         setTimeout(initDateRangeDropdown, 200);
         setTimeout(initDateRangeDropdown, 500);
         setTimeout(initDateRangeDropdown, 1000);
