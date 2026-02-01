@@ -162,3 +162,19 @@ h1, h2, h3, h4, h5, h6 {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-5px); }
 }
+
+/* --- Admin Panel Customizations --- */
+
+/* Fix: Prevent accidental file dialog open when clicking labels for logos/favicons */
+body.model-platformprofile label[for="id_logo"],
+body.model-platformprofile label[for="id_favicon"],
+body.model-platformprofile label[for="id_admin_panel_logo"] {
+    pointer-events: none;
+    cursor: default;
+}
+
+/* Improve Admin Form Spacing */
+.form-row {
+    padding: 15px 10px;
+    border-bottom: 1px solid #f0f0f0;
+}

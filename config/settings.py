@@ -251,13 +251,18 @@ JAZZMIN_SETTINGS = {
     "copyright": "Masar Express",
     "search_model": ["core.Parcel", "auth.User"],
     "user_avatar": None,
-    "topmenu_links": [
-        {"name": "Home",  "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "View Website", "url": "index", "new_window": True},
-    ],
+    "topmenu_links": [],
     "usermenu_links": [
         {"model": "auth.User"}
     ],
+    "custom_links": {
+        "core": [{
+            "name": "View Website", 
+            "url": "index", 
+            "icon": "fas fa-external-link-alt",
+            "new_window": True,
+        }]
+    },
     "show_sidebar": True,
     "navigation_expanded": True,
     "hide_apps": [],
