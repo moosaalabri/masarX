@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from .models import Profile, Parcel, Country, Governate, City, PlatformProfile, Testimonial, DriverRating, NotificationTemplate, PricingRule
 from django.utils.translation import gettext_lazy as _
 from django.urls import path, reverse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.html import format_html
 from django.contrib import messages
 from .whatsapp_utils import send_whatsapp_message_detailed
@@ -193,6 +193,13 @@ class PlatformProfileAdmin(admin.ModelAdmin):
         if self.model.objects.exists():
             return False
         return super().has_add_permission(request)
+    
+    def changelist_view(self, request, extra_context=None):
+        # Redirect directly to the change page if a profile exists
+        profile = self.model.objects.first()
+        if profile:
+            return redirect('admin:core_platformprofile_change', profile.pk)
+        return super().changelist_view(request, extra_context)
 
     def get_urls(self):
         urls = super().get_urls()

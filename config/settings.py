@@ -254,8 +254,6 @@ JAZZMIN_SETTINGS = {
     "topmenu_links": [
         {"name": "Home",  "url": "admin:index", "permissions": ["auth.view_user"]},
         {"name": "View Website", "url": "index", "new_window": True},
-        {"model": "auth.User"},
-        {"app": "core"},
     ],
     "usermenu_links": [
         {"model": "auth.User"}
@@ -269,13 +267,16 @@ JAZZMIN_SETTINGS = {
         "auth": "fas fa-users-cog",
         "auth.user": "fas fa-user",
         "auth.Group": "fas fa-users",
-        "core.Parcel": "fas fa-box",
+        "core.Parcel": "fas fa-box-open",
         "core.Profile": "fas fa-id-card",
-        "core.PlatformProfile": "fas fa-building",
+        "core.PlatformProfile": "fas fa-cogs",
         "core.Country": "fas fa-globe",
         "core.City": "fas fa-city",
+        "core.Governate": "fas fa-map-marked-alt",
         "core.DriverRating": "fas fa-star",
-        "core.Testimonial": "fas fa-comment",
+        "core.Testimonial": "fas fa-comment-dots",
+        "core.NotificationTemplate": "fas fa-envelope-open-text",
+        "core.PricingRule": "fas fa-tags",
     },
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-circle",
