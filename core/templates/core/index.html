@@ -2,6 +2,14 @@
 {% load static i18n %}
 
 {% block content %}
+
+<style>
+    .bg-bronze { background-color: #cd7f32; }
+    .bg-silver { background-color: #c0c0c0; }
+    .bg-gold { background-color: #ffd700; }
+    .text-bronze { color: #cd7f32; }
+</style>
+
 <!-- Hero Section -->
 <section class="hero-section">
     <div class="container">
@@ -9,8 +17,13 @@
             <div class="col-lg-6 mb-5 mb-lg-0">
                 <h1 class="display-3 mb-4">{% trans "Small Shipments," %}<br><span style="color: var(--accent-orange)">{% trans "Smart Delivery." %}</span></h1>
                 <p class="lead mb-5 opacity-75">{% trans "masarX connects shippers with local car owners for fast, reliable, and trackable deliveries. Your cargo, our priority." %}</p>
+                {% if not platform_profile.accepting_shipments and platform_profile.maintenance_message %}
+                <div class="alert alert-danger mb-4 py-2 px-3 small border-0 shadow-sm" style="border-radius: 12px; max-width: 500px;">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ platform_profile.maintenance_message }}
+                </div>
+                {% endif %}
                 <div class="d-flex gap-3">
-                    <a href="{% url 'shipment_request' %}" class="btn btn-masarx-primary">{% trans "Start Shipping" %}</a>
+                    {% if platform_profile.accepting_shipments %}<a href="{% url 'shipment_request' %}" class="btn btn-masarx-active">{% trans "Start Shipping" %}</a>{% else %}<button class="btn btn-masarx-stopped" disabled style="cursor: not-allowed;">{% trans "Service Stopped" %}</button>{% endif %}
                     <a href="#how-it-works" class="btn btn-outline-light border-2 px-4 py-2" style="border-radius: 12px;">{% trans "Learn More" %}</a>
                 </div>
             </div>
@@ -94,7 +107,21 @@
                                 </span>
                             </div>
                             <div class="flex-grow-1">
-                                <h6 class="mb-0">{{ driver.user.first_name }} {{ driver.user.last_name|first }}.</h6>
+                                <h6 class="mb-0">
+                                    {{ driver.user.first_name }} {{ driver.user.last_name|first }}.
+                                    {% if driver.driver_grade != "none" %}
+                                        {% if "bronze" in driver.driver_grade %}
+                                            <span class="badge bg-bronze text-white small" title="{{ driver.get_driver_grade_display }}"><i class="bi bi-award"></i> {{ driver.get_driver_grade_display }}</span>
+                                        {% elif driver.driver_grade == "silver" %}
+                                            <span class="badge bg-silver text-dark small" title="Silver"><i class="bi bi-award-fill"></i> Silver</span>
+                                        {% elif driver.driver_grade == "gold" %}
+                                            <span class="badge bg-gold text-dark small" title="Gold"><i class="bi bi-award-fill"></i> Gold</span>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if driver.is_recommended %}
+                                        <span class="badge bg-success small" title="{% trans "Recommended by Shippers" %}"><i class="bi bi-hand-thumbs-up"></i></span>
+                                    {% endif %}
+                                </h6>
                                 <small class="text-muted">{% trans "Driver" %}</small>
                             </div>
                             <div class="text-end">

@@ -26,11 +26,12 @@ h1, h2, h3, h4, h5, h6 {
     flex-direction: row !important;
     align-items: center !important;
     justify-content: space-between !important;
-    flex-wrap: nowrap !important; /* Ensure they stay on one line */
+    flex-wrap: nowrap !important;
     gap: 2px !important;
     width: 100% !important;
     box-sizing: border-box !important;
-    /* overflow: hidden; Removed to allow dropdown list to show */
+    position: relative !important;
+    z-index: 100 !important;
 }
 
 /* Hide any stray shortcuts that might have survived JS cleanup */
@@ -39,14 +40,21 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .masar-date-filter-row select {
+    appearance: auto !important; /* Force native dropdown appearance */
+    -webkit-appearance: auto !important;
+    -moz-appearance: auto !important;
+    
     width: 32% !important;
     min-width: 0 !important;
     font-size: 11px !important;
-    padding: 0 2px !important;
+    padding: 2px !important; /* Relaxed padding */
     height: 28px !important;
-    line-height: 1 !important;
     box-sizing: border-box !important;
     margin: 0 !important;
+    background-color: white !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
+    color: #495057 !important;
 }
 
 .masar-date-filter-row input {
@@ -57,22 +65,23 @@ h1, h2, h3, h4, h5, h6 {
     height: 28px !important;
     margin: 0 !important;
     box-sizing: border-box !important;
+    background-color: white !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
 }
 
 /* Specific fix for date inputs to ensure they look clean */
 .masar-date-filter-row input[type="date"] {
-    -webkit-appearance: none; /* Remove some browser defaults */
-    appearance: none;
     line-height: 28px;
 }
 .masar-date-filter-row input[type="date"]::-webkit-inner-spin-button,
 .masar-date-filter-row input[type="date"]::-webkit-calendar-picker-indicator {
-    /* Make the calendar icon smaller and fit */
     width: 12px;
     height: 12px;
     margin: 0;
     padding: 0;
     opacity: 0.6;
+    cursor: pointer;
 }
 
 
@@ -229,4 +238,31 @@ h1, h2, h3, h4, h5, h6 {
 }
 [dir="rtl"] .text-left {
     text-align: right !important;
+}
+/* Shipment Status Buttons */
+.btn-masarx-active {
+    background-color: #2fb344 !important;
+    color: white !important;
+    border: none !important;
+    padding: 12px 30px !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+}
+.btn-masarx-active:hover {
+    background-color: #248a35 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(47, 179, 68, 0.2);
+}
+.btn-masarx-stopped {
+    background-color: #d63939 !important;
+    color: white !important;
+    border: none !important;
+    padding: 12px 30px !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+}
+.btn-masarx-stopped:hover {
+    background-color: #b02a2a !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(214, 57, 57, 0.2);
 }

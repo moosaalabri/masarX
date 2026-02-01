@@ -286,6 +286,11 @@ def dashboard(request):
 
 @login_required
 def shipment_request(request):
+    from .models import PlatformProfile
+    platform_profile = PlatformProfile.objects.first()
+    if platform_profile and not platform_profile.accepting_shipments:
+        messages.warning(request, platform_profile.maintenance_message or _("The platform is currently not accepting new shipments."))
+        return redirect("dashboard")
     profile, created = Profile.objects.get_or_create(user=request.user)
     if profile.role != 'shipper':
         messages.error(request, _("Only shippers can request shipments."))

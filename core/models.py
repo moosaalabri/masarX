@@ -65,8 +65,16 @@ class City(models.Model):
 
 class Profile(models.Model):
     ROLE_CHOICES = (
-        ('shipper', _('Shipper')),
-        ('car_owner', _('Car Owner')),
+        ("shipper", _("Shipper")),
+        ("car_owner", _("Car Owner")),
+    )
+    DRIVER_GRADE_CHOICES = (
+        ("none", _("No Grade")),
+        ("bronze_3", _("Bronze III")),
+        ("bronze_2", _("Bronze II")),
+        ("bronze_1", _("Bronze I")),
+        ("silver", _("Silver")),
+        ("gold", _("Gold")),
     )
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name=_('User'))
     role = models.CharField(_('Role'), max_length=20, choices=ROLE_CHOICES, default='shipper')
@@ -85,6 +93,10 @@ class Profile(models.Model):
     city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_('City'))
 
     # Approval Status
+    # Driver Assessment
+    driver_grade = models.CharField(_("Driver Grade"), max_length=20, choices=DRIVER_GRADE_CHOICES, default="none")
+    is_recommended = models.BooleanField(_("Recommended by Shippers"), default=False)
+
     is_approved = models.BooleanField(_('Approved'), default=False, help_text=_("Designates whether this user is approved to use the platform (mainly for drivers)."))
 
     def __str__(self):
@@ -165,6 +177,17 @@ class PlatformProfile(models.Model):
     
     # Testing / Development
     auto_mark_paid = models.BooleanField(_('Test Mode: Auto-Paid'), default=False, help_text=_("If enabled, newly created parcels will automatically be marked as 'Paid' for testing."))
+    
+    # Maintenance / Availability
+    accepting_shipments = models.BooleanField(_("Accepting Shipments"), default=True, help_text=_("Toggle to allow or stop receiving new parcel shipments."))
+    maintenance_message_en = models.TextField(_("Maintenance Message (English)"), blank=True, help_text=_("Message to show when shipments are stopped."))
+    maintenance_message_ar = models.TextField(_("Maintenance Message (Arabic)"), blank=True, help_text=_("Message to show when shipments are stopped."))
+
+    @property
+    def maintenance_message(self):
+        if get_language() == "ar":
+            return self.maintenance_message_ar or _("Service is temporarily suspended. Please try again later.")
+        return self.maintenance_message_en or _("Service is temporarily suspended. Please try again later.")
 
     @property
     def privacy_policy(self):

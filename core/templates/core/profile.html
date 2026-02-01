@@ -4,6 +4,13 @@
 {% block title %}{% trans "My Profile" %} | masarX{% endblock %}
 
 {% block content %}
+
+<style>
+    .bg-bronze { background-color: #cd7f32; }
+    .bg-silver { background-color: #c0c0c0; }
+    .bg-gold { background-color: #ffd700; }
+</style>
+
 <section class="py-5 bg-light" style="min-height: 80vh;">
     <div class="container py-5">
         <div class="row justify-content-center">
@@ -32,7 +39,21 @@
                                     <span class="text-white fs-1">{{ profile.user.first_name|first|upper }}</span>
                                 </div>
                             {% endif %}
-                            <h3 class="mt-3">{{ profile.user.get_full_name }}</h3>
+                            <h3 class="mt-3">
+                                {{ profile.user.get_full_name }}
+                                {% if profile.driver_grade != "none" %}
+                                    {% if "bronze" in profile.driver_grade %}
+                                        <span class="badge bg-bronze text-white fs-6 ms-2" title="{{ profile.get_driver_grade_display }}"><i class="bi bi-award"></i> {{ profile.get_driver_grade_display }}</span>
+                                    {% elif profile.driver_grade == "silver" %}
+                                        <span class="badge bg-silver text-dark fs-6 ms-2" title="Silver"><i class="bi bi-award-fill"></i> Silver</span>
+                                    {% elif profile.driver_grade == "gold" %}
+                                        <span class="badge bg-gold text-dark fs-6 ms-2" title="Gold"><i class="bi bi-award-fill"></i> Gold</span>
+                                    {% endif %}
+                                {% endif %}
+                                {% if profile.is_recommended %}
+                                    <span class="badge bg-success fs-6 ms-2" title="{% trans "Recommended by Shippers" %}"><i class="bi bi-hand-thumbs-up"></i></span>
+                                {% endif %}
+                            </h3>
                             <p class="text-muted">{{ profile.get_role_display }}</p>
                         </div>
 

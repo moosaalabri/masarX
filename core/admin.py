@@ -24,18 +24,25 @@ class ProfileInline(admin.StackedInline):
     verbose_name_plural = _('Profiles')
     fieldsets = (
         (None, {'fields': ('role', 'is_approved', 'phone_number', 'profile_picture', 'address')}),
+        (_('Driver Assessment'), {'fields': ('driver_grade', 'is_recommended')}),
         (_('Driver Info'), {'fields': ('license_front_image', 'license_back_image', 'car_plate_number', 'bank_account_number'), 'classes': ('collapse',)}),
         (_('Location'), {'fields': ('country', 'governate', 'city'), 'classes': ('collapse',)}),
     )
 
 class CustomUserAdmin(UserAdmin):
     inlines = (ProfileInline,)
-    list_display = ('username', 'email', 'get_role', 'get_approval_status', 'is_active', 'is_staff', 'send_whatsapp_link')
-    list_filter = ('is_active', 'is_staff', 'profile__role', 'profile__is_approved')
+    list_display = ('username', 'email', 'get_role', 'get_driver_grade', 'get_approval_status', 'is_active', 'is_staff', 'send_whatsapp_link')
+    list_filter = ('is_active', 'is_staff', 'profile__role', 'profile__is_approved', 'profile__driver_grade')
 
     def get_role(self, obj):
         return obj.profile.get_role_display()
     get_role.short_description = _('Role')
+
+    def get_driver_grade(self, obj):
+        if obj.profile.role == 'car_owner':
+            return obj.profile.get_driver_grade_display()
+        return "-"
+    get_driver_grade.short_description = _('Grade')
 
     def get_approval_status(self, obj):
         return obj.profile.is_approved
@@ -191,6 +198,10 @@ class PlatformProfileAdmin(admin.ModelAdmin):
         }),
         (_('Financial Configuration'), {
             'fields': ('platform_fee_percentage', 'enable_payment')
+        }),
+        (_('Maintenance / Availability'), {
+            'fields': ('accepting_shipments', 'maintenance_message_en', 'maintenance_message_ar'),
+            'description': _('Toggle to allow or stop receiving new parcel shipments. If stopped, buttons will turn red and an alert will be shown.')
         }),
         (_('Testing / Development'), {
             'fields': ('auto_mark_paid',),

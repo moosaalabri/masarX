@@ -2,10 +2,26 @@
 {% load i18n core_tags %}
 
 {% block content %}
+
+<style>
+    .bg-bronze { background-color: #cd7f32; }
+    .bg-silver { background-color: #c0c0c0; }
+    .bg-gold { background-color: #ffd700; }
+</style>
+
 <div class="container py-5">
+    {% if not platform_profile.accepting_shipments and platform_profile.maintenance_message %}
+    <div class="alert alert-danger mb-4 py-3 px-4 shadow-sm border-0 d-flex align-items-center" style="border-radius: 15px;">
+        <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+        <div>
+            <h5 class="alert-heading mb-1">{% trans "Service Notice" %}</h5>
+            <p class="mb-0 opacity-75">{{ platform_profile.maintenance_message }}</p>
+        </div>
+    </div>
+    {% endif %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>{% trans "My Shipments" %}</h1>
-        <a href="{% url 'shipment_request' %}" class="btn btn-masarx-primary">{% trans "New Shipment" %}</a>
+        {% if platform_profile.accepting_shipments %}<a href="{% url 'shipment_request' %}" class="btn btn-masarx-active">{% trans "New Shipment" %}</a>{% else %}<button class="btn btn-masarx-stopped" disabled style="cursor: not-allowed;">{% trans "Service Stopped" %}</button>{% endif %}
     </div>
 
     <!-- Tabs -->
@@ -97,7 +113,24 @@
 
                             <hr>
                             <p class="card-text small mb-0"><strong>{% trans "Receiver" %}:</strong> {{ parcel.receiver_name }}</p>
-                            <p class="card-text small"><strong>{% trans "Carrier" %}:</strong> {% if parcel.carrier %}{{ parcel.carrier.get_full_name|default:parcel.carrier.username }}{% else %}{% trans "Waiting for pickup" %}{% endif %}</p>
+                            <p class="card-text small"><strong>{% trans "Carrier" %}:</strong> 
+                                {% if parcel.carrier %}
+                                    {{ parcel.carrier.get_full_name|default:parcel.carrier.username }}
+                                    {% if parcel.carrier.profile.driver_grade != "none" %}
+            {% if "bronze" in parcel.carrier.profile.driver_grade %}
+                <span class="badge bg-bronze text-white small ms-1" title="{{ parcel.carrier.profile.get_driver_grade_display }}}"><i class="bi bi-award"></i></span>
+            {% elif parcel.carrier.profile.driver_grade == "silver" %}
+                <span class="badge bg-silver text-dark small ms-1" title="Silver"><i class="bi bi-award-fill"></i></span>
+            {% elif parcel.carrier.profile.driver_grade == "gold" %}
+                <span class="badge bg-gold text-dark small ms-1" title="Gold"><i class="bi bi-award-fill"></i></span>
+            {% endif %}
+        {% endif %}
+        {% if parcel.carrier.profile.is_recommended %}
+            <span class="badge bg-success small ms-1" title="{% trans "Recommended by Shippers" %}"><i class="bi bi-hand-thumbs-up"></i></span>
+        {% endif %}
+                                {% else %}
+                                    {% trans "Waiting for pickup" %}
+                                {% endif %}</p>
                         </div>
                     </div>
                 </div>
@@ -130,7 +163,23 @@
                                         </span>
                                         <span class="d-flex align-items-center gap-1">
                                             <i class="bi bi-truck"></i> 
-                                            {% if parcel.carrier %}{{ parcel.carrier.get_full_name|default:parcel.carrier.username }}{% else %}{% trans "Waiting" %}{% endif %}
+                                            {% if parcel.carrier %}
+                                    {{ parcel.carrier.get_full_name|default:parcel.carrier.username }}
+                                    {% if parcel.carrier.profile.driver_grade != "none" %}
+            {% if "bronze" in parcel.carrier.profile.driver_grade %}
+                <span class="badge bg-bronze text-white small ms-1" title="{{ parcel.carrier.profile.get_driver_grade_display }}}"><i class="bi bi-award"></i></span>
+            {% elif parcel.carrier.profile.driver_grade == "silver" %}
+                <span class="badge bg-silver text-dark small ms-1" title="Silver"><i class="bi bi-award-fill"></i></span>
+            {% elif parcel.carrier.profile.driver_grade == "gold" %}
+                <span class="badge bg-gold text-dark small ms-1" title="Gold"><i class="bi bi-award-fill"></i></span>
+            {% endif %}
+        {% endif %}
+        {% if parcel.carrier.profile.is_recommended %}
+            <span class="badge bg-success small ms-1" title="{% trans "Recommended by Shippers" %}"><i class="bi bi-hand-thumbs-up"></i></span>
+        {% endif %}
+                                {% else %}
+                                    {% trans "Waiting" %}
+                                {% endif %}
                                         </span>
                                     </div>
                                 </div>
@@ -223,7 +272,7 @@
             {% else %}
             <div class="text-center py-5">
                 <p class="lead">{% trans "You have no active shipments." %}</p>
-                <a href="{% url 'shipment_request' %}" class="btn btn-masarx-primary">{% trans "Send your first shipment" %}</a>
+                {% if platform_profile.accepting_shipments %}<a href="{% url 'shipment_request' %}" class="btn btn-masarx-active">{% trans "Send your first shipment" %}</a>{% else %}<button class="btn btn-masarx-stopped" disabled style="cursor: not-allowed;">{% trans "Service Stopped" %}</button>{% endif %}
             </div>
             {% endif %}
         </div>

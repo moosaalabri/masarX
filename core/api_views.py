@@ -47,6 +47,10 @@ class ParcelListCreateView(generics.ListCreateAPIView):
             return Parcel.objects.none()
 
     def perform_create(self, serializer):
+        from .models import PlatformProfile
+        platform_profile = PlatformProfile.objects.first()
+        if platform_profile and not platform_profile.accepting_shipments:
+             raise permissions.PermissionDenied(platform_profile.maintenance_message or "The platform is currently not accepting new shipments.")
         # Only shippers can create
         if self.request.user.profile.role != 'shipper':
              raise permissions.PermissionDenied("Only shippers can create parcels.")

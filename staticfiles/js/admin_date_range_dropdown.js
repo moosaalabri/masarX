@@ -1,7 +1,7 @@
 (function($) {
-    // Masar Date Range Filter Layout Fix v4
+    // Masar Date Range Filter Layout Fix v5
     // Forces a horizontal layout for the Date Range Filter in Django Admin Sidebar
-    // v4: Switches to type="date", removes Django's calendar shortcuts to prevent layout breakage.
+    // v5: Removes Bootstrap classes from Select to ensure native popup works reliably.
 
     function initDateRangeDropdown() {
         
@@ -30,7 +30,8 @@
             var $wrapper = $('<div class="masar-date-filter-row"></div>');
             
             // Create the Quick Select Dropdown
-            var $select = $('<select class="form-control custom-select admin-date-dropdown">' +
+            // REMOVED 'form-control' and 'custom-select' to prevent Bootstrap/AdminLTE from interfering with click/rendering
+            var $select = $('<select class="admin-date-dropdown">' +
                 '<option value="any">Any</option>' +
                 '<option value="today">Today</option>' +
                 '<option value="7days">7 Days</option>' +
@@ -39,7 +40,6 @@
                 '</select>');
             
             // CONVERT INPUTS TO HTML5 DATE
-            // This gives us a native picker and removes the need for Django's clunky JS shortcuts
             $gte.attr('type', 'date').removeClass('vDateField');
             $lte.attr('type', 'date').removeClass('vDateField');
 
@@ -53,8 +53,6 @@
             $wrapper.append($lte);
 
             // 3. AGGRESSIVE CLEANUP
-            // Remove text nodes, BRs, AND Django's calendar shortcuts (.datetimeshortcuts)
-            // We search the *original parent* for these leftovers.
             $parent.contents().filter(function() {
                 return (
                     (this.nodeType === 3 && $.trim($(this).text()) !== '') || // Text
@@ -62,9 +60,6 @@
                     $(this).hasClass('datetimeshortcuts') // Django Calendar Icons
                 );
             }).remove();
-
-            // Also hide any shortcuts that might be dynamically appended later (via CSS rule or observer)
-            // But removing the 'vDateField' class above usually prevents Django from initializing them.
 
             // Logic for Dropdown Changes
             function formatDate(d) {
@@ -87,7 +82,7 @@
                 var today = new Date();
 
                 if (val === 'custom') {
-                    // Do nothing, let user edit
+                    // Do nothing
                 } else {
                     if (val === 'any') {
                         $gte.val('');
