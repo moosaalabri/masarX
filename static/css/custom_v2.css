@@ -320,9 +320,9 @@ body.model-platformprofile label[for="id_admin_panel_logo"] {
 
 /* Sidebar Navigation Items RTL */
 [dir="rtl"] .nav-sidebar .nav-item > .nav-link {
-    display: flex;
-    flex-direction: row-reverse; /* Flip icon and text */
-    justify-content: flex-end;
+    display: flex !important;
+    flex-direction: row !important; /* Standard flow: RTL = Start(Right) to End(Left) */
+    align-items: center !important;
 }
 
 [dir="rtl"] .nav-sidebar .nav-icon {
@@ -331,21 +331,18 @@ body.model-platformprofile label[for="id_admin_panel_logo"] {
 }
 
 [dir="rtl"] .nav-sidebar .nav-link p {
-    display: inline-block;
-    margin-right: 0; 
-    text-align: right;
-    width: 100%;
+    display: inline-block !important;
+    margin-right: 0 !important;
+    text-align: right !important;
+    width: 100% !important;
 }
 
 /* Fix sidebar angle icon (arrow) */
 [dir="rtl"] .nav-sidebar .nav-icon.fa-angle-left {
     transform: rotate(180deg);
     margin-left: 0 !important;
-    margin-right: auto !important; /* Push to the far left of the item (which is visually right?) No, row-reverse makes start=right. */
+    margin-right: auto !important; /* Push to the far left */
 }
-/* Actually, standard AdminLTE puts the arrow at the end. 
-   With flex-direction: row-reverse, the "end" is the visual left.
-*/
 
 /* General Utils */
 [dir="rtl"] .float-right {
