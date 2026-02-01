@@ -214,3 +214,73 @@ body.model-platformprofile label[for="id_admin_panel_logo"] {
     display: inline-flex !important;
     align-items: center !important;
 }
+
+/* --- Search Box RTL/LTR Border Radius Handling --- */
+
+/* LTR (Default) */
+.masar-search-input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.masar-search-btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* RTL Override */
+[dir="rtl"] .masar-search-input {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+[dir="rtl"] .masar-search-btn {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* --- Admin Panel RTL Sidebar Override (Force Right Side) --- */
+
+@media (min-width: 992px) {
+    [dir="rtl"] .main-sidebar {
+        left: auto !important;
+        right: 0 !important;
+    }
+    
+    [dir="rtl"] .content-wrapper,
+    [dir="rtl"] .main-header,
+    [dir="rtl"] .main-footer {
+        margin-left: 0 !important;
+        margin-right: 250px !important;
+    }
+    
+    /* Collapsed State */
+    [dir="rtl"].sidebar-collapse .content-wrapper,
+    [dir="rtl"].sidebar-collapse .main-header,
+    [dir="rtl"].sidebar-collapse .main-footer {
+        margin-right: 4.6rem !important;
+        margin-left: 0 !important;
+    }
+    
+    /* Fix Brand Logo Area */
+    [dir="rtl"] .brand-link {
+        float: right;
+    }
+}
+
+/* Mobile Sidebar Fix for RTL */
+@media (max-width: 991.98px) {
+     /* Usually Jazzmin handles mobile via overlay, checking if we need to flip slide direction */
+     /* For now, ensuring sidebar stays hidden off-screen properly might be needed */
+     [dir="rtl"] .main-sidebar {
+         box-shadow: -3px 0 8px rgba(0,0,0,0.125);
+     }
+}
+
+/* RTL Icon Spacing in Sidebar */
+[dir="rtl"] .nav-sidebar .nav-icon {
+    margin-left: .2rem !important;
+    margin-right: 0 !important;
+}
