@@ -11,4 +11,4 @@ drf-yasg
 gunicorn==22.0.0
 django-cors-headers
 django-admin-rangefilter
-requests
+requestswhitenoise
