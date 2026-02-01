@@ -209,10 +209,41 @@ body.model-platformprofile label[for="id_admin_panel_logo"] {
     width: auto !important;
 }
 
-/* Fix for Date Range Inputs if they appear */
-.admindatefilter .controls {
+/* --- Date Range Filter Styling (Compact & Horizontal) --- */
+
+/* The dropdown we injected */
+.admin-date-dropdown {
+    width: auto !important;
+    min-width: 120px;
+    display: inline-block !important;
+    margin-bottom: 5px; /* Spacing if it wraps */
+    margin-left: 5px;   /* Spacing for RTL (since we use float/flex) */
+}
+
+/* The container of inputs (From/To) */
+.admindatefilter .controls.date-filter-controls {
     display: inline-flex !important;
     align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 5px;
+}
+
+/* The actual date inputs */
+.admindatefilter .date-input {
+    width: 90px !important; /* Force small width */
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Ensure the whole filter block flows nicely if possible */
+.admindatefilter {
+    display: block; /* Default block in sidebar */
+}
+
+/* If filters are in a horizontal top bar (Jazzmin tweaks), ensure they flow */
+.filter-wrapper .admindatefilter {
+    display: inline-block !important;
+    vertical-align: top;
 }
 
 /* --- Search Box RTL/LTR Border Radius Handling --- */

@@ -32,9 +32,10 @@
                 if ($controls.length === 0) {
                      $controls = $gte.parent();
                 }
+                $controls.addClass('date-filter-controls'); // Hook for CSS
                 
-                // --- CHANGED: Use 'custom-select' and remove fixed width ---
-                var $select = $('<select class="form-control custom-select admin-date-dropdown" style="width: auto; min-width: 120px; display: inline-block; margin-right: 5px;">' +
+                // --- Dropdown ---
+                var $select = $('<select class="form-control custom-select admin-date-dropdown">' +
                     '<option value="any">Any Date</option>' +
                     '<option value="today">Today</option>' +
                     '<option value="7days">Last 7 Days</option>' +
@@ -43,41 +44,36 @@
                     '<option value="custom">Custom Range...</option>' +
                     '</select>');
 
-                // --- CHANGED: Ensure controls are flex-friendly if we want "one row" ---
-                // We'll wrap the inputs in a flex span if they aren't already
-                $controls.css({
-                    'display': 'inline-flex', 
-                    'align-items': 'center', 
-                    'gap': '5px'
-                });
-                
-                // Style inputs to be small
-                $gte.addClass('form-control form-control-sm').css('width', '110px');
-                $lte.addClass('form-control form-control-sm').css('width', '110px');
+                // --- Inputs Styling ---
+                $gte.addClass('form-control form-control-sm date-input');
+                $lte.addClass('form-control form-control-sm date-input');
 
+                // Insert Dropdown
                 if ($controls.length) {
                     $controls.before($select);
                 } else {
                     $gte.before($select);
                 }
 
+                // Initial State
                 var gteVal = $gte.val();
                 var lteVal = $lte.val();
 
                 if (gteVal || lteVal) {
                     $select.val('custom');
-                    $controls.css('display', 'inline-flex'); // Show as flex
+                    $controls.css('display', 'inline-flex'); // Ensure flex
                 } else {
                     $select.val('any');
                     $controls.hide();
                 }
 
+                // Event Listener
                 $select.on('change', function() {
                     var val = $(this).val();
                     var today = new Date();
 
                     if (val === 'custom') {
-                        $controls.css('display', 'inline-flex').hide().fadeIn(); // Animate in
+                        $controls.css('display', 'inline-flex').hide().fadeIn();
                     } else {
                         if (val === 'any') {
                             $gte.val('');
@@ -104,6 +100,7 @@
                             $lte.val(endStr);
                         }
                         
+                        // Auto-submit
                         var $form = $gte.closest('form');
                         if ($form.length) {
                             $form.submit();
