@@ -287,7 +287,7 @@ JAZZMIN_SETTINGS = {
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-circle",
     "related_modal_active": False,
-    "custom_css": "css/custom.css",
+    "custom_css": "css/custom_v2.css",
     "custom_js": "js/admin_date_range_dropdown.js",
     "use_google_fonts_cdn": True,
     "show_ui_builder": False,
