@@ -26,10 +26,11 @@ h1, h2, h3, h4, h5, h6 {
     flex-direction: row !important;
     align-items: center !important;
     justify-content: space-between !important;
+    flex-wrap: nowrap !important; /* Ensure they stay on one line */
     gap: 2px !important;
     width: 100% !important;
     box-sizing: border-box !important;
-    overflow: hidden !important; /* Prevent wrapping overflow */
+    /* overflow: hidden; Removed to allow dropdown list to show */
 }
 
 /* Hide any stray shortcuts that might have survived JS cleanup */
