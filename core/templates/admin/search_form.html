@@ -1,0 +1,18 @@
+{% load i18n static %}
+{% if cl.search_fields %}
+<div id="toolbar" class="clearfix mb-3">
+    <form id="changelist-search" method="get" class="form-inline">
+        <div class="input-group" style="width: 100%; max-width: 300px; display: flex; flex-wrap: nowrap;">
+            <input type="text" size="40" name="{{ search_var }}" value="{{ cl.query }}" id="searchbar" class="form-control" placeholder="{% trans 'Search' %}" autofocus style="border-top-right-radius: 0; border-bottom-right-radius: 0; flex: 1;">
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                    <i class="fas fa-search"></i> {% trans 'Search' %}
+                </button>
+            </div>
+        </div>
+        {% for pair in cl.params.items %}
+            {% if pair.0 != search_var %}<input type="hidden" name="{{ pair.0 }}" value="{{ pair.1 }}"/>{% endif %}
+        {% endfor %}
+    </form>
+</div>
+{% endif %}
