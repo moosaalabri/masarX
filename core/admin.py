@@ -17,6 +17,9 @@ from rangefilter.filters import DateRangeFilter
 from django.template.loader import render_to_string
 import weasyprint
 
+class DropdownDateRangeFilter(DateRangeFilter):
+    template = 'admin/dropdown_date_range_filter.html'
+
 class ProfileInline(admin.StackedInline):
     model = Profile
     can_delete = False
@@ -98,7 +101,7 @@ class ParcelAdmin(admin.ModelAdmin):
     list_filter = (
         'status', 
         'payment_status', 
-        ('created_at', DateRangeFilter),
+        ('created_at', DropdownDateRangeFilter),
     )
     search_fields = ('tracking_number', 'shipper__username', 'receiver_name', 'carrier__username')
     actions = ['export_as_csv', 'print_parcels', 'export_pdf']
