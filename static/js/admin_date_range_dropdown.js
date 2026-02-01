@@ -13,6 +13,10 @@
 
             $gteInputs.each(function() {
                 var $gte = $(this);
+                // Prevent double init
+                if ($gte.data('dropdown-processed')) return;
+                $gte.data('dropdown-processed', true);
+
                 var name = $gte.attr('name'); 
                 var prefix = name.substring(0, name.lastIndexOf('__gte'));
                 var $lte = $('input[name="' + prefix + '__lte"]');
@@ -25,9 +29,7 @@
                 }
                 if ($container.length === 0) $container = $gte.parent();
 
-                if ($container.data('dropdown-init')) return;
-                $container.data('dropdown-init', true);
-
+                // Find the direct wrapper of the inputs (usually .controls)
                 var $controls = $gte.closest('.controls');
                 if ($controls.length === 0) {
                      $controls = $gte.parent();
@@ -36,21 +38,22 @@
                 
                 // --- Dropdown ---
                 var $select = $('<select class="form-control custom-select admin-date-dropdown">' +
-                    '<option value="any">Any Date</option>' +
+                    '<option value="any">Any</option>' + // Shortened text
                     '<option value="today">Today</option>' +
-                    '<option value="7days">Last 7 Days</option>' +
-                    '<option value="month">This Month</option>' +
-                    '<option value="year">This Year</option>' +
-                    '<option value="custom">Custom Range...</option>' +
+                    '<option value="7days">7 Days</option>' +
+                    '<option value="month">Month</option>' +
+                    '<option value="custom">Custom</option>' +
                     '</select>');
 
                 // --- Inputs Styling ---
                 $gte.addClass('form-control form-control-sm date-input');
                 $lte.addClass('form-control form-control-sm date-input');
+                $gte.attr('placeholder', 'Start'); // Short placeholder
+                $lte.attr('placeholder', 'End');
 
-                // Insert Dropdown
+                // Insert Dropdown INSIDE the flex container (at start)
                 if ($controls.length) {
-                    $controls.before($select);
+                    $controls.prepend($select);
                 } else {
                     $gte.before($select);
                 }
@@ -61,10 +64,8 @@
 
                 if (gteVal || lteVal) {
                     $select.val('custom');
-                    $controls.css('display', 'inline-flex'); // Ensure flex
                 } else {
                     $select.val('any');
-                    $controls.hide();
                 }
 
                 // Event Listener
@@ -73,7 +74,7 @@
                     var today = new Date();
 
                     if (val === 'custom') {
-                        $controls.css('display', 'inline-flex').hide().fadeIn();
+                        // Inputs are always visible in our new layout, just ensure they are enabled/cleared if needed
                     } else {
                         if (val === 'any') {
                             $gte.val('');
@@ -114,6 +115,7 @@
         }
 
         initDateRangeDropdown();
+        // Re-run safely for dynamic content
         setTimeout(initDateRangeDropdown, 500);
     });
 })(django.jQuery);

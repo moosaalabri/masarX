@@ -211,39 +211,58 @@ body.model-platformprofile label[for="id_admin_panel_logo"] {
 
 /* --- Date Range Filter Styling (Compact & Horizontal) --- */
 
-/* The dropdown we injected */
-.admin-date-dropdown {
-    width: auto !important;
-    min-width: 120px;
-    display: inline-block !important;
-    margin-bottom: 5px; /* Spacing if it wraps */
-    margin-left: 5px;   /* Spacing for RTL (since we use float/flex) */
-}
+/* 
+   We want the [Select] [Start] [End] to all appear on ONE line in the sidebar.
+   This requires aggressive flex styling and width control.
+*/
 
-/* The container of inputs (From/To) */
+/* 1. Flex Container */
 .admindatefilter .controls.date-filter-controls {
-    display: inline-flex !important;
+    display: flex !important;
+    flex-direction: row !important;
     align-items: center !important;
     flex-wrap: nowrap !important;
-    gap: 5px;
+    gap: 2px !important;
+    width: 100% !important;
+    padding: 0 !important;
+    border: none !important;
+    font-size: 0 !important; /* Hide text nodes (dashes/spaces) between inputs */
 }
 
-/* The actual date inputs */
-.admindatefilter .date-input {
-    width: 90px !important; /* Force small width */
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-}
-
-/* Ensure the whole filter block flows nicely if possible */
-.admindatefilter {
-    display: block; /* Default block in sidebar */
-}
-
-/* If filters are in a horizontal top bar (Jazzmin tweaks), ensure they flow */
-.filter-wrapper .admindatefilter {
+/* 2. Dropdown (Quick Select) */
+.admindatefilter select.admin-date-dropdown {
+    width: 32% !important;
+    min-width: 0 !important;
+    height: 30px !important;
+    padding: 0px 4px !important;
+    font-size: 11px !important;
+    margin: 0 !important;
     display: inline-block !important;
-    vertical-align: top;
+    flex-shrink: 0 !important;
+}
+
+/* 3. Inputs (From / To) */
+.admindatefilter .date-input {
+    width: 33% !important;
+    min-width: 0 !important;
+    height: 30px !important;
+    padding: 4px !important;
+    font-size: 11px !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    flex-shrink: 1 !important;
+}
+
+/* Hide any <br> tags injected by admin templates */
+.admindatefilter br {
+    display: none !important;
+}
+
+/* Ensure the wrapper allows full width */
+.admindatefilter {
+    width: 100% !important;
+    display: block !important;
+    box-sizing: border-box !important;
 }
 
 /* --- Search Box RTL/LTR Border Radius Handling --- */
@@ -274,8 +293,6 @@ body.model-platformprofile label[for="id_admin_panel_logo"] {
 
 /* --- Admin Panel RTL Sidebar Override (Agresive) --- */
 
-/* We use [dir="rtl"] selector which should be on html tag */
-
 @media (min-width: 992px) {
     /* Main Sidebar */
     [dir="rtl"] .main-sidebar {
@@ -297,7 +314,7 @@ body.model-platformprofile label[for="id_admin_panel_logo"] {
     /* Collapsed Sidebar State */
     [dir="rtl"].sidebar-collapse .main-sidebar {
         margin-left: 0 !important;
-        margin-right: 0 !important; /* AdminLTE collapses by width, not margin usually, but ensure position matches */
+        margin-right: 0 !important;
         width: 4.6rem !important;
     }
 
@@ -322,21 +339,11 @@ body.model-platformprofile label[for="id_admin_panel_logo"] {
     
     /* Navbar alignment */
     [dir="rtl"] .navbar-nav {
-        flex-direction: row; /* bootstrap default, but ensure items flow right to left visually */
+        flex-direction: row; 
     }
     [dir="rtl"] .navbar-nav .nav-item {
         float: right; 
     }
-    
-    /* Right side navbar items (user menu etc) should be on left now? 
-       In RTL, "ml-auto" (margin-left: auto) pushes items to the LEFT. 
-       Jazzmin uses ml-auto for the user menu. 
-       In RTL, we want them on the LEFT. 
-       Bootstrap 4 RTL support usually flips ml-auto to mr-auto, 
-       but if we are running LTR bootstrap in RTL mode, ml-auto pushes to Right.
-       Wait, ml-auto = margin-left: auto. In LTR, this pushes to Right.
-       In RTL, we want these items on the LEFT. So we need margin-right: auto.
-    */
     
     [dir="rtl"] .ml-auto {
         margin-left: 0 !important;
@@ -352,7 +359,7 @@ body.model-platformprofile label[for="id_admin_panel_logo"] {
 /* Sidebar Navigation Items RTL */
 [dir="rtl"] .nav-sidebar .nav-item > .nav-link {
     display: flex !important;
-    flex-direction: row !important; /* Standard flow: RTL = Start(Right) to End(Left) */
+    flex-direction: row !important; 
     align-items: center !important;
 }
 
@@ -368,11 +375,11 @@ body.model-platformprofile label[for="id_admin_panel_logo"] {
     width: 100% !important;
 }
 
-/* Fix sidebar angle icon (arrow) */
+/* Fix sidebar angle icon */
 [dir="rtl"] .nav-sidebar .nav-icon.fa-angle-left {
     transform: rotate(180deg);
     margin-left: 0 !important;
-    margin-right: auto !important; /* Push to the far left */
+    margin-right: auto !important; 
 }
 
 /* General Utils */
